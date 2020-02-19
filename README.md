@@ -7,6 +7,10 @@ http://cs107e.github.io/resources/
 CS107E: Raspberry Pi 1 Model A+, BCM 2835
 https://www.raspberrypi.org/products/raspberry-pi-1-model-a-plus/
 
+## Setup
+
+http://cs107e.github.io/guides/install/
+
 `source ./setup.sh`
 
 ## Raspberry PI
@@ -19,17 +23,14 @@ BCM 2835 手册勘误表：https://elinux.org/BCM2835_datasheet_errata#p96
 
 ## ARM
 
+- 所有的 ARM 指令都可以条件执行
+
 反汇编，对于 object 文件，直接使用 `arm-none-eabi-objdump --no-show-raw-insn -d input.o`，有时候会需要使用 `-m arm` 来指定 architecture。
 
 如果是 binary 文件，先使用 `arm-none-eabi-objcopy -I binary -O elf32-littlearm input.bin output.o` 得到 object 文件。
 
 ARM 立即数的编码，实际上是 8 位的值加上 4 位的 rotate。
 https://alisdair.mcdiarmid.org/arm-immediate-value-encoding/#play-with-it
-
-## ARM
-
-- 所有的 ARM 指令都可以条件执行
-
 
 ## Week 1: Introduction and Welcome
 

@@ -7,7 +7,7 @@ static volatile uint32_t *SET0 = (uint32_t *)0x2020001c;
 static volatile uint32_t *CLR0 = (uint32_t *)0x20200028;
 
 int main() {
-  int volatile i;
+  volatile int  i;
 
   // configure GPIO 20 for output
   *FSEL2 = 1;
