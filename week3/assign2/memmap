@@ -1,6 +1,6 @@
 SECTIONS
 {
-    .text 0x80000 :  { start.o(.text*)  *(.text*) }
+    .text 0x8000 :  { start.o(.text*)  *(.text*) }
     .data :         { *(.data*) }
     .rodata :       { *(.rodata*) }
 

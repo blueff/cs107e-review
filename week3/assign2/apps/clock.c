@@ -34,78 +34,10 @@ static void clear() {
   }
 }
 
-static void display_char(int digit_index, char c) {
+static void display_bit_pattern(int digit_index, u8 pattern) {
   clear();
 
   gpio_write(10 + digit_index, 1);
-
-  u8 pattern = 0;
-
-  if(c == '0') {
-    pattern = 0x3f;
-  } else if(c == '1') {
-    pattern = 0x30;
-  } else if(c == '2') {
-    pattern = 0x5b;
-  } else if(c == '3') {
-    pattern = 0x4f;
-  } else if(c == '4') {
-    pattern = 0x66;
-  } else if(c == '5') {
-    pattern = 0x6d;
-  } else if(c == '6') {
-    pattern = 0x7d;
-  } else if(c == '7') {
-    pattern = 0x07;
-  } else if(c == '8') {
-    pattern = 0x7f;
-  } else if(c == '9') {
-    pattern = 0x6f;
-  } else if(c == '-') {
-    pattern = 0x40;
-  }
-
-  /* switch(pattern_index) { */
-  /*   case 0: { */
-  /*     pattern = 0x3f; */
-  /*   } break; */
-
-  /*   case 1: { */
-  /*     pattern = 0x30; */
-  /*   } break; */
-
-  /*   case 2: { */
-  /*     pattern = 0x5b; */
-  /*   } break; */
-
-  /*   case 3: { */
-  /*     pattern = 0x4f; */
-  /*   } break; */
-
-  /*   case 4: { */
-  /*     pattern = 0x66; */
-  /*   } break; */
-
-  /*   case 5: { */
-  /*     pattern = 0x6d; */
-  /*   } break; */
-
-  /*   case 6: { */
-  /*     pattern = 0x7d; */
-  /*   } break; */
-
-  /*   case 7: { */
-  /*     pattern = 0x07; */
-  /*   } break; */
-
-  /*   case 8: { */
-  /*     pattern = 0x7f; */
-  /*   } break; */
-
-  /*   case 9: { */
-  /*     pattern = 0x6f; */
-  /*   } break; */
-  /* } */
 
   for(int i = 0; i < 8; i++) {
     if(pattern & (1 << i)) {
@@ -114,8 +46,24 @@ static void display_char(int digit_index, char c) {
   }
 }
 
+static void display_char(int digit_index, char c) {
+  u8 pattern = 0;
+
+  if(c >= '0' && c <= '9') {
+    pattern = bit_patterns[c - '0'];
+  } else if(c >= 'A' && c <= 'F') {
+    pattern = bit_patterns[10 + c - 'A'];
+  } else if(c == '-') {
+    pattern = bit_patterns[16];
+  }
+
+  if(pattern != 0) {
+    display_bit_pattern(digit_index, pattern);
+  }
+}
+
 static void display_number(int digit_index, int num) {
-  display_char(digit_index, '0' + num);
+  display_bit_pattern(digit_index, bit_patterns[num]);
 }
 
 void main(void) {

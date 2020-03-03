@@ -27,7 +27,7 @@ BCM 2835 手册勘误表：https://elinux.org/BCM2835_datasheet_errata#p96
 
 - 所有的 ARM 指令都可以条件执行
 
-反汇编，对于 object 文件，直接使用 `arm-none-eabi-objdump --no-show-raw-insn -d input.o`，有时候会需要使用 `-m arm` 来指定 architecture。
+反汇编，对于 object 文件，使用 `arm-none-eabi-objdump --no-show-raw-insn -d input.o`，有时候会需要使用 `-m arm` 来指定 architecture。
 
 如果是 binary 文件，使用 `arm-none-eabi-objdump -b binary -D -marm input.bin`。
 

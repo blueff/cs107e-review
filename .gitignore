@@ -1,5 +1,7 @@
 .DS_Store
 *.o
 *.bin
-!misc/*
+*.list
+*.elf
 .tags
+
