@@ -10,7 +10,6 @@ My study note of the awesome course [CS107E Winter 2020](http://cs107e.github.io
 
 <!-- vim-markdown-toc GFM -->
 
-* [Setup](#setup)
 * [Week1: Introduction and Welcome](#week1-introduction-and-welcome)
   * [Raspberry Pi](#raspberry-pi)
   * [ARM processor and architecture](#arm-processor-and-architecture)
@@ -36,10 +35,6 @@ My study note of the awesome course [CS107E Winter 2020](http://cs107e.github.io
 
 <!-- vim-markdown-toc -->
 
-## Setup
-
-`source ./setup.sh`
-
 ## Week1: Introduction and Welcome
 
 [List of electronic parts we will use in this course](https://cs107e.github.io/guides/bom/).
@@ -49,7 +44,7 @@ My study note of the awesome course [CS107E Winter 2020](http://cs107e.github.io
 - [Pinout.xyz](https://pinout.xyz/): online website
 - [Pinout.pdf](http://cs107e.github.io/guides/images/pinout.pdf): PDF document
 
-The raspberry model we are gonna use is [Raspberry Pi 1 Model A+](https://www.raspberrypi.org/products/raspberry-pi-1-model-a-plus/).
+The Raspberry Pi model we are gonna use is [Raspberry Pi 1 Model A+](https://www.raspberrypi.org/products/raspberry-pi-1-model-a-plus/).
 
 Must stick with this version otherwise the code might not work.
 
@@ -126,7 +121,7 @@ From this documentation, we can know that __every ARM instruction can be conditi
 
 > The ARM instruction set encodes immediate values in an unusual way. It's typical of the design of the processor architecture: elegant, pragmatic, and quirky. Despite only using 12 bits of instruction space, the immediate value can represent a useful set of 32-bit constants.
 
-Basically, instead of using 12-bit to represent a number, ARM uses 8-bit for the number and 4-bit for rotating the number. By using this approach, it can represent a large set of useful 32-bit values.
+Basically, instead of using 12-bit to represent a number, ARM uses 8-bit for the number and 4-bit for rotation. By using this approach, it can represent a large set of useful 32-bit values.
 
 ### Lab1
 
@@ -145,8 +140,6 @@ Tada! 🎉 What a fun button ever! NOTE: We need to have a 10k pull-up resistor.
 ### Assignment1
 
 #### A simple Larson Scanner
-
-The simple Larson scanner is easy.
 
 1. Configure GPIO 20 ~ 27 to output mode
 2. Set current gpio pin for a while then clear it
