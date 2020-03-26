@@ -1,7 +1,14 @@
 #include "printf_internal.h"
 #include "printf.h"
+#include "strings.h"
+#include <stdarg.h>
 
 #define MAX(x, y) ((x) <= (y) ? y: x)
+
+void panic() {
+  while(1) {
+  }
+}
 
 int number_to_base(
   char *buf,
@@ -81,4 +88,139 @@ int signed_to_base(
     val < 0 ? -val : val, base, min_width,
     val < 0 ? 1 : 0
   );
+}
+
+// return how many bytes actually are written
+int memncpy(char *dst, char *src, int dst_size, int src_size) {
+  if(src_size <= dst_size) {
+    memcpy(dst, src, src_size);
+    return src_size;
+  }
+
+  memcpy(dst, src, dst_size);
+  return dst_size;
+}
+
+// return 0 or 1
+int putchar(char *dst, char c, int dst_size) {
+  if(dst_size > 0) {
+    *dst = c;
+    return 1;
+  }
+
+  return 0;
+}
+
+inline int
+is_number_char(char c) {
+  return c >= '0' && c <= '9';
+}
+
+int snprintf(
+  char *buf,
+  size_t bufsize,
+  const char *format,
+  ...
+) {
+  if(bufsize == 0) return;
+
+  va_list ap;
+  va_start(ap, buf);
+
+  int result = 0;
+  int written = 0;
+  char *start = (char *)format;
+  char *end = (char *)format;
+  char cur;
+
+  while((cur = *end) != 0) {
+    if(cur != '%') {
+      end++;
+      continue;
+    };
+
+    if(start != end) {
+      result += end - start;
+      written += memncpy(buf + written, start, bufsize - written - 1, end - start);
+    }
+
+    end++;
+    cur = *end;
+
+    // %%, %c
+    if(cur == '%' || cur == 'c') {
+      // NOTE: default argument promotions
+      // https://stackoverflow.com/questions/1255775/default-argument-promotions-in-c-function-calls
+      char c = cur == '%' ? '%' : (char)va_arg(ap, int);
+      written += putchar(buf + written, c, bufsize - written - 1);
+      result += 1;
+    }
+
+    // %s
+    else if(cur == 's') {
+      char *str = va_arg(ap, char *);
+      size_t len = strlen(str);
+      int w = memncpy(buf + written, str, bufsize - written - 1, len);
+      written += w;
+      result += len;
+      if(written == bufsize - 1) {
+        buf[bufsize - 1] = 0;
+        return result;
+      }
+    }
+
+    // %d, %x with optional width
+    else if(cur == 'd' || cur == 'x' || is_number_char(cur)) {
+      unsigned int width = 0;
+
+      if(is_number_char(cur)) {
+        // NOTE: assume this is enough
+        char tmp[64];
+        char *tp = tmp;
+
+        while(is_number_char(*end)) {
+          *tp++ = *end++;
+        }
+        *tp = 0;
+        cur = *end;
+
+        if(cur == 'd' || cur == 'x') {
+          char *endptr;
+          width = strtonum(tmp, &endptr);
+
+          // invalid digit string
+          if(endptr != tp) {
+            panic();
+          }
+        } else {
+          panic();
+        }
+      }
+
+      int value = va_arg(ap, int);
+      int capacity = bufsize - written;
+      int c = signed_to_base(buf + written, capacity, value, cur == 'd' ? 10 : 16, width);
+      result += c;
+
+      if(c >= capacity - 1) {
+        return result;
+      } else {
+        written += c;
+      }
+    } else {
+      panic();
+    }
+
+    end++;
+    start = end;
+  }
+
+  if(start != end) {
+    result += end - start;
+    written += memncpy(buf + written, start, bufsize - written - 1, end - start);
+  }
+
+  buf[written] = 0;
+
+  return result;
 }

@@ -178,7 +178,7 @@ void test_strings() {
   }
 }
 
-void test_printf(void) {
+void test_helpers(void) {
   // unsigned_to_base
   {
     char buf[20];
@@ -207,6 +207,10 @@ void test_printf(void) {
     result = unsigned_to_base(buf, 2, 64, 10, 4);
     assert(result = 4);
     assert(strcmp(buf, "0") == 0);
+
+    result = unsigned_to_base(buf, 4, 64, 10, 4);
+    assert(result = 4);
+    assert(strcmp(buf, "006") == 0);
 
     result = unsigned_to_base(buf, 1, 64, 10, 4);
     assert(result = 4);
@@ -264,7 +268,103 @@ void test_printf(void) {
   }
 }
 
+void test_snprintf(void) {
+  int result;
+
+  // no formatting codes
+  {
+    char buf[10];
+    char *str = "hello";
+    result = snprintf(buf, sizeof(buf), str);
+    assert(result == strlen(str));
+    assert(strcmp(buf, str) == 0);
+
+    str = "hellohellohello";
+    result = snprintf(buf, sizeof(buf), str);
+    assert(result == strlen(str));
+    assert(strcmp(buf, "hellohell") == 0);
+  }
+
+  // %%, %c
+  {
+    char buf[10];
+    result = snprintf(buf, sizeof(buf), "hello%%");
+    assert(result == 6);
+    assert(strcmp(buf, "hello%") == 0);
+
+    result = snprintf(buf, sizeof(buf), "hello%c%c", 'A', 'B');
+    assert(result == 7);
+    assert(strcmp(buf, "helloAB") == 0);
+
+    result = snprintf(buf, sizeof(buf), "%c%c = 100%% fresh", 'C', 'S');
+    assert(result == 15);
+    assert(strcmp(buf, "CS = 100%") == 0);
+  }
+
+  // %s
+  {
+    char buf[20];
+    result = snprintf(buf, sizeof(buf), "hello:%s", "world");
+    assert(result == 11);
+    assert(strcmp(buf, "hello:world") == 0);
+
+    result = snprintf(buf, sizeof(buf), "hello, %s, %s", "world", "good morning!");
+    assert(result == 27);
+    assert(strcmp(buf, "hello, world, good ") == 0);
+
+    {
+      char buf[11];
+      result = snprintf(buf, sizeof(buf), "hello%s", "world");
+      assert(result == 10);
+      assert(strcmp(buf, "helloworld") == 0);
+    }
+  }
+
+  // plain %d, %x
+  {
+    char buf[5];
+
+    result = snprintf(buf, sizeof(buf), "%d", 100);
+    assert(result == 3);
+    assert(strcmp(buf, "100") == 0);
+
+    result = snprintf(buf, sizeof(buf), "n:%d", 123);
+    assert(result == 5);
+    assert(strcmp(buf, "n:12") == 0);
+
+    result = snprintf(buf, sizeof(buf), "%x", 64);
+    assert(result == 2);
+    assert(strcmp(buf, "40") == 0);
+
+    result = snprintf(buf, sizeof(buf), "n:%x", 2048);
+    assert(result == 5);
+    assert(strcmp(buf, "n:80") == 0);
+  }
+
+  // %d, %x with width
+  {
+    char buf[10];
+
+    result = snprintf(buf, sizeof(buf), "%1d", 100);
+    assert(result == 3);
+    assert(strcmp(buf, "100") == 0);
+
+    result = snprintf(buf, sizeof(buf), "%5d", 100);
+    assert(result == 5);
+    assert(strcmp(buf, "00100") == 0);
+
+    result = snprintf(buf, sizeof(buf), "%1x", 64);
+    assert(result == 2);
+    assert(strcmp(buf, "40") == 0);
+
+    result = snprintf(buf, sizeof(buf), "%5x", 128);
+    assert(result == 5);
+    assert(strcmp(buf, "00080") == 0);
+  }
+}
+
 void main(void) {
   /* test_strings(); */
-  test_printf();
+  /* test_helpers(); */
+  test_snprintf();
 }
