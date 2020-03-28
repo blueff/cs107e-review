@@ -91,7 +91,7 @@ int signed_to_base(
 }
 
 // return how many bytes actually are written
-int memncpy(char *dst, char *src, int dst_size, int src_size) {
+size_t memncpy(char *dst, char *src, size_t dst_size, size_t src_size) {
   if(src_size <= dst_size) {
     memcpy(dst, src, src_size);
     return src_size;
@@ -128,7 +128,7 @@ int snprintf(
   va_start(ap, buf);
 
   int result = 0;
-  int written = 0;
+  size_t written = 0;
   char *start = (char *)format;
   char *end = (char *)format;
   char cur;
@@ -160,7 +160,7 @@ int snprintf(
     else if(cur == 's') {
       char *str = va_arg(ap, char *);
       size_t len = strlen(str);
-      int w = memncpy(buf + written, str, bufsize - written - 1, len);
+      size_t w = memncpy(buf + written, str, bufsize - written - 1, len);
       written += w;
       result += len;
       if(written == bufsize - 1) {
@@ -198,7 +198,7 @@ int snprintf(
       }
 
       int value = va_arg(ap, int);
-      int capacity = bufsize - written;
+      size_t capacity = bufsize - written;
       int c = signed_to_base(buf + written, capacity, value, cur == 'd' ? 10 : 16, width);
       result += c;
 
@@ -207,7 +207,31 @@ int snprintf(
       } else {
         written += c;
       }
-    } else {
+    }
+
+    // %p
+    // outputs an address as a width-8 hexadecimal string prefixed with 0x, e.g. 0x20200004
+    else if (cur == 'p') {
+      size_t capacity = bufsize - written;
+
+      result += 2;
+      if(capacity >= 3) {
+        memcpy(buf + written, "0x", 2);
+        written += 2;
+        capacity -= 2;
+      }
+
+      unsigned int addr = va_arg(ap, unsigned int);
+      int c = unsigned_to_base(buf + written, capacity, addr, 16, 8);
+      result += c;
+      if(c >= capacity - 1) {
+        return result;
+      } else {
+        written += c;
+      }
+    }
+
+    else {
       panic();
     }
 

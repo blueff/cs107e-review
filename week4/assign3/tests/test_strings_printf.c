@@ -361,6 +361,23 @@ void test_snprintf(void) {
     assert(result == 5);
     assert(strcmp(buf, "00080") == 0);
   }
+
+  // %p
+  {
+    char buf[15];
+
+    result = snprintf(buf, sizeof(buf), "%p", 0xa);
+    assert(result == 10);
+    assert(strcmp(buf, "0x0000000a") == 0);
+
+    result = snprintf(buf, sizeof(buf), "%p", 0xabcd);
+    assert(result == 10);
+    assert(strcmp(buf, "0x0000abcd") == 0);
+
+    result = snprintf(buf, sizeof(buf), "addr:%p", 0x12345);
+    assert(result == 15);
+    assert(strcmp(buf, "addr:0x0001234") == 0);
+  }
 }
 
 void main(void) {
