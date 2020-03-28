@@ -362,26 +362,55 @@ void test_snprintf(void) {
     assert(strcmp(buf, "00080") == 0);
   }
 
+  // %d, %x with invalid numbers
+  {
+    char buf[10];
+
+    result = snprintf(buf, sizeof(buf), "%1yzd");
+    assert(result == 5);
+    assert(strcmp(buf, "%1yzd") == 0);
+
+    result = snprintf(buf, sizeof(buf), "%20mx");
+    assert(result == 5);
+    assert(strcmp(buf, "%20mx") == 0);
+  }
+
   // %p
   {
     char buf[15];
 
-    result = snprintf(buf, sizeof(buf), "%p", 0xa);
+    result = snprintf(buf, sizeof(buf), "%p", (void *)0xa);
     assert(result == 10);
     assert(strcmp(buf, "0x0000000a") == 0);
 
-    result = snprintf(buf, sizeof(buf), "%p", 0xabcd);
+    result = snprintf(buf, sizeof(buf), "%p", (void *)0xabcd);
     assert(result == 10);
     assert(strcmp(buf, "0x0000abcd") == 0);
 
-    result = snprintf(buf, sizeof(buf), "addr:%p", 0x12345);
+    result = snprintf(buf, sizeof(buf), "addr:%p", (void *)0x12345);
     assert(result == 15);
     assert(strcmp(buf, "addr:0x0001234") == 0);
+  }
+
+  // invalid conversions
+  {
+    char buf[10];
+    result = snprintf(buf, sizeof(buf), "%a");
+    assert(result == 2);
+    assert(strcmp(buf, "%a") == 0);
+  }
+
+  // all mixed
+  {
+    char buf[1024];
+
+    snprintf(buf, sizeof(buf), "hello, this is a char: %c, a string: %s, an integer: %4d, a hex: %6x, a pointer: %p, and %%", 'X', "hello", 100, 200, 0x123);
+    assert(strcmp(buf, "hello, this is a char: X, a string: hello, an integer: 0100, a hex: 0000c8, a pointer: 0x00000123, and %") == 0);
   }
 }
 
 void main(void) {
-  /* test_strings(); */
-  /* test_helpers(); */
+  test_strings();
+  test_helpers();
   test_snprintf();
 }

@@ -102,7 +102,7 @@ size_t memncpy(char *dst, char *src, size_t dst_size, size_t src_size) {
 }
 
 // return 0 or 1
-int putchar(char *dst, char c, int dst_size) {
+size_t putchar(char *dst, char c, size_t dst_size) {
   if(dst_size > 0) {
     *dst = c;
     return 1;
@@ -122,10 +122,20 @@ int snprintf(
   const char *format,
   ...
 ) {
-  if(bufsize == 0) return;
-
   va_list ap;
   va_start(ap, buf);
+  return vsnprintf(buf, bufsize, format, ap);
+}
+
+// for invaid format conversions
+// will copy it as is
+int vsnprintf(
+  char *buf,
+  size_t bufsize,
+  const char *format,
+  va_list ap
+) {
+  if(bufsize == 0) return;
 
   int result = 0;
   size_t written = 0;
@@ -172,6 +182,7 @@ int snprintf(
     // %d, %x with optional width
     else if(cur == 'd' || cur == 'x' || is_number_char(cur)) {
       unsigned int width = 0;
+      int is_valid = 1;
 
       if(is_number_char(cur)) {
         // NOTE: assume this is enough
@@ -188,24 +199,36 @@ int snprintf(
           char *endptr;
           width = strtonum(tmp, &endptr);
 
-          // invalid digit string
+          // should never happen
           if(endptr != tp) {
             panic();
           }
         } else {
-          panic();
+          is_valid = 0;
+
+          *tp++ = cur;
+          *tp = 0;
+
+          result += 1;
+          written += putchar(buf + written, '%', bufsize - written - 1);
+
+          int tmp_length = tp - tmp;
+          written += memncpy(buf + written, tmp, bufsize - written - 1, tmp_length);
+          result += tmp_length;
         }
       }
 
-      int value = va_arg(ap, int);
-      size_t capacity = bufsize - written;
-      int c = signed_to_base(buf + written, capacity, value, cur == 'd' ? 10 : 16, width);
-      result += c;
+      if(is_valid) {
+        int value = va_arg(ap, int);
+        size_t capacity = bufsize - written;
+        int c = signed_to_base(buf + written, capacity, value, cur == 'd' ? 10 : 16, width);
+        result += c;
 
-      if(c >= capacity - 1) {
-        return result;
-      } else {
-        written += c;
+        if(c >= capacity - 1) {
+          return result;
+        } else {
+          written += c;
+        }
       }
     }
 
@@ -231,8 +254,12 @@ int snprintf(
       }
     }
 
+    // invalid format conversions
+    // copy it as is
     else {
-      panic();
+      result += 2;
+      written += putchar(buf + written, '%', bufsize - written - 1);
+      written += putchar(buf + written, cur, bufsize - written - 1);
     }
 
     end++;
@@ -247,4 +274,12 @@ int snprintf(
   buf[written] = 0;
 
   return result;
+}
+
+int printf(const char *format, ...) {
+  char buf[1024];
+  va_list ap;
+  va_start(ap, buf);
+  int result = vsnprintf(buf, sizeof(buf), format, ap);
+  uart_putstring(buf);
 }
