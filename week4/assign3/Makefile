@@ -14,6 +14,9 @@ disassemble.bin: $(disassemble.bin)
 disassemble: $(disassemble.bin)
 	rpi-install.py -p $<
 
+disassemble.gdb: $(disassemble.bin)
+	arm-none-eabi-gdb apps/disassemble.elf
+
 %.bin: %.elf
 	arm-none-eabi-objcopy $< -O binary $@
 
@@ -35,7 +38,7 @@ test: $(test.bin)
 	rpi-install.py $<
 .PHONY: test
 
-gdb: $(test.bin)
+test.gdb: $(test.bin)
 	arm-none-eabi-gdb tests/test_strings_printf.elf
 .PHONY: gdb
 

@@ -286,11 +286,23 @@ int vsnprintf(
   return result;
 }
 
+#define GDB_DEBUG 1
+
+#ifdef GDB_DEBUG
+char __stdout[1024*1024] = {};
+#endif
+
 int printf(const char *format, ...) {
   char buf[1024];
   va_list ap;
   va_start(ap, format);
   int result = vsnprintf(buf, sizeof(buf), format, ap);
+
+#ifdef GDB_DEBUG
+  strlcat(__stdout, buf, sizeof(__stdout));
+#else
   uart_putstring(buf);
+#endif
+
   return result;
 }

@@ -472,6 +472,14 @@ NOTE: The function's behavior for an invalid format conversion is undefined. You
 
 #### Disassembler extension
 
+https://www.scss.tcd.ie/~waldroj/3d1/arm_arm.pdf
+
+debug
+
+```
+(gdb) printf "%s", __stdout
+```
+
 ## ARM Tips
 
 - Disassemble object file: `arm-none-eabi-objdump -D input.o`.
