@@ -23,6 +23,7 @@
  *   %s    string
  *   %d    signed decimal integer
  *   %x    unsigned hexadecimal integer (hex letters in lowercase)
+ *   %b    unsigned binary integer
  *   %p    pointer (printed as a hex address)
  *   %%    used to output a single percent character
  *

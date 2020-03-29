@@ -1,7 +1,8 @@
+#include <stdarg.h>
+#include <uart.h>
 #include "printf_internal.h"
 #include "printf.h"
 #include "strings.h"
-#include <stdarg.h>
 
 #define MAX(x, y) ((x) <= (y) ? y: x)
 
@@ -91,21 +92,15 @@ int signed_to_base(
 }
 
 // return how many bytes actually are written
-size_t memncpy(char *dst, char *src, size_t dst_size, size_t src_size) {
-  if(src_size <= dst_size) {
+size_t memncpy(char *dst, char *src, size_t dst_size_plus_one, size_t src_size) {
+  if(src_size + 1 <= dst_size_plus_one) {
     memcpy(dst, src, src_size);
     return src_size;
   }
 
-  memcpy(dst, src, dst_size);
-  return dst_size;
-}
-
-// return 0 or 1
-size_t putchar(char *dst, char c, size_t dst_size) {
-  if(dst_size > 0) {
-    *dst = c;
-    return 1;
+  if(dst_size_plus_one > 1) {
+    memcpy(dst, src, dst_size_plus_one - 1);
+    return dst_size_plus_one - 1;
   }
 
   return 0;
@@ -123,7 +118,7 @@ int snprintf(
   ...
 ) {
   va_list ap;
-  va_start(ap, buf);
+  va_start(ap, format);
   return vsnprintf(buf, bufsize, format, ap);
 }
 
@@ -135,8 +130,6 @@ int vsnprintf(
   const char *format,
   va_list ap
 ) {
-  if(bufsize == 0) return;
-
   int result = 0;
   size_t written = 0;
   char *start = (char *)format;
@@ -151,7 +144,7 @@ int vsnprintf(
 
     if(start != end) {
       result += end - start;
-      written += memncpy(buf + written, start, bufsize - written - 1, end - start);
+      written += memncpy(buf + written, start, bufsize - written, end - start);
     }
 
     end++;
@@ -162,25 +155,27 @@ int vsnprintf(
       // NOTE: default argument promotions
       // https://stackoverflow.com/questions/1255775/default-argument-promotions-in-c-function-calls
       char c = cur == '%' ? '%' : (char)va_arg(ap, int);
-      written += putchar(buf + written, c, bufsize - written - 1);
       result += 1;
+      if(written + 1 < bufsize) {
+        buf[written++] = c;
+      }
     }
 
     // %s
     else if(cur == 's') {
       char *str = va_arg(ap, char *);
       size_t len = strlen(str);
-      size_t w = memncpy(buf + written, str, bufsize - written - 1, len);
+      size_t w = memncpy(buf + written, str, bufsize - written, len);
       written += w;
       result += len;
-      if(written == bufsize - 1) {
+      if(written + 1 == bufsize) {
         buf[bufsize - 1] = 0;
         return result;
       }
     }
 
-    // %d, %x with optional width
-    else if(cur == 'd' || cur == 'x' || is_number_char(cur)) {
+    // %d, %x, %b with optional width
+    else if(cur == 'd' || cur == 'x' || cur == 'b' || is_number_char(cur)) {
       unsigned int width = 0;
       int is_valid = 1;
 
@@ -195,8 +190,8 @@ int vsnprintf(
         *tp = 0;
         cur = *end;
 
-        if(cur == 'd' || cur == 'x') {
-          char *endptr;
+        if(cur == 'd' || cur == 'x' || cur == 'b') {
+          const char *endptr;
           width = strtonum(tmp, &endptr);
 
           // should never happen
@@ -210,21 +205,30 @@ int vsnprintf(
           *tp = 0;
 
           result += 1;
-          written += putchar(buf + written, '%', bufsize - written - 1);
+          if(written + 1 < bufsize) {
+            buf[written++] = '%';
+          }
 
           int tmp_length = tp - tmp;
-          written += memncpy(buf + written, tmp, bufsize - written - 1, tmp_length);
+          written += memncpy(buf + written, tmp, bufsize - written, tmp_length);
           result += tmp_length;
         }
       }
 
       if(is_valid) {
-        int value = va_arg(ap, int);
         size_t capacity = bufsize - written;
-        int c = signed_to_base(buf + written, capacity, value, cur == 'd' ? 10 : 16, width);
+        int c;
+        if(cur == 'd') {
+          int value = va_arg(ap, int);
+          c = signed_to_base(buf + written, capacity, value, 10, width);
+        } else {
+          unsigned int value = va_arg(ap, unsigned int);
+          c = unsigned_to_base(buf + written, capacity, value, cur == 'x' ? 16 : 2, width);
+        }
+
         result += c;
 
-        if(c >= capacity - 1) {
+        if(c + 1 >= capacity) {
           return result;
         } else {
           written += c;
@@ -247,7 +251,7 @@ int vsnprintf(
       unsigned int addr = va_arg(ap, unsigned int);
       int c = unsigned_to_base(buf + written, capacity, addr, 16, 8);
       result += c;
-      if(c >= capacity - 1) {
+      if(c + 1 >= capacity) {
         return result;
       } else {
         written += c;
@@ -258,8 +262,12 @@ int vsnprintf(
     // copy it as is
     else {
       result += 2;
-      written += putchar(buf + written, '%', bufsize - written - 1);
-      written += putchar(buf + written, cur, bufsize - written - 1);
+      if(written + 1 < bufsize) {
+        buf[written++] = '%';
+      }
+      if(written + 1 < bufsize) {
+        buf[written++] = cur;
+      }
     }
 
     end++;
@@ -268,10 +276,12 @@ int vsnprintf(
 
   if(start != end) {
     result += end - start;
-    written += memncpy(buf + written, start, bufsize - written - 1, end - start);
+    written += memncpy(buf + written, start, bufsize - written, end - start);
   }
 
-  buf[written] = 0;
+  if(bufsize > 0) {
+    buf[written] = 0;
+  }
 
   return result;
 }
@@ -279,7 +289,8 @@ int vsnprintf(
 int printf(const char *format, ...) {
   char buf[1024];
   va_list ap;
-  va_start(ap, buf);
+  va_start(ap, format);
   int result = vsnprintf(buf, sizeof(buf), format, ap);
   uart_putstring(buf);
+  return result;
 }

@@ -400,12 +400,42 @@ void test_snprintf(void) {
     assert(strcmp(buf, "%a") == 0);
   }
 
-  // all mixed
+  // overall
   {
     char buf[1024];
+    int result;
 
     snprintf(buf, sizeof(buf), "hello, this is a char: %c, a string: %s, an integer: %4d, a hex: %6x, a pointer: %p, and %%", 'X', "hello", 100, 200, (void *)0x123);
     assert(strcmp(buf, "hello, this is a char: X, a string: hello, an integer: 0100, a hex: 0000c8, a pointer: 0x00000123, and %") == 0);
+
+    buf[0] = 'x';
+    result = snprintf(buf, 0, "abcde");
+    assert(result == 5);
+    assert(buf[0] == 'x');
+  }
+
+  // %b
+  {
+    char buf[5];
+
+    // normal
+    result = snprintf(buf, sizeof(buf), "%b", 7);
+    assert(result == 3);
+    assert(strcmp(buf, "111") == 0);
+
+    result = snprintf(buf, sizeof(buf), "n:%b", 10);
+    assert(result == 6);
+    assert(strcmp(buf, "n:10") == 0);
+
+    // with width
+    result = snprintf(buf, sizeof(buf), "%4b", 2);
+    assert(result == 4);
+    assert(strcmp(buf, "0010") == 0);
+
+    // invalid width number
+    result = snprintf(buf, sizeof(buf), "%1mb");
+    assert(result == 4);
+    assert(strcmp(buf, "%1mb") == 0);
   }
 }
 
