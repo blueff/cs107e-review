@@ -38,8 +38,9 @@ My study note of the awesome course [CS107E Winter 2020](http://cs107e.github.io
     - [C-strings](#c-strings)
     - [Gdb and testing](#gdb-and-testing)
   - [Assignment 3](#assignment-3)
-    - [Strings](#strings)
-    - [Number to string helper functions](#number-to-string-helper-functions)
+    - [Strings module](#strings-module)
+    - [Number to string conversion helper functions](#number-to-string-conversion-helper-functions)
+    - [snprintf, vsnprintf and printf](#snprintf-vsnprintf-and-printf)
 - [ARM Tips](#arm-tips)
 
 <!-- /MarkdownTOC -->
@@ -435,7 +436,7 @@ Since I don't have the starter files, I have to build them by myself. Actually, 
 $ arm-none-eabi-ar -xv libpi.a timer.o gpio.o uart.o
 ```
 
-#### Strings
+#### Strings module
 
 The function prototypes in `strings.h` are very clear and helpful. So this is a fairly easy task.
 
@@ -443,9 +444,9 @@ We can utilize _TDD_ here. Write the tests first, then the implementation.
 
 Check the code [strings.c](./week4/assign3/strings.c).
 
-#### Number to string helper functions
+#### Number to string conversion helper functions
 
-Test, test and test! I thought this was an easy task, but it turned out I made tons of bugs. Luckily, I had plenty test cases and they just saved me.
+Test, test and test! I thought this was an easy task, but it turned out I made tons of bugs. Luckily, I wrote plenty test cases and they just saved me.
 
 One thing to note: **Be careful with unsigned int**. They will overflow and cause subtle bugs if you are careless.
 
@@ -456,7 +457,17 @@ for(int i = 0; i < limit - 1; i++) {
 }
 ```
 
-You are out of luck if limit is 0 😢.
+You are out of luck if `limit` is 0 😢.
+
+#### snprintf, vsnprintf and printf
+
+`vsnprintf` does all the heavy lifting. Stick to the awesome *strategies for success* and implement format conversions one by one with complete test cases.
+
+The code is not hard at all, you just need to be very careful about every operations you do.
+
+Check the code [printf.c](./week4/assign3/printf.c).
+
+NOTE: The function's behavior for an invalid format conversion is undefined. You can define your all behavior. In my code, all the invalid format conversions will be copy as is. e.g. `printf("%a") == "%a"`.
 
 ## ARM Tips
 

@@ -16,7 +16,7 @@ void main(void) {
   printf("FSEL2 value: 0x%x\n", *FSEL2);
 
   gpio_set_output(20);
-  gpio_set_output(22);
+  gpio_set_output(21);
 
   printf("FSEL2 value: 0x%x\n", *FSEL2);
   uart_putchar(EOT);
