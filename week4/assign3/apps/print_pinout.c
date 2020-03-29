@@ -1,7 +1,7 @@
-#include "uart.h"
-#include "timer.h"
-#include "gpio.h"
-#include "printf.h"
+#include <uart.h>
+#include <timer.h>
+#include <gpio.h>
+#include "../printf.h"
 
 typedef unsigned int u32;
 

@@ -1,8 +1,6 @@
 #ifndef PRINTF_H
 #define PRINTF_H
 
-1 + *123 = 145;
-
 /*
  * Functions for printing formatted strings.
  *

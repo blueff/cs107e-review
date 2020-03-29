@@ -40,7 +40,8 @@ My study note of the awesome course [CS107E Winter 2020](http://cs107e.github.io
   - [Assignment 3](#assignment-3)
     - [Strings module](#strings-module)
     - [Number to string conversion helper functions](#number-to-string-conversion-helper-functions)
-    - [snprintf, vsnprintf and printf](#snprintf-vsnprintf-and-printf)
+    - [Implement snprintf, vsnprintf and printf](#implement-snprintf-vsnprintf-and-printf)
+    - [Disassembler extension](#disassembler-extension)
 - [ARM Tips](#arm-tips)
 
 <!-- /MarkdownTOC -->
@@ -459,7 +460,7 @@ for(int i = 0; i < limit - 1; i++) {
 
 You are out of luck if `limit` is 0 😢.
 
-#### snprintf, vsnprintf and printf
+#### Implement snprintf, vsnprintf and printf
 
 `vsnprintf` does all the heavy lifting. Stick to the awesome *strategies for success* and implement format conversions one by one with complete test cases.
 
@@ -468,6 +469,8 @@ The code is not hard at all, you just need to be very careful about every operat
 Check the code [printf.c](./week4/assign3/printf.c).
 
 NOTE: The function's behavior for an invalid format conversion is undefined. You can define your all behavior. In my code, all the invalid format conversions will be copy as is. e.g. `printf("%a") == "%a"`.
+
+#### Disassembler extension
 
 ## ARM Tips
 
