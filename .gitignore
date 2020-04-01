@@ -3,5 +3,6 @@
 *.bin
 *.list
 *.elf
+*.out
 .tags
 

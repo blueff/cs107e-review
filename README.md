@@ -474,6 +474,10 @@ NOTE: The function's behavior for an invalid format conversion is undefined. You
 
 https://www.scss.tcd.ie/~waldroj/3d1/arm_arm.pdf
 
+```
+perl -e 'print pack "H*", "e3a0d302"' > a.out && arm-none-eabi-objdump -D -b binary -marm -EB
+```
+
 debug
 
 ```
