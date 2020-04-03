@@ -1,4 +1,4 @@
-CFLAGS = -I$(CS107E)/include -g -Wall -Og -std=c99 -ffreestanding
+CFLAGS = -I$(CS107E)/include -g -Wall -Wno-format -Og -std=c99 -ffreestanding
 LDFLAGS = -nostdlib -T memmap -L/usr/local/Cellar/arm-none-eabi/4.8.3-cs170e/lib/gcc/arm-none-eabi/4.8.3
 
 .PRECIOUS: %.elf
