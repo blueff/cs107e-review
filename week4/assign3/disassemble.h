@@ -4,6 +4,6 @@
 #include <stdint.h>
 #include <stddef.h>
 
-void disassemble(char *buf, size_t bufsize, uint32_t instruction);
+void disassemble(char *buf, size_t bufsize, uint32_t raw, uint32_t addr);
 
 #endif

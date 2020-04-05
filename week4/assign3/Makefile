@@ -15,11 +15,11 @@ disassemble_self.bin: $(disassemble.bin)
 disassemble_self: $(disassemble_self.bin)
 	rpi-install.py -p $<
 
-test_disassemble: $(test_disassemble.bin)
-	rpi-install.py -p $<
-
 disassemble_self.gdb: $(disassemble_self.bin)
 	arm-none-eabi-gdb apps/disassemble_self.elf
+
+test_disassemble: $(test_disassemble.bin)
+	rpi-install.py -p $<
 
 test_disassemble.gdb: $(test_disassemble.bin)
 	arm-none-eabi-gdb tests/test_disassemble.elf

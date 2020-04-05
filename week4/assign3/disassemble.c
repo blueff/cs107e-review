@@ -6,16 +6,16 @@
 #include "printf.h"
 
 typedef union {
-  uint32_t value;
+  uint32_t raw;
   struct {
-    uint32_t : 26;
-    uint32_t op : 2;
+    uint32_t : 25;
+    uint32_t main : 3;
     uint32_t cond : 4;
   };
 } arm_ins;
 
 typedef union {
-  uint32_t value;
+  uint32_t raw;
   struct {
     uint32_t shifter_operand : 12;
     uint32_t rd : 4;
@@ -358,7 +358,6 @@ disassemble_data_processing(
 
     case 0b1010: // cmp
     {
-      char *setStatus = ins.status ? "s" : "";
       char *cond = get_cond_name(ins.cond);
 
       char *operation = get_operation_name(ins.operation);
@@ -393,21 +392,127 @@ disassemble_data_processing(
   }
 }
 
+inline uint32_t
+calc_target_addr(uint32_t addr, int32_t offset) {
+  uint32_t result;
+  bool is_signed = (offset >> 23) == 1;
+  if(is_signed) {
+    offset = (0b111111 << 24) | offset;
+  }
+  offset <<= 2;
+  result = addr + offset + 8;
+  return result;
+}
+
+void disassemble_branch(
+  char *buf,
+  size_t bufsize,
+  uint32_t raw,
+  uint32_t addr) {
+  char *cond = get_cond_name(raw >> 28);
+  bool is_link = raw & (1 << 24);
+  uint32_t target_addr = calc_target_addr(addr, raw & 0xffffff);
+
+  snprintf(
+    buf,
+    bufsize,
+    "b%s%s 0x%x",
+    is_link ? "l" : "",
+    cond,
+    target_addr
+  );
+}
+
+inline void
+format_register_list(char *buf, size_t bufsize, uint32_t list) {
+  char *p = buf;
+  char *end = buf + bufsize;
+  bool is_first = true;
+  p += snprintf(p, end - p, "{");
+
+  for(int i = 0; i <= 15; i++) {
+    if(list & (1 << i)) {
+      if(is_first) {
+        is_first = false;
+      } else {
+        p += snprintf(p, end - p, ", ");
+      }
+      p += snprintf(p, end - p, "%s", get_register_name(i));
+    }
+  }
+
+  snprintf(p, end - p, "}");
+}
+
 void
-disassemble(char *buf, size_t bufsize, uint32_t value) {
+disassemble_load_store_multiple(char *buf, size_t bufsize, uint32_t raw) {
+  bool p = (raw >> 24) & 0x1;
+  bool u = (raw >> 23) & 0x1;
+  bool s = (raw >> 22) & 0x1;
+  bool w = (raw >> 21) & 0x1;
+  bool l = (raw >> 20) & 0x1;
+  int rn = (raw >> 16) & 0xf;
+
+  char tmp[1024];
+  format_register_list(tmp, sizeof(tmp), raw & 0xffff);
+
+  // push
+  if(p == 1 && u == 0 && s == 0 && w == 1 && l == 0 && rn == 13) {
+    snprintf(
+      buf,
+      bufsize,
+      "push %s",
+      tmp
+    );
+  }
+
+  // pop
+  else if(p == 0 && u == 1 && s == 0 && w == 1 && l == 1 && rn == 13) {
+    snprintf(
+      buf,
+      bufsize,
+      "pop %s",
+      tmp
+    );
+  }
+
+  else {
+    snprintf(
+      buf,
+      bufsize,
+      "!!![load/store multiple] p: %d, u: %d, s: %d, w: %d, l: %d, rn: %d",
+      p, u, s, w, l, rn
+    );
+  }
+}
+
+void
+disassemble(
+  char *buf,
+  size_t bufsize,
+  uint32_t raw,
+  uint32_t addr) {
   arm_ins ins;
-  ins.value = value;
+  ins.raw = raw;
 
-  switch(ins.op) {
-    // data processing
-    case 0: {
-      data_processing_ins d;
-      d.value = ins.value;
-      disassemble_data_processing(buf, bufsize, d);
-    } break;
+  // data processing
+  if((ins.main >> 2) == 0) {
+    data_processing_ins d;
+    d.raw = ins.raw;
+    disassemble_data_processing(buf, bufsize, d);
+  }
 
-    default: {
-      snprintf(buf, bufsize, "---");
-    };
+  // branch
+  else if(ins.main == 0b101) {
+    disassemble_branch(buf, bufsize, raw, addr);
+  }
+
+  // load/store multiple
+  else if(ins.main == 0b100) {
+    disassemble_load_store_multiple(buf, bufsize, raw);
+  }
+
+  else {
+    snprintf(buf, bufsize, "---");
   }
 }

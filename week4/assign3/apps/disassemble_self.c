@@ -1,5 +1,5 @@
 #include <uart.h>
-#include "printf.h"
+#include "../printf.h"
 #include "../disassemble.h"
 
 void
@@ -13,7 +13,7 @@ main(void) {
   for(int i = 0; i < 100; i++) {
     value = *p++;
 
-    disassemble(buf, sizeof(buf), value);
+    disassemble(buf, sizeof(buf), value, addr);
 
     printf("%x: %8x %s\n", addr, value, buf);
 

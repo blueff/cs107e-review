@@ -286,7 +286,7 @@ int vsnprintf(
   return result;
 }
 
-#define GDB_DEBUG 1
+#define GDB_DEBUG 0
 
 #ifdef GDB_DEBUG
 char __stdout[1024*1024] = {};
@@ -298,7 +298,7 @@ int printf(const char *format, ...) {
   va_start(ap, format);
   int result = vsnprintf(buf, sizeof(buf), format, ap);
 
-#ifdef GDB_DEBUG
+#if GDB_DEBUG
   strlcat(__stdout, buf, sizeof(__stdout));
 #else
   uart_putstring(buf);
