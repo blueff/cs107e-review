@@ -121,12 +121,12 @@ parse_shifter_operand(uint32_t value) {
   return result;
 }
 
-uint32_t
+inline uint32_t
 right_rotate(uint32_t n, uint32_t d) {
   return (n >> d) | (n << (32 - d));
 }
 
-uint32_t
+inline uint32_t
 calc_immediate_value(uint32_t number) {
   uint32_t result;
   uint32_t rotate = (number >> 8) & 0b1111;
@@ -194,7 +194,7 @@ format_operand(
 }
 
 void
-disassemble_data_processing_mov(
+disassemble_mov(
   char *buf,
   size_t bufsize,
   data_processing_ins ins) {
@@ -297,7 +297,7 @@ disassemble_data_processing(
   switch(ins.operation) {
     // mov
     case 0b1101: {
-      disassemble_data_processing_mov(buf, bufsize, ins);
+      disassemble_mov(buf, bufsize, ins);
     } break;
 
     case 0b0001: // eor

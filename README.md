@@ -468,27 +468,66 @@ The code is not hard at all, you just need to be very careful about every operat
 
 Check the code [printf.c](./week4/assign3/printf.c).
 
-NOTE: The function's behavior for an invalid format conversion is undefined. You can define your all behavior. In my code, all the invalid format conversions will be copy as is. e.g. `printf("%a") == "%a"`.
+NOTE: The function's behavior for an invalid format conversion is undefined. You can define your own behavior. In my code, all the invalid format conversions will be copy as is. e.g. `printf("%a") == "%a"`.
 
 #### Disassembler extension
 
-https://www.scss.tcd.ie/~waldroj/3d1/arm_arm.pdf
+This task is kind of challenging and need to take a while to finish.
+
+The most challenging part is not the code writing but the documentation digging.
+
+[ARM Architecture Reference Manual](https://www.scss.tcd.ie/~waldroj/3d1/arm_arm.pdf) is the best resource to nail this task down.
+
+The following one liner is very helpful to get disassembling output from a single instruction.
+
+```bash
+$ perl -e 'print pack "H*", "e3a0d302"' > a.out && arm-none-eabi-objdump -D -b binary -marm -EB
+a.out:     file format binary
+
+
+Disassembly of section .data:
+
+00000000 <.data>:
+   0:   e3a0d302        mov     sp, #134217728  ; 0x8000000
 
 ```
-perl -e 'print pack "H*", "e3a0d302"' > a.out && arm-none-eabi-objdump -D -b binary -marm -EB
+
+To make the debug less painful which requires constantly rebooting the Pi and loading the code to see the output, we can patch the `printf` function and see the output in GDB.
+
+```c
+#define GDB_DEBUG 1
+
+#if GDB_DEBUG
+char __stdout[1024*1024] = {};
+#endif
+
+int printf(const char *format, ...) {
+  char buf[1024];
+  va_list ap;
+  va_start(ap, format);
+  int result = vsnprintf(buf, sizeof(buf), format, ap);
+
+#if GDB_DEBUG
+  strlcat(__stdout, buf, sizeof(__stdout));
+#else
+  uart_putstring(buf);
+#endif
+
+  return result;
+}
 ```
 
-debug
+Run the code in GDB and check the result with following command:
 
 ```
 (gdb) printf "%s", __stdout
 ```
 
-SBO=SHOULD BE ONE
-SBZ=SHOULD BE ZERO
+**Remember to write the test! Every time you want to implement some function, write the test first!**
+
+Implementing a complete disassembler is a huge task, I am not gonna do it. The final disassembler manages to successfully disassemble the first 100 instructions of itself. Cool enough 😎 Check the code [disassemble_self.c](./week4/assign3/apps/disassemble_self.c).
 
 ## ARM Tips
 
 - Disassemble object file: `arm-none-eabi-objdump -D input.o`.
-
 - Disassemble binary file: `arm-none-eabi-objdump -b binary -D -marm input.bin`.

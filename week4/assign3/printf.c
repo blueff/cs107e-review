@@ -288,7 +288,7 @@ int vsnprintf(
 
 #define GDB_DEBUG 0
 
-#ifdef GDB_DEBUG
+#if GDB_DEBUG
 char __stdout[1024*1024] = {};
 #endif
 
