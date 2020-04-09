@@ -43,6 +43,9 @@ My study note of the awesome course [CS107E Winter 2020](http://cs107e.github.io
     - [Implement snprintf, vsnprintf and printf](#implement-snprintf-vsnprintf-and-printf)
     - [Extension: Disassembler](#extension-disassembler)
   - [Modules, Libraries, and Linking](#modules-libraries-and-linking)
+- [Week 5: Memory Management](#week-5-memory-management)
+  - [Lab 4: Linked and Loaded](#lab-4-linked-and-loaded)
+    - [Linking](#linking)
 - [ARM Tips](#arm-tips)
 
 <!-- /MarkdownTOC -->
@@ -416,7 +419,15 @@ $ arm-none-eabi-gdb simple.elf
 
 #### Serial communication
 
-Now I realized that `printf` is so powerful.
+Use `screen` to communicate to our Pi over a tty device.
+
+```bash
+$ screen /dev/your-tty-device-here 115200
+```
+
+To close the connection, type `Control-a` followed by `k`.
+
+Having been debugging our program with blinking LEDs since the very beginning, now I just realized how powerful `printf` is.
 
 #### C-strings
 
@@ -490,7 +501,6 @@ Disassembly of section .data:
 
 00000000 <.data>:
    0:   e3a0d302        mov     sp, #134217728  ; 0x8000000
-
 ```
 
 To make the debug less painful which requires constantly rebooting the Pi and loading the code to see the output, we can patch the `printf` function and see the output in GDB.
@@ -558,6 +568,23 @@ You can use `gcc -save-temps` to get all the intermediate files.
 Pay attention to the `COMMON` symbol. They are very confusing at the first glance. Why do we need them? What's the difference from the BSS?
 
 Simply put, COMMON only appears before the linking stage. Check [.bss vs COMMON: what goes where?](https://stackoverflow.com/questions/16835716/bss-vs-common-what-goes-where).
+
+## Week 5: Memory Management
+
+just malloc is easy 😎
+malloc with free is hard 🤔
+Efficient malloc with free ….Yikes! 😥
+
+### Lab 4: Linked and Loaded
+
+#### Linking
+
+What type and size of symbol would correspond to an array definition such as `const int arr[5]`?
+
+Because `arr` is uninitialized, it is a common symbol and has size of 5\*4 = 20. We can use `arm-none-eabi -S` to see the symbol size.
+
+**Check-in question**
+
 
 ## ARM Tips
 
