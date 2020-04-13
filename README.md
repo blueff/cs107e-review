@@ -46,6 +46,7 @@ My study note of the awesome course [CS107E Winter 2020](http://cs107e.github.io
 - [Week 5: Memory Management](#week-5-memory-management)
   - [Lab 4: Linked and Loaded](#lab-4-linked-and-loaded)
     - [Linking](#linking)
+    - [Memory Map](#memory-map)
 - [ARM Tips](#arm-tips)
 
 <!-- /MarkdownTOC -->
@@ -581,10 +582,23 @@ Efficient malloc with free ….Yikes! 😥
 
 What type and size of symbol would correspond to an array definition such as `const int arr[5]`?
 
-Because `arr` is uninitialized, it is a common symbol and has size of 5\*4 = 20. We can use `arm-none-eabi -S` to see the symbol size.
+Because `arr` is uninitialized, it is a common symbol and has size of 5\*4 = 20. We can use `arm-none-eabi -S` to inspect the symbol size.
+
+Resolution and relocation:
+
+> The compiler processes only a single module (file) at a time and thus it can only resolve references to symbols that appear within the module currently being compiled. The linker runs in a subsequent pass to perform tasks that require joining across modules. The process of filling in the missing placeholder addresses with the final symbol locations is known as resolution.
+>
+> The linker is given a list of object files to process and it will combine the files together and arrange symbols into their final locations (relocation) and resolve cross-module references (resolution).
+
+Note the difference between object files (.o) and archive files (.a).
+
+> The linker treats objects files (.o) and libraries (.a) a little bit differently. When linking object files, all the files are combined. When linking libraries, only files containing definitions of undefined symbols are added to the executable. This makes it possible to make libraries with lots of useful modules, and only link the ones that you actually use in the final executable.
+
+#### Memory Map
+
+We can use a `linker script` to tell the linker how to lay out the sections in the final executable file.
 
 **Check-in question**
-
 
 ## ARM Tips
 
