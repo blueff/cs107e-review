@@ -47,6 +47,10 @@ My study note of the awesome course [CS107E Winter 2020](http://cs107e.github.io
   - [Lab 4: Linked and Loaded](#lab-4-linked-and-loaded)
     - [Linking](#linking)
     - [Memory Map](#memory-map)
+    - [Boot Loader](#boot-loader)
+    - [Stack](#stack)
+    - [Heap](#heap)
+    - [Check-in Question](#check-in-question)
 - [ARM Tips](#arm-tips)
 
 <!-- /MarkdownTOC -->
@@ -598,7 +602,183 @@ Note the difference between object files (.o) and archive files (.a).
 
 We can use a `linker script` to tell the linker how to lay out the sections in the final executable file.
 
-**Check-in question**
+Here is [documentation on linker scripts](https://sourceware.org/binutils/docs-2.21/ld/Scripts.html).
+
+#### Boot Loader
+
+Our laptop and the bootloader communicate over the serial line via the Pi's UART. They use a simple file transfer protocal called XMODEM.
+
+**Xmodem file transfer protocol**
+
+**Q:** Why can’t the bootloader code also be placed at 0x8000?
+
+**A:** Because bootloader will place data it received at 0x8000. If bootloader code is also at 0x8000, then it will destroy its own code.
+
+
+**Q:** Where does the bootloader copy the received program and how does it begin executing it? Which instruction is executed first?
+
+**A:** The bootloader will copy the received program to 0x8000 and use `BRANCHTO` function to begin executing it. `bx r0` instruction is executed first to jump to the received program.
+
+**Q:** How does the bootloader use the green ACT led to signal to the user?
+
+**A:** Flashing LED means bootloader is waiting for the data. Lit LED means it's receiving the data. Off LED means data has been received and it's being executed.
+
+**Q:** In which circumstances does the bootloader respond with a NAK? When does the bootloader give up altogether on a transmission?
+
+**A:** Bootloader responds with a NAK under these circumstances:
+
+- It doesn't receive SOH as the first byte.
+- It received SOH but the next byte is not the corresponding sequence number.
+- It received SOH and the corresponding sequence number, but the next byte is not the complement of the sequence number.
+- It received the whole 128 bytes packet data, but the checksum byte is wrong.
+
+The bootloader will give up transmission when it didn't receive any data in half sec or it has encountered 5 errors.
+
+**Q:** How/why does the bootloader use the timer peripheral?
+
+**A:** Simply put, it need the timer to wait some time:
+
+- When flash active LED, toggle it on, wait some time and toggle it off.
+- When read data from UART, if there is no data, wait some time and check again.
+- When branch to newly received program, wait some time and delay its execution so we can see potential output in our PC console.
+
+**Q:** How will the bootloader respond if you unplug the USB-serial in the middle of transmission?
+
+**A:** It will time out and start waiting for the new transmission.
+
+#### Stack
+
+**Function prolog:**
+
+**Q:** Which four registers are pushed to the stack to set up the APCS frame?
+
+**A:** `r11(fp)`, `r12`, `lr(r14)`, `pc(r15)`
+
+**Q:** Three of the four registers in the APCS frame are caller-owned registers whose values are preserved in the prolog and later restored in the epilog. Which three are they? Which register is the fourth? Why is that register handled differently? What is even the purpose of pushing that register as part of the APCS frame?
+
+**A:** Three registers are `r11`, `r12` and `lr`.
+
+`pc` is the fourth register. We can't just restore pc to what it held before, because that won't make us out of the current function. We need to move value of lr to pc.
+
+??? I don't know why we have to store value of pc. Maybe because its value is also the entry point of the current function, so we can use it to do someting?
+
+**Q:** What instruction in the prolog anchors fp to point to the current frame?
+
+**A:** `sub r11, r12, #4`
+
+**Q:** To what location in the stack does the fp point?
+
+**A:** The first word (from high address to low address) of the current stack frame (pc).
+
+**Q:** The first instruction of the prolog copies sp to r12 and then uses r12 in the push that follows. This dance may seems roundabout, but is unavoidable. Do you have an idea why?
+
+**A:** We can't use a value in a instruction which is simultaneously changing the value.
+
+**Function epilog:**
+
+**Q:** To what location in the stack does the sp point during the body of the function?
+
+**A:** sp always point to the last word in current stack frame.
+
+**Q:** he first instruction of the epilog changes the sp. To what location does it pointer after executing that instruction?
+
+**A:** Point to the fourth word in current stack frame.
+
+**Q:** The ldm instruction (“load multiple”) reads a sequence of words starting at a base address in memory and stores the words into the named registers. pop is a specific variant of ldm that additionally adjusts the base address as a side effect (i.e. changes stack pointer to “remove” those words) . The ldm instruction used in the epilog of abs copies three words in memory starting at the stack pointer into the registers r11, sp, and lr. This effectively restores the registers to the value they had at time of function entry. The instruction does not similarly restore the value of the pc register. Why not?
+
+**A:** Because we dont' want to do that. The pc value in the stack points to the first instruction of our function (excepts for prolog). If we restore the pc, we will jump back to our function. That's not what we want.
+
+**Q:** Which registers/memory values are updated by the bx instruction?
+
+**A:** pc.
+
+**Make Array:**
+
+**Q:** After the instructions for the standard prolog, what additional instruction makes space for the array local variable?
+
+**A:** `sub sp, sp #24`
+
+**Q:** How are the contents for the array initialized (or not)?
+
+**A:** They are not initialized at all (except for the first one which we initialize it with `array[0] = 1;`).
+
+**Q:** In the body of the function, the array elements stored on the stack are accessed fp-relative. What is the relative offset from the fp to the base of the array? How can you determine that from reading the assembly instructions?
+
+**A:** The relative offset is 36. We can tell it from this instruction: `str r3, [r11, #-36]`. It's used for initializing the first element of the array.
+
+**Q:** The prolog has an additional instruction to allocate space for the array, but the epilog does not seem to have a corresponding instruction to deallocate the space. How then is the stack pointer adjusted to remove any local variables on function exit?
+
+**A:** Just restore its value to what it stored previously. This is the benefit of using a stack: we don't have to deallocate, it's automatic.
+
+#### Heap
+
+**Q:** What would be the consequence if strndup mistakenly returns a pointer to memory contained within its to-be-deallocated stack frame?
+
+**A:** We will read wrong data afterwards.
+
+!!! Validate our program in Pi.
+
+#### Check-in Question
+
+**Q:** Compare the symbol list from nm linking.o to nm linking.elf. How do the symbol addresses from an object file differ from the addresses in the linked executable? How does the instruction bl \_cstart change after linking?
+
+**A:** For non-local symbols, their addresses will be zero in object file. Before linking, `bl _cstart` actually is `bl 0`. After linking, the placeholder zero will be filled with actual address.
+
+**Q:** On a sheet of paper, with address 0x0 at the bottom of the page and 0x8000000 at the top, sketch a diagram of the program memory for code/linking. Include the contents of the stack at the point where execution has just entered the main function. Use the memory diagram for simple as a guide.
+
+**A:**
+
+```
++------------+ 0x8000000
+|  _cstart   |
+|            |
++------------+
+|    main    |
+|            |
++-----+------+
+|     |      |
+|     |      |
+|     |      |
+|     v      |
+|   stack    |
+|            |
+|            |
+|            |
+|            |
+|            |
+|            |
+|    heap    |
+|     ^      |
+|     |      |
+|     |      |
+|     |      |
++-----+------+
+|    bss     |
+|            |
++------------+
+|   rodata   |
+|            |
++------------+
+|    data    |
+|            |
++------------+
+|    text    |
+|            |
++------------+ 0x8000
+|            |
+|            |
++------------+ 0x0
+```
+
+**Q:** How does the saved pc in a function’s stack frame relate to the address of the first instruction for the function? If you take the saved pc in the stack frame for `main` and subtract it from the saved lr in the stack frame for `diff`, what do you get? Express your answer as a number, then explain conceptually what that computation represents. The memory diagram for simple is a helpful reference.
+
+**A:** Saved pc = first instruction + 12.
+
+Use abs stack frame for example, `main` = 0x0000801c and `diff` = 0xbc. It represents the offset between caller and callee. But I don't see this any useful ???
+
+**Q:** How should the number of free calls relate to the number of malloc calls in a correctly-written program that uses heap allocation?
+
+**A:** They should be **exactly** same.
 
 ## ARM Tips
 
