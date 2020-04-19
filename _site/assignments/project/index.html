@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/_assets/site.css" rel="stylesheet">
+    <link href="/_assets/favicon.png" rel="icon" type="image/png">
+    <title>CS107E Final Project</title>
+  </head>
+
+<body>
+  <!-- Include this HTML partial to set up navbar -->
+
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="navbar-header">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+    <!-- hamburger -->
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+
+  <img class="navbar-brand navbar-brand-image" src="/_assets/berry.png" >
+  <a class="navbar-brand" href="/">CS107e Winter 2020</a>
+  </div>
+
+  <div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/">Home</a></li>
+      <li><a href="/assignments">Assignments</a></li>
+      <li><a href="/labs">Labs</a></li>
+      <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            Resources
+          <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/about/">About the course</a></li>
+            <li><a href="/policies/">Policies</a></li>
+            <li><a href="/schedule/">Schedule</a></li>
+            <li><a href="/guides/">Guides</a></li>
+            <li><a href="/project_gallery/">Project gallery</a></li>
+            <li><a href="/demos/">External demos</a></li>
+            <li><a href="/resources/">External resources</a></li>
+          </ul>
+        </li>
+      <li><a href="https://github.com/cs107e/cs107e.github.io">Repository</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="container" style="max-width:55em;">
+    <h1 class="title">Final Project</h1><hr>
+    
+  <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12" id="main_for_toc">
+    
+<p>The final assignment is a project of your own choosing. 
+The goal of the project is to consolidate 
+your knowledge of the key concepts covered in the CS107e course,
+and to do something creative with your Raspberry Pi. We hope you find the project a fun and satisfying way to put your new knowledge and skills into action and build something you are truly proud of!</p>
+
+<h3 id="project-schedule-and-deliverables">Project schedule and deliverables</h3>
+
+<p>You have over two weeks to complete the project. 
+Please take note of these important milestones and deliverables in the project schedule:</p>
+
+<h4 id="team-formation-due-6pm-mon-mar-2">Team formation due <strong>6pm Mon Mar 2</strong></h4>
+
+<p>Form a team of 1 to 3 people. We’ve observed that a 2-person team works out the best, so that is our recommendation. If you have a project in mind that would be better run as a solo effort or requires a team of 3, that’s ok too, but you may want to talk it through with us to understand the tradeoffs and challenges for the different arrangements.</p>
+
+<p>Submit the Github usernames of your team members on this 
+<a href="https://docs.google.com/forms/d/e/1FAIpQLSdJ9iKbXPDn7J8q0O-EVg3ihsTR9pB9C5L52gx_PXp-ER2nUw/viewform?usp=sf_link">Google form</a>.
+We will create a shared repository for your team.</p>
+
+<h4 id="project-lab-1-tuewed">Project lab 1 Tue/Wed</h4>
+
+<p>The labs during final project period will be used as a working meeting for your team. You and your teammates should arrange to attend the same lab session for the next two weeks.</p>
+
+<p>In the first project lab, your team will brainstorm project options and refine those ideas into a specific project. You will then draft a plan submit as your project proposal.</p>
+
+<h4 id="proposal-due-6pm-fri-mar-6">Proposal due <strong>6pm Fri Mar 6</strong></h4>
+
+<p>You will receive an email from GitHub when your team’s repository is
+created. Clone this repository and edit the file <code class="highlighter-rouge">Proposal.md</code> file to add your
+project information. Commit and push to Github to submit your proposal.</p>
+
+<p>The project proposal should include:</p>
+
+<ul>
+  <li>Name of the project</li>
+  <li>Description of projectm goals</li>
+  <li>Resources needed, budget</li>
+  <li>Team members and their responsibilities
+    <ul>
+      <li>Each team member should be responsible for a clearly
+identifiable part of the project.</li>
+    </ul>
+  </li>
+  <li>Schedule
+    <ul>
+      <li>Include list of midpoint milestones</li>
+      <li>We will check-in with you during second project lab to review progress and path to success from there</li>
+    </ul>
+  </li>
+</ul>
+
+<p>Each project team has a budget of $20 per person for hardware. Save your receipts to be reimbursed. If you need to mail order parts, it can take time,so figure out what you need ASAP and place the order. Also, first check the list of sensors we already have on hand.</p>
+
+<h4 id="project-lab-2-tuewed">Project lab 2 Tue/Wed</h4>
+
+<p>In the second project lab, we will review your team’s progress on meeting  midpoint milestones and ensure you are on-track for completing the remaining work.</p>
+
+<p>Please take advantage of this check-in with the course staff; we are eager for you to succeed with your project and want to help resolve any snags you encounter.</p>
+
+<h4 id="demo-session-is-9-1130am-fri-mar-20">Demo session is <strong>9-11:30am Fri Mar 20</strong></h4>
+
+<p>The demo session for the final projects is in our scheduled final exam slot. Each group should prepare a short demo of the project to deliver to the class. This is a fun event where you get to show off your work and see all the cool things done by your peers. There is much to celebrate!</p>
+
+<h4 id="final-submission-due-9am-fri-mar-20">Final submission due <strong>9am Fri Mar 20</strong></h4>
+
+<p>Your team’s github repository is used for coordinating the work throughout the project. Be sure to keep up regular commits as you progress. The final commit of your code must be received before the demo session, this is your project submission.</p>
+
+<p>As part of your final submission, edit the <code class="highlighter-rouge">README.md</code> file of your repository for the writeup of your completed project.  The writeup should include a short description of what work was performed by each member of the team.</p>
+
+<p>If your project was influenced by ideas or work of other people, please attribute those contributions in the writeup. In particular, if incorporating code from others, you must reference where you got the code, and what changes you made. It should be clear what you did, and what others did. Your project will be primarily evaluated on the portion of the work that is original.</p>
+
+<h4 id="grading">Grading</h4>
+<p>Our rubric for evaluating final projects considers two major areas and one bonus opportunity:</p>
+
+<ul>
+  <li>
+    <p><strong>Challenge/Technical Achievement</strong>.
+ This category evaluates the ambitiousness of the project and its goals. Our basic expectation is a project scope and level of effort roughly on par with the full console system. This was ~6 weeks of steady work for one person, and earned you a wealth of knowledge and an awesome <code class="highlighter-rouge">libmypi</code> code base. This puts you in prime position to start from there and achieve something equally cool with two people over 2.5 weeks. A project typically extends from and builds on the work you have done thus far. Learning new things, researching novel hardware, mastering advanced software techniques, digging in to overcome obstacles, and otherwise meeting additional challenges are all examples of efforts that will be further recognized in this category.</p>
+  </li>
+  <li>
+    <p><strong>Execution</strong>.
+  This category evaluates the team’s execution on delivering on the project’s goals. Our basic expectation is that the core functionality is operational and able to give a successful demo at the project session. Your further efforts to develop a fully complete set of features, add a high level of polish, design a system that is pleasing to use, build in robustness, and so on will be acknowledged as going above and beyond in the execution category. Execution success is highly correlated with strong teamwork, so your upfront investment in thoughtful planning, time management, and good engineering practice will pay off here.</p>
+  </li>
+  <li>
+    <p><strong>Originality/Artistry</strong>.
+  Although you can have a successful project that reproduces the work of another, we want to nudge you toward attempting a project that is uniquely your own, that mixes your interests and inspirations in imaginative ways or builds something particularly delightful or purposeful to you. We round out the project evaluation with a small nod to its creativity and a reward for your efforts to bring beauty, purpose, joy, elegance, inspiration, or fun to the task.</p>
+  </li>
+</ul>
+
+<h3 id="additional-resources">Additional resources</h3>
+
+<p>In addition to going further with the components you have already used in the course, you are welcome to explore additional hardware and software for your project. Here are some resources you may want to check into.</p>
+
+<ul>
+  <li>
+    <h4 id="sensors">Sensors</h4>
+
+    <p>We have a number of <a href="sensors">different hardware sensors</a>
+  which you could use for your project; they’re available for you to
+  check out in lab. Let us know if you’d like to use one of them.</p>
+  </li>
+  <li>
+    <h4 id="part-suppliers">Part suppliers</h4>
+
+    <p>Here are some good vendors for electronics hardware.</p>
+
+    <ul>
+      <li>
+        <p><a href="https://www.jameco.com/">Jameco</a> has a great selection of electronic parts. They are also located in Burlingame near SFO. 
+  If you place an online order, parts will generally arrive the next day via US mail. If you have a car, you can also drive there and pick up parts same day at the Will Call desk.</p>
+      </li>
+      <li>
+        <p><a href="https://www.pololu.com/">Pololu</a> has a wide selection of parts for robotics, including sensors and motor drivers. They also document their parts very well.</p>
+      </li>
+      <li>
+        <p><a href="https://www.adafruit.com/">Adafruit</a> Limor Fried has founded a company that caters to makers of all types. Besides building great products, they also provide extensive tutorials and learning guides on their web site.</p>
+      </li>
+      <li>
+        <p><a href="https://www.sparkfun.com/">Sparkfun</a> is another great source for hobbyist electronics.</p>
+      </li>
+      <li>
+        <p>Visit <a href="https://ee.stanford.edu/news/lab64">lab64</a>, the EE department’s Maker Space located in the basement of the Packard building. This workspace has a variety of tools (oscilloscope, soldering stations, 3-D printer, and more) and a store stocked with basic electronic parts such as transistors, op-amps, etc.</p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <h4 id="support-code">Support code</h4>
+    <p>The <a href="https://github.com/cs107e/cs107e.github.io/blob/master/cs107e/src">$CS107E/src</a> directory contains source code for the support modules from <code class="highlighter-rouge">libpi</code> and modules from the libraries <code class="highlighter-rouge">libpiextra</code> and <code class="highlighter-rouge">libpisd</code></p>
+
+    <p>The Raspberry Pi has on-board SPI and I2C controllers, which you can use to communicate with many kinds of sensors and devices that speak those protocols. For example, if you need to read analog input, we have an analog-to-digital converter, the MCP3008, which would communicate over a SPI interface with your Pi. You are welcome to write your own SPI or I2C driver for your device as part of your project. However, if you would like to use an existing implementation, <code class="highlighter-rouge">libpiextra</code> contains the modules <code class="highlighter-rouge">i2c</code> and <code class="highlighter-rouge">spi</code> that you may use (make sure to cite that you used these implementations).</p>
+
+    <p><code class="highlighter-rouge">libpisd</code> offers an experimental filesystem interface which you can use to access the files on the SD card. This enables you to do operating-system-like things, such as run programs off the card, or store large data files without having to copy them over the bootloader every time, or save documents. Read more about it in the <a href="/guides/extras/sd_library">sd library guide</a>.</p>
+
+    <p>The <a href="https://github.com/cs107e/cs107e.github.io/blob/master/cs107e/examples">$CS107E/examples</a> directory contains some sample programs in source code that might be useful to review/adopt (use of armtimer, audio, neopixels, etc.).</p>
+
+    <p>The <a href="https://github.com/cs107e/cs107e.github.io/blob/master/cs107e/extras">$CS107E/extras</a> is code contributed by former students that might serve as model or inspiration for some part of your project. The code was part of a successful past project, but other than that, we don’t have a lot of information.  If choosing to adopt any of this code, understand there may have unresolved bugs/issues and code may require adjustments to match our current interfaces as they have changed over time.</p>
+
+    <p>You are welcome to use these resources in your project, but please be sure to cite these contributions. Your project will be primarily evaluated on the portion of the work that is original.</p>
+  </li>
+</ul>
+
+<h3 id="suggestions-and-inspirations">Suggestions and inspirations</h3>
+
+<p>The direction you take the project is open-ended. The best project is one that that you thought of yourself and that resonates with your interests.</p>
+
+<p>It is fun to see what others have done and can help get your creative juices flowing. Check out our <a href="/project_gallery/">project gallery</a> for highlights of past quarters – what a diverse array of clever projects we have seen!</p>
+
+<p>There are makers worldwide sharing field reports about the cool things they have concocted.
+Some sites to check out:</p>
+<ul>
+  <li><a href="http://hackaday.com">Hackaday</a></li>
+  <li><a href="http://adafruit.com/blog">Adafruit blog</a></li>
+  <li><a href="http://instructables.com">Instructables</a></li>
+  <li><a href="http://hackster.io">Hackster</a></li>
+  <li>Everything done by <a href="https://www.youtube.com/MarkRober">Mark Rober</a> does is crazy-awesome</li>
+</ul>
+
+<h4 id="games">Games</h4>
+
+<p>You have the start of a graphics and input library.
+Extend your graphics library to draw additional types of objects,
+and your input library to handle a game controller.</p>
+
+<p>Some examples of input devices that you could use to control your game:</p>
+
+<ul>
+  <li>
+    <p>A homebrew game pad made of buttons. Most game pads have
+two buttons (A and B) for game control,
+and 4 buttons used as a d-pad (left, right, up, down).</p>
+  </li>
+  <li>
+    <p>Your PS/2 keyboard and/or mouse.</p>
+  </li>
+  <li>
+    <p>Atari 2600 paddle controllers (or other paddle controllers).</p>
+  </li>
+  <li>
+    <p>Old-school NES, SNES, or other simple gamepads with simple digital protocols.</p>
+  </li>
+</ul>
+
+<p>Once you have better input, you are all set to build a game.
+Build a simple game such as Pong or Tetris,
+or even better a game of your own design.</p>
+
+<p>Another cool thing you can do is communicate with old game cartridges, since you
+can connect the pins on the cartridge to the GPIO pins on the Pi.</p>
+
+<h4 id="music">Music</h4>
+
+<p>We described how to generate notes on the Raspberry Pi.
+With that knowledge, you can</p>
+
+<ul>
+  <li>
+    <p>Create a simple music player that allows the user 
+to choose from a list of simple melodies.
+Add buttons on a breadboard for control (skip, pause, play, volume?)</p>
+  </li>
+  <li>
+    <p>Turn your keyboard into a music keyboard,
+so that keys play individual notes and pressing multiple keys 
+at the same time combines the notes.
+Use a combination of timers and low-level keyboard access 
+to enable you to record and then loop tracks.</p>
+  </li>
+  <li>
+    <p>Take a music synthesizer such as the Korg Monotron 
+and hack it to add MIDI support with one Pi,
+then have a second Pi control it over MIDI.
+Alternatively, build your own music synthesizer.</p>
+  </li>
+</ul>
+
+<h4 id="system-components">System components</h4>
+
+<p>Your project should be about building a working system that does something cool.</p>
+
+<p>However, if you build some support infrastructure,
+then you can build a more impressive system.
+A good sub-project for a team member
+is to build a component of the system.</p>
+
+<h4 id="analog-input">Analog input</h4>
+
+<p>Up to now, we have only read digital values using GPIO. The Raspberry Pi, unlike a microcontroller like an Arduino, cannot read analog values.</p>
+
+<p>Many sensors are analog (photodetectors, potentiometers, temperature sensors, joysticks).</p>
+
+<p>In order to read analog values, you will need to interface an analog
+to digital converter (ADC) to the Raspberry Pi.  An example of an ADC
+is the MCP3008, which can be controlled from the PI using the Serial
+Peripheral Interface (SPI) protocol.</p>
+
+<p>Write a program that reads analog inputs to produce an interesting result, such as a screen visualization or sound.</p>
+
+<h4 id="network-ambitious">Network (Ambitious)</h4>
+
+<p>Build a simple network that allows multiple raspberry pis to communicate
+over a shared medium (only one Pi can transmit at a time).
+One way to do this is to connect TX and RX pins to a
+shared line.</p>
+
+<p>It is also possible to communicate by other means.
+For example, you could use sound, light, or radio waves.</p>
+
+<p>Finally, you’ve seen in class how “digital” lines aren’t purely digital.
+You could design your circuit to make bits as sharp as possible to see how
+fast you can transmit and receive. You might find that sending bits faster
+means you’ll have to send smaller packets, so optimize for overall data
+  transfer, not just the bit rate.</p>
+
+<h4 id="gpu-ambitious">GPU (Ambitious)</h4>
+
+<p>The raspberry pi has a very powerful GPU. In fact, the GPU is much faster than the CPU. The GPU assembly language is similar to, but different,
+than the CPU assembly language. It is possible to download code to the GPU using a mailbox, and then call that code. Learn about the GPU and build a library for programming the GPU.</p>
+
+<p>Can you think of a computationally intensive task  that could be off-loaded to the GPU? At the very least, you can clear your framebuffer faster!</p>
+
+  </div>
+  <div class="toc-column col-lg-2 col-md-2 col-sm-2 hidden-xs">
+    <div id="toc" class="toc" data-spy="affix" data-offset-top="0"></div>
+  </div> 
+</div>
+
+  <script src="/_assets/tocbot.min.js"></script>
+  <link rel="stylesheet" href="/_assets/tocbot.css">
+
+  <script>
+    tocbot.init({
+      // Where to render the table of contents.
+      tocSelector: '#toc',
+      // Where to grab the headings to build the table of contents.
+      contentSelector: '#main_for_toc',
+      // Which headings to grab inside of the contentSelector element.
+      headingSelector: 'h2, h3, h4',
+    });
+  </script>
+
+
+
+  </div>
+  <div class="footer navbar-default navbar-static-bottom">
+    <p style="font-size: 65%; color:green; text-align:center;">
+      <i>CS107e Winter 2020 &middot; Site generated 2020-04-19 20:35</i>
+  </p>
+</div> 
+</body>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+</html>

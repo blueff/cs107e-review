@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/_assets/site.css" rel="stylesheet">
+    <link href="/_assets/favicon.png" rel="icon" type="image/png">
+    <title>CS107E Assignment 0: Choose Lab Section, Learn Git</title>
+  </head>
+
+<body>
+  <!-- Include this HTML partial to set up navbar -->
+
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="navbar-header">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+    <!-- hamburger -->
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+
+  <img class="navbar-brand navbar-brand-image" src="/_assets/berry.png" >
+  <a class="navbar-brand" href="/">CS107e Winter 2020</a>
+  </div>
+
+  <div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/">Home</a></li>
+      <li><a href="/assignments">Assignments</a></li>
+      <li><a href="/labs">Labs</a></li>
+      <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            Resources
+          <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/about/">About the course</a></li>
+            <li><a href="/policies/">Policies</a></li>
+            <li><a href="/schedule/">Schedule</a></li>
+            <li><a href="/guides/">Guides</a></li>
+            <li><a href="/project_gallery/">Project gallery</a></li>
+            <li><a href="/demos/">External demos</a></li>
+            <li><a href="/resources/">External resources</a></li>
+          </ul>
+        </li>
+      <li><a href="https://github.com/cs107e/cs107e.github.io">Repository</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="container" style="max-width:55em;">
+    <h1 class="title">Assignment 0: Choose Lab Section, Learn Git</h1><hr>
+    
+  <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12" id="main_for_toc">
+    
+<p><em>Written by Omar Rizwan</em></p>
+
+<!-- If duedate set in front_matter, use that, otherwise calculate based on n*weeks + assign1 due -->
+
+<p><b>Due: Sunday, January 12 at  9:00 pm</b></p>
+
+<p><small>This assignment is not for a grade, but we do need you to complete it on-time to complete your enrollment and assign you to a lab section. If you run into troubles, please reach out on our <a href="https://piazza.com/stanford/winter2020/cs107e">Piazza forum</a>.</small></p>
+
+<h2 id="goals">Goals</h2>
+
+<p>We have two goals for this assignment:</p>
+
+<ol>
+  <li>
+    <p>You’ll tell us which lab section you prefer.
+(This’ll be your ‘solution’ to the assignment.)</p>
+  </li>
+  <li>
+    <p>Have you go through the assignment workflow (download starter, check
+in your solution, and submit for grading) and ensure you can successfully complete these tasks.</p>
+  </li>
+</ol>
+
+<p>This assignment will introduce you to the basics of the
+<a href="https://en.wikipedia.org/wiki/Git_(software)">git</a> version control
+system and the <a href="https://github.com">GitHub</a> repository hosting service that we will be using in this course.</p>
+
+<p>Version control systems are widely used for software development in industry as
+well as in the open source and academic communities.  These tools enable teams
+of developers to write code in a distributed setting and send it to a central
+repository for review and use.  Alongside keeping a log of changes to the code,
+version control systems support the resolution of conflicts introduced by
+multiple changesets (e.g. two people trying to edit the same lines of the same
+file).  Web interfaces like GitHub promote the practices of code reviews, where
+other team members will review proposed changes to check for bugs and provide
+feedback on the design and implementation.  The version control skills that you
+will learn in this course will be invaluable for any future software projects
+that you decide to work on.</p>
+
+<h2 id="prerequisites">Prerequisites</h2>
+<p>All students should read over our <a href="/guides">course
+guides</a> on the Review topics of electricity, binary numbers, and the unix command line.</p>
+
+<p>The assignment assumes you have followed our <a href="/guides/install">installation guide</a> to configure your laptop with the development tools and set up your <code class="highlighter-rouge">cs107e_home</code> directory and git user identity.</p>
+
+<!-- This partial will open warning/danger callout box  -->
+
+<div style="background-color:#ffcccc; color:#993333; border-left: 5px solid #993333;margin: 5px 25px; padding: 5px;">
+
+  <p>If you were not able to successfully complete all installation steps, please reach out to the course staff for help before starting the assignment.</p>
+</div>
+
+<h2 id="steps">Steps</h2>
+
+<h3 id="1-accept-github-invitation">1. Accept GitHub invitation</h3>
+<p>Our course repositories will be hosted on GitHub. You will download assignment starter files from GitHub and upload your completed work to GitHub for grading.</p>
+
+<p>When enrolling in the course, you provided the username for your GitHub
+account.  Each student will be given a private assignments repository inside our <a href="https://github.com/cs107e">CS107e GitHub organization</a>.  When the TAs set up the repository for your account, you will receive an
+email invitation from GitHub. Accept this invitation and you’re ready to proceed.</p>
+
+<h3 id="2-get-assignment-starter-files">2. Get assignment starter files</h3>
+
+<p><strong>Note</strong>: For the rest of this writeup, <strong>where you see
+<code class="highlighter-rouge">[YOUR-GITHUB-USERNAME]</code>, replace with your actual GitHub username</strong>.</p>
+
+<p>Confirm that your personal assignments repository is available on GitHub by visiting in a browser:
+<code class="highlighter-rouge">https://github.com/cs107e/[YOUR-GITHUB-USERNAME]-assignments</code></p>
+
+<p><img title="Sample assignment repo page" src="images/01-assignment-repo.png" height="200" /></p>
+
+<p>On your laptop, change to your <code class="highlighter-rouge">cs107e_home</code> directory and use git to clone your assignments repository:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cs ~/cs107e_home
+$ git clone https://github.com/cs107e/[YOUR-GITHUB-USERNAME]-assignments assignments
+remote: Counting objects: 3, done.
+remote: Total 3 (delta 0), reused 0 (delta 0), pack-reused 3
+Unpacking objects: 100% (3/3), done.
+Checking connectivity... done.
+</code></pre></div></div>
+
+<!-- This partial will open warning/danger callout box  -->
+
+<div style="background-color:#ffffcc; color:#996633; border-left: 5px solid #996633;margin: 5px 25px; padding: 5px;">
+
+  <p><strong>NOTE</strong>: You may have to enter your GitHub username and password to authorize
+access to your GitHub account. To avoid having to supply these credentials every
+time, see <a href="https://help.github.com/articles/connecting-to-github-with-ssh/">instructions for connecting to GitHub using SSH</a>.</p>
+</div>
+
+<p>You should now have a new folder named
+<code class="highlighter-rouge">assignments</code> containing a copy of your GitHub assignments repository. We will refer to this copy as your <strong>local</strong> repository; the repository on Github is the <strong>remote</strong> repository. You will do all of your assignment work in the local repository and synchronize that work with your remote repository using git push and pull operations (more on that later).</p>
+
+<p>Change to your local repository and confirm it is properly connected to your Github remote with the following command:</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cd assignments
+$ git remote -v
+origin  https://github.com/cs107e/[YOUR-GITHUB-USERNAME]-assignments.git (fetch)
+origin  https://github.com/cs107e/[YOUR-GITHUB-USERNAME]-assignments.git (push)
+</code></pre></div></div>
+
+<p>To begin work on an assignment, you must first switch to the appropriate branch. We name all assignment branches using the same convention: <code class="highlighter-rouge">assignN</code> where N is the assignment number followed by the suffix <code class="highlighter-rouge">-basic</code> or <code class="highlighter-rouge">-extension</code> for basic and
+extension submissions, respectively. For example, an assignment 7 extension is done on the <code class="highlighter-rouge">assign7-extension</code> branch.</p>
+
+<p>Since you now plan to work on the basic portion of assign0, you would switch to the branch named <code class="highlighter-rouge">assign0-basic</code>.</p>
+
+<p>The <code class="highlighter-rouge">git checkout</code> command switches to a named branch. Use to switch to the <code class="highlighter-rouge">assign0-basic</code> branch and then list the directory contents.  There should be just one starter file: <code class="highlighter-rouge">lab.txt</code></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git checkout assign0-basic
+Switched to branch 'assign0-basic'
+$ ls
+lab.txt
+</code></pre></div></div>
+
+<h3 id="3-indicate-your-lab-preference">3. Indicate your lab preference</h3>
+
+<p>There are two lab sections that meet every week of the quarter: Tue or Wed 7-9pm in Gates B21. You will be assigned to attend one of the two labs, based on your preference/constraint. We must split the cohort fairly evenly to fit each half in our lab room, so we appreciate flexibility if you are able to provide it.</p>
+
+<p>Use the <code class="highlighter-rouge">lab.txt</code> file to indicate your lab preference.  Open the file in a text editor and replace the file contents with a single line containing one of the four options listed below.  For example, if you have preference for Tuesday but could go on Wednesday,
+<code class="highlighter-rouge">lab.txt</code> should have one line that says <code class="highlighter-rouge">Tuesday</code>. If you can only make Wednesday,
+then the file should hold a single line that says <code class="highlighter-rouge">Wednesday, can't make Tuesday</code>. Your
+submission will be processed by an automated tool so <strong>be sure to use the text exactly as it appears below</strong>:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">Tuesday</code></li>
+  <li><code class="highlighter-rouge">Tuesday, can't make Wednesday</code></li>
+  <li><code class="highlighter-rouge">Wednesday</code></li>
+  <li><code class="highlighter-rouge">Wednesday, can't make Tuesday</code></li>
+</ul>
+
+<p>Save the file.</p>
+
+<h3 id="4-commit-your-change">4. Commit your change</h3>
+
+<p>Git will recognize that you have edited a file in the repository.
+Verify this by running <code class="highlighter-rouge">git status</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git status
+On branch assign0-basic
+Changes not staged for commit:
+  (use "git add &lt;file&gt;..." to update what will be committed)
+  (use "git checkout -- &lt;file&gt;..." to discard changes in working directory)
+
+	modified:   lab.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+</code></pre></div></div>
+
+<p>You <em>commit</em> your changes to record them into the repository history.
+The log of commits provides a history of changes to the code,
+akin to different versions.</p>
+
+<p>In order to commit a changed file, you must first <em>stage</em> the file. This
+fine-grained control allows you to selectively record changes.  For example, if 
+two files have been edited, you may want to only commit changes to one file.
+In this case, you would stage only the file of interest before committing,
+and changes to the other file will not be included.</p>
+
+<p>Use <code class="highlighter-rouge">git add</code> to add a changed file to the staging area:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git add lab.txt
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">git status</code> reports what files are currently staged:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git status
+On branch assign0-basic
+Your branch is up-to-date with 'origin/assign0-basic'.
+Changes to be committed:
+  (use "git reset HEAD &lt;file&gt;..." to unstage)
+
+	modified:   lab.txt
+</code></pre></div></div>
+
+<p>Once the desired files are staged, follow with <code class="highlighter-rouge">git commit</code> to record these changes:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git commit -m "Entered my lab preference."
+[assign0-basic 019f726] Entered my lab preference.
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+</code></pre></div></div>
+
+<p>The <code class="highlighter-rouge">-m</code> flag indicates the string argument to be
+used as the commit message. Alternatively, the command <code class="highlighter-rouge">git commit</code> without the <code class="highlighter-rouge">-m</code> flag, causes git to open a text editor where you can enter a more detailed commit message. In practice, good commit messages contain a short (under 50 character) summary of
+the changes on the first line, followed by a more thorough description of the
+changes.  Detailed commit messages enable programmers to look back in the
+history of changes to better understand when and why parts of the code were
+changed.</p>
+
+<p>Try out <code class="highlighter-rouge">git log</code> to view the history of commits in your current repository.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git log
+commit d1b60b978dbd59ec8fdb3377220bf9f6fce52a90 (HEAD -&gt; assign0-basic)
+Author: Julie Zelenski &lt;zelenski@cs.stanford.edu&gt;
+Date:   Thu Jan 9 13:05:11 2020 -0800
+
+    Entered my lab preference.
+</code></pre></div></div>
+
+<p>Each commit that you make records a snapshot of your work. You can use these snapshots to review your progress, compare versions, or identify and undo an unfortunate change.  Establishing good commit practices will give you the ability to navigate the history of
+code changes, as well as providing the opportunity to revert to previous
+versions.  Sometimes you may find that you want to revert to a commit before a
+set a changes that introduced a bug in your code.  The more you commit, the
+more opportunities you will have to restore previous working states without
+losing as much work.  <strong>We recommend that you commit early and often and that you write
+detailed commit messages.</strong></p>
+
+<h3 id="5-push-to-github">5. Push to GitHub</h3>
+<p>The commits you have made so far are stored only in your local repository.  The next step is to push those changes to GitHub, which synchronizes the remote repository to match your local copy. Pushing to GitHub is also necessary to share your work with the course staff for grading.</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git push
+Counting objects: 3, done.
+Delta compression using up to 2 threads.
+Compressing objects: 100% (1/1), done.
+Writing objects: 100% (3/3), 265 bytes | 0 bytes/s, done.
+Total 3 (delta 0), reused 0 (delta 0)
+To https://github.com/cs107e/[YOUR-GITHUB-USERNAME]-assignments.git
+ * f1610d4a..00a3466f  assign0-basic -&gt; assign0-basic
+</code></pre></div></div>
+
+<p>To confirm that your changes were properly received into your remote repository, view it on the web at
+<code class="highlighter-rouge">https://github.com/cs107e/[YOUR-GITHUB-USERNAME]-assignments</code>.</p>
+
+<p><strong>Note:</strong>  GitHub will show commits for <code class="highlighter-rouge">Branch: master</code> by default. To see the code and
+changes for a specific assignment branch, switch to the branch by selecting it from  <code class="highlighter-rouge">Branch</code> drop-down menu :</p>
+
+<p><img title="Changing to another branch." src="images/03-change-branch.png" width="400" /></p>
+
+<p><img src="images/02-show-commit.png" alt="After pushing." /></p>
+
+<h3 id="6-answer-background-questions">6. Answer background questions</h3>
+<p>Create a file called <code class="highlighter-rouge">background.txt</code> that contains answers to the following
+questions.  Responses to these questions will be graded by a human, so no need
+to follow strict formatting requirements.  However, please ensure that your
+responses are clearly labeled (i.e. we know what question it correspond too)
+and reasonably organized.</p>
+
+<ol>
+  <li>
+    <p>What is the result of performing a bitwise OR of the following two
+hexadecimal numbers (include the result in decimal): 0x0f OR 0xff. Now left
+shift that number by 24; what is the result in hexadecimal? Assume numbers are 32-bit.</p>
+  </li>
+  <li>
+    <p>How many milliamperes of current will flow through a 1.5K resistor connected
+to 3V on one end and 0V (Ground) on the other end?</p>
+  </li>
+  <li>
+    <p>Find a file in the directory <code class="highlighter-rouge">/etc</code> on your computer; send us the name of the
+file and the number of bytes contained in that file. How many files and
+directories are contained in the first level of directory <code class="highlighter-rouge">/etc</code>? Include the commands you used to
+answer these questions.</p>
+  </li>
+</ol>
+
+<p>Use the <code class="highlighter-rouge">git</code> commands you learned in the previous steps to stage this file and
+commit it to your local repository. Then, push your changes to your GitHub.</p>
+
+<h3 id="7-create-a-pull-request-submission">7. Create a pull request (submission)</h3>
+
+<p>In this course, assignment submission is done using GitHub’s <em>pull request</em>
+feature.  Pull requests provide a summary view of changes made to the code as
+well as a section for comments where course instructors will be providing
+feedback.</p>
+
+<p>The pull request model is used by many modern software projects to promote good
+practices when working in a distributed development environment. The typical
+flow starts with a base branch (often called <em>master</em>) that reflects the master
+copy of the code. Feature development or bug fixing occurs by creating a new
+<em>branch</em> where changes are made, followed by the submission of a <em>pull request</em>
+to the original base branch. Team members use the pull request to review the
+proposed changes and provide comments. Once the changes have been approved,
+they are merged back into the base branch. In this class, we use a similar
+model, except a grader will be reviewing your code and the base branch is the
+starter code.</p>
+
+<p>View the contents of your remote repository on the web at <code class="highlighter-rouge">https://github.com/cs107e/[YOUR-GITHUB-USERNAME]-assignments</code>. Switch to the branch <code class="highlighter-rouge">assign0-basic</code> by selecting it from the “Branch” drop-down menu.</p>
+
+<p>Click the ‘New pull request’ button.</p>
+
+<p><img title="We're on the right branch, so let's make a new pull request." src="images/04-new-pull-request.png" width="300" /></p>
+
+<p>Now you will see text entry boxes for describing the pull request, followed by
+a list of the commits that you have made and a line-by-line comparison (<code class="highlighter-rouge">diff</code>)
+of the changed files.</p>
+
+<p>Set the Title to “Submit assign0 basic” and leave the description blank (for
+future assignments you can include comments for your grader in the
+description).
+<img title="Ready to create the pull request." src="images/06-create-pull-request.png" width="500" /></p>
+
+<p>Click ‘Create pull request’, which will submit the pull request and take you to
+a page to view it:</p>
+
+<p><img title="Pull request page." src="images/07-pull-request.png" width="500" /></p>
+
+<p>There is a section indicating whether our automated checks have passed.  You
+may need to wait a minute or two and refresh if have not finished.  If the
+checks have passed, you will see a green checkmark and a message: “All checks
+have passed”. If the checks did not pass, make sure you have inserted a valid
+choice in <code class="highlighter-rouge">lab.txt</code> (one of the four choices we provided) and added a 
+<code class="highlighter-rouge">background.txt</code> with answers to the background questions.</p>
+
+<p>Each assignment has a set of automated checks that will be run upon submission. For this
+assignment, the check just verifies that <code class="highlighter-rouge">lab.txt</code> contains one of the four
+valid choices and that the <code class="highlighter-rouge">background.txt</code> file exists. Note the initial starter code will not pass the check until both criteria are met. To see more about the results and why the check is failing, click on the ‘Details’ link (you may be prompted to register for Travis and sync your Github).</p>
+
+<p>The pull request page will update to reflect any changes that are pushed after
+the initial submission (e.g. to fix any errors the checker detected).  This
+page will also be used by graders to provide feedback on your submissions.</p>
+
+<p>You make one pull request per assignment. If you need to update your submission after your initial pull request, simply edit your files, commit, and push to add it the assign0-basic branch. There is no need to make another pull request. We will grade the last commit pushed to the branch, and that commit determines the submission time for deadlines and lateness. To repeat: submission time is determined by the <strong>time of the last commit you push</strong>, not
+the time you clicked ‘Create pull request’. If the deadline is 9:00 and you create a pull request at
+8:58, and push an additional commit at 9:02, the submission is one day late.</p>
+
+<h2 id="afterward-graders-code-review">Afterward: Grader’s code review</h2>
+
+<p>Graders will review code by including line-specific and general comments on the
+pull request page:</p>
+
+<p><img title="Comments." src="images/08-comments.png" width="500" /></p>
+
+<p>Click the ‘Files changed’ tab to see your whole solution from top to bottom,
+along with any inline comments that the grader has added.</p>
+
+<p><img title="Files changed." src="images/09-files-changed.png" width="500" /></p>
+
+<p>When finished with their review, the grader will click the Merge button
+themselves. This is similar to how a coworker would merge a pull request when
+they are satisfied with the quality of the code changes that you have proposed.</p>
+
+  </div>
+  <div class="toc-column col-lg-2 col-md-2 col-sm-2 hidden-xs">
+    <div id="toc" class="toc" data-spy="affix" data-offset-top="0"></div>
+  </div> 
+</div>
+
+  <script src="/_assets/tocbot.min.js"></script>
+  <link rel="stylesheet" href="/_assets/tocbot.css">
+
+  <script>
+    tocbot.init({
+      // Where to render the table of contents.
+      tocSelector: '#toc',
+      // Where to grab the headings to build the table of contents.
+      contentSelector: '#main_for_toc',
+      // Which headings to grab inside of the contentSelector element.
+      headingSelector: 'h2, h3, h4',
+    });
+  </script>
+
+
+
+  </div>
+  <div class="footer navbar-default navbar-static-bottom">
+    <p style="font-size: 65%; color:green; text-align:center;">
+      <i>CS107e Winter 2020 &middot; Site generated 2020-04-19 20:35</i>
+  </p>
+</div> 
+</body>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+</html>

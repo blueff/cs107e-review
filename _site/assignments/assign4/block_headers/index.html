@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/_assets/site.css" rel="stylesheet">
+    <link href="/_assets/favicon.png" rel="icon" type="image/png">
+    <title>CS107E Heap allocator diagrams</title>
+  </head>
+
+<body>
+  <!-- Include this HTML partial to set up navbar -->
+
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="navbar-header">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+    <!-- hamburger -->
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+
+  <img class="navbar-brand navbar-brand-image" src="/_assets/berry.png" >
+  <a class="navbar-brand" href="/">CS107e Winter 2020</a>
+  </div>
+
+  <div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/">Home</a></li>
+      <li><a href="/assignments">Assignments</a></li>
+      <li><a href="/labs">Labs</a></li>
+      <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            Resources
+          <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/about/">About the course</a></li>
+            <li><a href="/policies/">Policies</a></li>
+            <li><a href="/schedule/">Schedule</a></li>
+            <li><a href="/guides/">Guides</a></li>
+            <li><a href="/project_gallery/">Project gallery</a></li>
+            <li><a href="/demos/">External demos</a></li>
+            <li><a href="/resources/">External resources</a></li>
+          </ul>
+        </li>
+      <li><a href="https://github.com/cs107e/cs107e.github.io">Repository</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="container" style="max-width:55em;">
+    <h1 class="title">Heap allocator diagrams</h1><hr>
+    
+  <h3 id="block-payload-and-header">Block payload and header</h3>
+
+<p>The heap allocator divides the pool of available memory into <em>blocks</em>, where each block has a size and status (free or in-use). A <code class="highlighter-rouge">malloc</code> request is serviced by finding a free block of sufficient size and changing its status from free to in-use. To <code class="highlighter-rouge">free</code> a block, its status is changed from in-use to free.</p>
+
+<p>The client’s data is called the <em>payload</em> of the block. In addition to the space reserved for the payload, the heap allocator also tracks the block metadata (size and status). A convenient place
+to store the metadata is in a block header written to the memory immediately preceding the block
+payload. This approach is quite efficient
+in that simple pointer arithmetic is used to move from the payload to 
+the header and back, no search or complex traversal is needed. The per-block header can also be quite small, which means low overhead in terms of space usage.</p>
+
+<p>Consider this struct definition for a block header:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>struct header {
+    size_t payload_size;
+    int status;       // 0 if free, 1 if in use
+};
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">sizeof(struct header)</code> will require 8 bytes.</p>
+
+<p>Assume our heap starts at address <code class="highlighter-rouge">0x9000</code> and currently contains just one block of size 0x30 that is free (status = 0).  The heap looks like this (the <code class="highlighter-rouge">x</code>s indicate payload data, which is whatever the client stored)</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Address</th>
+      <th>Contents</th>
+      <th> </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>[0x9034]</td>
+      <td>xx xx xx xx</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>[0x9030]</td>
+      <td>xx xx xx xx</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>[0x902c]</td>
+      <td>xx xx xx xx</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>[0x9028]</td>
+      <td>xx xx xx xx</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>[0x9024]</td>
+      <td>xx xx xx xx</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>[0x9020]</td>
+      <td>xx xx xx xx</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>[0x901c]</td>
+      <td>xx xx xx xx</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>[0x9018]</td>
+      <td>xx xx xx xx</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>[0x9014]</td>
+      <td>xx xx xx xx</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>[0x9010]</td>
+      <td>xx xx xx xx</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>[0x900c]</td>
+      <td>xx xx xx xx</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>[0x9008]</td>
+      <td>xx xx xx xx</td>
+      <td>payload starts here</td>
+    </tr>
+    <tr>
+      <td>[0x9004]</td>
+      <td>00 00 00 00</td>
+      <td>hdr.status</td>
+    </tr>
+    <tr>
+      <td>[0x9000]</td>
+      <td>00 00 00 30</td>
+      <td>hdr.payload_size</td>
+    </tr>
+  </tbody>
+</table>
+
+<style type="text/css">
+table 
+{ font-family: Inconsolata, Consolas, Menlo, monospace;
+  font-size: 9pt;
+  border-collapse: collapse;
+  border: none;
+}
+td:nth-child(2) {
+   border-left: 1px solid black; 
+   border-right: 1px solid black; 
+}
+tr td  {
+   padding: 1px 10px 1px 10px !important;
+}
+</style>
+
+<p></p>
+<p>If a request for 0x10 bytes comes in, the heap could hand out this large payload as-is, but a more efficient approach would be to split the block in two: 
+an in-use block with a payload size of 0x10 and a remainder free block. 
+The header for the first block is still at <code class="highlighter-rouge">0x9000</code>, but its header is
+updated to show the payload_size is now 0x10 and status is in-use. 
+The header of the remainder block is at address <code class="highlighter-rouge">0x9018</code>. Its payload
+size is 0x18 and its status is freed.  The client who made the request receives the pointer <code class="highlighter-rouge">0x9008</code>, the address of the payload of the first block.</p>
+
+<p>After the split, the heap now looks like this:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Address</th>
+      <th>Contents</th>
+      <th> </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>[0x9034]</td>
+      <td>xx xx xx xx</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>[0x9030]</td>
+      <td>xx xx xx xx</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>[0x902c]</td>
+      <td>xx xx xx xx</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>[0x9028]</td>
+      <td>xx xx xx xx</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>[0x9024]</td>
+      <td>xx xx xx xx</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>[0x9020]</td>
+      <td>xx xx xx xx</td>
+      <td>payload starts here</td>
+    </tr>
+    <tr>
+      <td>[0x901c]</td>
+      <td>00 00 00 00</td>
+      <td>hdr.status</td>
+    </tr>
+    <tr>
+      <td>[0x9018]</td>
+      <td>00 00 00 18</td>
+      <td>hdr.payload_size</td>
+    </tr>
+    <tr>
+      <td>[0x9014]</td>
+      <td>xx xx xx xx</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>[0x9010]</td>
+      <td>xx xx xx xx</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>[0x900c]</td>
+      <td>xx xx xx xx</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>[0x9008]</td>
+      <td>xx xx xx xx</td>
+      <td>payload starts here</td>
+    </tr>
+    <tr>
+      <td>[0x9004]</td>
+      <td>00 00 00 01</td>
+      <td>hdr.status</td>
+    </tr>
+    <tr>
+      <td>[0x9000]</td>
+      <td>00 00 00 10</td>
+      <td>hdr.payload_size</td>
+    </tr>
+  </tbody>
+</table>
+
+<p></p>
+<p>Given a heap that is laid out with block headers like this, how can you use pointer arithmetic to advance from one header to the subsequent header?   Given the address of the payload, how can you use pointer arithmetic to access the header associated with that payload? (Yes, pointer subtraction is just as legit as pointer addition…)</p>
+
+<p>Pointer arithmetic and proper use of typecasts are all powerful here. Be sure to understand how these mechanisms work and always keep in mind the difference in scaling when adding an offset to an <code class="highlighter-rouge">int *</code> versus a <code class="highlighter-rouge">char *</code> versus a <code class="highlighter-rouge">struct header *</code> and so on.</p>
+
+
+
+
+
+  </div>
+  <div class="footer navbar-default navbar-static-bottom">
+    <p style="font-size: 65%; color:green; text-align:center;">
+      <i>CS107e Winter 2020 &middot; Site generated 2020-04-19 20:35</i>
+  </p>
+</div> 
+</body>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+</html>

@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/_assets/site.css" rel="stylesheet">
+    <link href="/_assets/favicon.png" rel="icon" type="image/png">
+    <title>CS107E Lab 7: Raspberry Pi, Interrupted</title>
+  </head>
+
+<body>
+  <!-- Include this HTML partial to set up navbar -->
+
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="navbar-header">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+    <!-- hamburger -->
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+
+  <img class="navbar-brand navbar-brand-image" src="/_assets/berry.png" >
+  <a class="navbar-brand" href="/">CS107e Winter 2020</a>
+  </div>
+
+  <div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/">Home</a></li>
+      <li><a href="/assignments">Assignments</a></li>
+      <li><a href="/labs">Labs</a></li>
+      <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            Resources
+          <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/about/">About the course</a></li>
+            <li><a href="/policies/">Policies</a></li>
+            <li><a href="/schedule/">Schedule</a></li>
+            <li><a href="/guides/">Guides</a></li>
+            <li><a href="/project_gallery/">Project gallery</a></li>
+            <li><a href="/demos/">External demos</a></li>
+            <li><a href="/resources/">External resources</a></li>
+          </ul>
+        </li>
+      <li><a href="https://github.com/cs107e/cs107e.github.io">Repository</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="container" style="max-width:55em;">
+    <h1 class="title">Lab 7: Raspberry Pi, Interrupted</h1><hr>
+    
+  <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12" id="main_for_toc">
+    
+<p><em>Lab written by Philip Levis, updated by Pat Hanrahan and Julie Zelenski</em></p>
+
+<h2 id="goals">Goals</h2>
+
+<p>The goal of this lab is to practice with interrupts in preparation for your final assignment where you will re-work your keyboard driver into an interrupt-driven version that allows the console to operate in a satisfyingly snappy and responsive manner.</p>
+
+<p>During this lab you will:</p>
+
+<ul>
+  <li>Review the support code for interrupts on the Pi.</li>
+  <li>Write code to handle button presses using GPIO event interrupts.</li>
+  <li>Optimize a screen redraw function (and enjoy the adrenaline rush!)</li>
+  <li>Brainstorm possibilities for achieving world domination with your awesome bare-metal Raspberry Pi final project.</li>
+</ul>
+
+<h2 id="prelab-preparation">Prelab preparation</h2>
+<p>To prepare for lab, do the following:</p>
+
+<ul>
+  <li>Pull the latest version of the <code class="highlighter-rouge">cs107e.github.io</code> courseware repository.</li>
+  <li>Clone the lab repository <code class="highlighter-rouge">https://github.com/cs107e/lab7</code>.</li>
+  <li>Browse our <a href="https://cs107e.github.io/project_gallery/">project gallery</a> to gather ideas and inspiration from the projects of our past students.</li>
+</ul>
+
+<h2 id="lab-exercises">Lab exercises</h2>
+
+<p>Pull up the <a href="checkin">check in questions</a> so you have it open as you go.</p>
+
+<h3 id="interrupts">Interrupts</h3>
+
+<h4 id="1-review-interrupts-code-20-min">1) Review interrupts code (20 min)</h4>
+
+<p>In class, we introduced the <code class="highlighter-rouge">interrupts</code> module that is used to configure interrupts and manage interrupt handlers. The module interface is documented in <code class="highlighter-rouge">interrupts.h</code> and its implementation is split into the files <code class="highlighter-rouge">interrupts.c</code> (C code) and <code class="highlighter-rouge">interrupts_asm.s</code> (assembly). The files are in the <code class="highlighter-rouge">cs107e/include</code> and <code class="highlighter-rouge">cs107e/src</code> subdirectories. You can access the cs107e directory by <a href="https://github.com/cs107e/cs107e.github.io/blob/master/cs107e/">browsing cs107e on github</a> or by changing to the directory <code class="highlighter-rouge">$CS107E</code> on your laptop.</p>
+
+<p>Read through the code for <code class="highlighter-rouge">interrupts_init</code> and review the contents of the vector table and how it is installed into the correct location. Very carefully trace the critical sequence of assembly instructions in the interrupt vector used to safely transition into interrupt mode and back again. Once you get to a C function, the code proceeds pretty normally. Look at the C code which stores the client’s handler function pointers and how the dispatch finds the appropriate handler to process an interrupt.</p>
+
+<p>Challenge one another to understand each and every line of this code.  After you’ve gone through it, work through the questions below to confirm your understanding. Ask us for clarification on anything you find confusing.</p>
+
+<ul>
+  <li>
+    <p>When installing the vector table, <code class="highlighter-rouge">interrupts_init</code> copies eight instructions plus two additional words of data. What are those additional words and why is it essential that they are copied along with the table? The existing code copies the information using an explicit loop. This could instead be a single call to <code class="highlighter-rouge">memcpy</code>. What would be the correct arguments to <code class="highlighter-rouge">memcpy</code> to do the equivalent copy task?</p>
+  </li>
+  <li>
+    <p>How does the private helper <code class="highlighter-rouge">vector_table_is_installed</code> verify that initialization was successful? Find where this helper is used. What client oversight is it attempting to defend against?</p>
+  </li>
+  <li>
+    <p>What piece of state needs to change to globally enable/disable interrupts?</p>
+  </li>
+  <li>
+    <p>The supervisor stack is located at <code class="highlighter-rouge">0x8000000</code> and configured as one of the first instructions executed in <code class="highlighter-rouge">_start</code>. Where is the interrupt stack located and when it is configured?  A different approach would be to configure the interrupt stack at program start along with the supervisor stack, but doing so then would require temporarily changing to interrupt mode – why is that switch needed?</p>
+  </li>
+  <li>
+    <p>How is a function “attached” as a handler for an interrupt source? If multiple handlers are attached to the same source, how does the dispatch operation determine which one processes the interrupt? What is the consequence if no handler is found to process it?</p>
+  </li>
+</ul>
+
+<h4 id="2-set-up-a-button-circuit-15-min">2) Set up a button circuit (15 min)</h4>
+
+<p>Set up a simple, one-button circuit on your breadboard. Connect one side of the button to GPIO pin 20 and the other side to ground. Connect your Pi to a HDMI monitor.</p>
+
+<p><img title="Button circuit" src="images/button-circuit.jpg" width="300" /></p>
+
+<p>Configure the button circuit so that the default state of the pin is high (1) and pressing the button brings it low (0). The way to do this is to use a “pull-up resistor”.  (We won’t use a <em>physical</em> resistor; instead, we’ll tell the Pi to use an internal resistor.)   In the open circuit when button is not pressed, the resistor “pulls up” the value to 1.  When the button is pressed, it closes the circuit and connects the pin to ground. The value then reads as 0. This is like the behavior of the PS/2 keyboard clock line.</p>
+
+<p>Change to directory <code class="highlighter-rouge">code/interrupts</code>.  Review the code in <code class="highlighter-rouge">button.c</code>.  The program operates in a loop that waits for a button press and then redraws the screen. You are to fill in the implementation of the empty <code class="highlighter-rouge">configure_button</code> and <code class="highlighter-rouge">wait_for_click</code> functions.</p>
+
+<p>Implement <code class="highlighter-rouge">configure_button</code> to set the button gpio as an input and turn on the internal pull-up resistor. You may want to look at the similar code you used in <code class="highlighter-rouge">keyboard_init</code> to configure the gpio pins for your keyboard driver.</p>
+
+<p>Implement <code class="highlighter-rouge">wait_for_click</code> to detect a button press. The function should:</p>
+
+<ul>
+  <li>
+    <p>Wait for a falling edge on the button gpio, i.e. wait until the pin goes from 1 to 0 (checking its state with <code class="highlighter-rouge">gpio_read</code>).</p>
+  </li>
+  <li>
+    <p>Use <code class="highlighter-rouge">printf("+")</code> to report the press.</p>
+  </li>
+</ul>
+
+<p>Compile and run the program. Press the button and you get a printed <code class="highlighter-rouge">+</code> and the screen redraws. Each redraw cycles the background color from red-&gt;white-&gt;blue.</p>
+
+<ol>
+  <li>If you click the button multiple times in quick succession, some of the presses are missed. You get neither a printed <code class="highlighter-rouge">+</code> nor a screen redraw. Why does that happen?</li>
+</ol>
+
+<p>You’ll note that redrawing the screen is glacially slow. If we sped that up (which we will do later in this lab!), it would cause us to miss fewer events, but that’s not a satisfying fix architecturally. Rather than having to continually read the button state and risk missing an event by not checking at the correct moment, let’s ask the CPU to nudge us when a button event occurs. Interrupts to the rescue!</p>
+
+<h4 id="3-write-an-interrupt-handler-30-min">3) Write an interrupt handler (30 min)</h4>
+
+<p>You are now going to rework the program to detect button presses via interrupts.</p>
+
+<p>Edit the loop in <code class="highlighter-rouge">main</code> to remove the call to <code class="highlighter-rouge">wait_for_click</code>. Compile and re-run. The program should now repeatedly redraw the screen, cycling the colors red-&gt;white-&gt;blue. This appears to completely dominate the CPU and leave no time for anything other than screen redraw. If we manage to jam an interrupt into there, then we will know we can stuff one anywhere!</p>
+
+<p>There are several steps to configuring and enabling interrupts:</p>
+
+<ul>
+  <li>Modify <code class="highlighter-rouge">configure_button</code> to enable detection of falling edge events. Consult the header <a href="https://github.com/cs107e/cs107e.github.io/blob/master/cs107e/include/gpioextra.h">gpioextra.h</a> for documentation on the function <code class="highlighter-rouge">gpio_enable_event_detection</code>.</li>
+  <li>Define a new handler callback function that checks whether the button has a pending event and if so, processes and clears the event. Review the functions in <code class="highlighter-rouge">gpioextra.h </code>for checking and clearing the event status. For now, use <code class="highlighter-rouge">printf("!")</code> to process.</li>
+  <li>In <code class="highlighter-rouge">main</code>, call <code class="highlighter-rouge">interrupts_init</code> to initialize the interrupts module and call <code class="highlighter-rouge">interrupts_attach_handler</code> to attach your handler function to the interrupt source for gpio events <code class="highlighter-rouge">INTERRUPTS_GPIO3</code></li>
+  <li>After all is ready, <code class="highlighter-rouge">main</code> calls <code class="highlighter-rouge">interrupts_global_enable</code> to turn on interrupt generation.</li>
+</ul>
+
+<p>Talk this over with your tablemates and ensure that you understand what each step does and why it’s necessary.</p>
+
+<p>Compile and run the program. As before, the loop main appears to be continuously redrawing, but pressing the button causes a quick detour to print a <code class="highlighter-rouge">!</code>.  You may even see a string of <code class="highlighter-rouge">!</code> from a single press to due mechanical bounce in the switch.</p>
+
+<p>Let’s change <code class="highlighter-rouge">main</code> instead to only redraw in response to a button press.</p>
+
+<p>Coordination across regular and interrupt code can be done using global state. Declare a global variable <code class="highlighter-rouge">static int gCount</code> to count the number of presses. Edit the handler function to increment <code class="highlighter-rouge">gCount</code> and print the count along with the <code class="highlighter-rouge">!</code>. Edit the loop in <code class="highlighter-rouge">main</code> to compare the current value of <code class="highlighter-rouge">gCount</code> to the last known value, and only redraw whenever it has updated.</p>
+
+<p>Compile and run the program. Confirm that each button press is individually detected and counted, including multiple events from a noisy switch.</p>
+
+<ol>
+  <li>The variable <code class="highlighter-rouge">gCount</code> must be declared <code class="highlighter-rouge">volatile</code>. Why? Can the compiler tell,
+by looking at only this file, how control flows between main and the interrupt handler? Will the compiler generate different code if <code class="highlighter-rouge">volatile</code> than without it? Will the program behave differently? Test it both ways and find out!</li>
+</ol>
+
+<p>Now, edit your handler to comment out the step that clears the event. Compile and run the program and see how this changes the behavior. What changes and why?</p>
+
+<p>When you’re done, discuss and answer the following questions with your 
+neighbors.</p>
+
+<ol>
+  <li>
+    <p>What changes if <code class="highlighter-rouge">gCount</code> is not declared <code class="highlighter-rouge">volatile</code>?</p>
+  </li>
+  <li>
+    <p>Describe what is done by each step of configuring and enabling interrupts. What would be the effect of forgetting that step?</p>
+  </li>
+  <li>
+    <p>What happens if the handler does not clear the event before returning?</p>
+  </li>
+</ol>
+
+<h4 id="4-use-a-ring-buffer-queue-15-min">4) Use a ring buffer queue (15 min)</h4>
+
+<p>Look carefully at the output printed by the program and you’ll note that although every event is detected and counted, the number of redraw iterations is not one-to-one with those updates because the value of <code class="highlighter-rouge">gCount</code> can update multiple times between checks.</p>
+
+<p>To track all updates and process each one by one, we can use a queue to communicate between the interrupt handler and <code class="highlighter-rouge">main</code>. The handler will enqueue each update to the queue and the main will dequeue to read them from the queue. Because the queue stores every individual update posted by the interrupt handler, we can be sure that we never miss one.</p>
+
+<p>How to rework the code:</p>
+
+<ul>
+  <li>Review the <a href="https://github.com/cs107e/cs107e.github.io/blob/master/cs107e/include/ringbuffer.h">ringbuffer.h</a> header file and <a href="https://github.com/cs107e/cs107e.github.io/blob/master/cs107e/src/ringbuffer.c">ringbuffer.c</a> source for documentation on the ring buffer queue. This ADT maintains a simple queue of integer values implemented as a ring buffer.</li>
+  <li>Declare a global variable of type <code class="highlighter-rouge">rb_t *rb</code> and edit <code class="highlighter-rouge">main</code> to initialize <code class="highlighter-rouge">rb</code> with a call to <code class="highlighter-rouge">rb_new</code>.</li>
+  <li>Edit the handler to store the updated counter’s value into the queue with a call to <code class="highlighter-rouge">rb_enqueue</code>.</li>
+  <li>Edit <code class="highlighter-rouge">main</code> to retrieve an update from the queue with a call to <code class="highlighter-rouge">rb_dequeue</code>. This replaces the previous code that read the global variable and compared to previous value to detect update.</li>
+</ul>
+
+<p>Make the above changes and rebuild and run the program. It should now redraw the screen once for each button press in one-to-one correspondence, including patiently processing a backlog of redraws from a sequences of fast presses.</p>
+
+<p>When you’re done, take a moment to verify your understanding:</p>
+
+<ol>
+  <li>Why is the significance of the return value from <code class="highlighter-rouge">rb_dequeue</code>? Why is it essential to pay attention to that return value?</li>
+  <li>Why might you want the handler to enqueue and return instead of doing
+the actual task (e.g. redraw) directly in the handler?</li>
+  <li>With this change, is it now necessary for <code class="highlighter-rouge">gCount</code> to be declared <code class="highlighter-rouge">volatile</code>? Does the ring buffer need to be declared <code class="highlighter-rouge">volatile</code>?  Why or why not?</li>
+</ol>
+
+<h3 id="project-brainstorm-and-team-speed-dating-20-minutes">Project brainstorm and team speed-dating (20 minutes)</h3>
+
+<p>Visit our <a href="https://cs107e.github.io/project_gallery/">project gallery</a> to see a sampling of projects from our past students. We are <strong>so so proud</strong> of the creations of our past students – impressive, inventive, and fun! You’ll get started in earnest on the project next week, but we set aside a little time in this week’s lab for a group discussion to preview the general guidelines and kindle your creativity about possible directions you could take in your project. If you have questions about the project arrangements or are curious about any of our past projects, please ask us for more info, we love to talk about the neat work we’ve seen our students do. If you have ideas already fomenting, share with the group to find synergy and connect with possible teammates. Project teams are most typically pairs, although occasionally we have had solo or trios.</p>
+
+<h3 id="need-for-speed-20-min">Need for speed (20 min)</h3>
+
+<p>As a fun bonus exercise, let’s take a look at what you can do when you’re done
+writing correct code: optimization. With this, your code can start moving
+wickedly fast – seriously.</p>
+
+<p>Change directory to <code class="highlighter-rouge">code/speed</code> and review the source in the <code class="highlighter-rouge">speed.c</code>
+file.</p>
+
+<p>The program has the <code class="highlighter-rouge">redraw</code> function from the interrupts exercise, along with some timer scaffolding to count the
+ticks during the function’s execution. The purpose of <code class="highlighter-rouge">redraw</code> is to draw every pixel in the screen in the same color.</p>
+
+<p>The given version works correctly, but is naive to a fault. Build and run the
+code as given to get a baseline tick count. <em>It is possible to gain more than a 1000x speedup over the
+redraw0 function!</em></p>
+
+<p>Take a stepwise approach, so you can measure the effect of a given
+modification in isolation:</p>
+
+<ol>
+  <li>
+    <p><strong>Duplicate the previous function and tweak it.</strong> For example, make a copy of <code class="highlighter-rouge">redraw0</code> and rename it <code class="highlighter-rouge">redraw1</code>. Make a small change to the code in <code class="highlighter-rouge">redraw1</code> that you think will impact performance.</p>
+  </li>
+  <li>
+    <p>Make a rough prediction about the expected effect on runtime.</p>
+  </li>
+  <li>
+    <p>Build and run the new version to see whether the observed timing matches your intuition. Where the results surprise you, try to figure out why the effect is different than expected. Poke around in the
+generated assembly or ask us questions.</p>
+  </li>
+</ol>
+
+<p>Repeat this process, each time advancing from the best version so far and
+making another small change.</p>
+
+<p>Below are some suggested avenues to explore:</p>
+
+<ul>
+  <li>Hoisting an unnecessarily repeated operation outside the loop is always good idea. Those calls to <code class="highlighter-rouge">gl_get_width</code> and <code class="highlighter-rouge">gl_get_height</code> on each loop iteration have gotta go!</li>
+  <li>There are a <strong>lot</strong> of calls to <code class="highlighter-rouge">gl_draw_pixel</code>. Each is incurring the overhead of a function call and the (redundant) bounds checking within the call.  If you bypass <code class="highlighter-rouge">gl</code>, get the draw buffer from <code class="highlighter-rouge">fb</code> and write each pixel directly to the framebuffer, it will have a significant effect.</li>
+  <li>Does changing the order the pixels are accessed make a difference, i.e. instead of looping row by column, what if you loop column by row?</li>
+  <li>What about looping over the pixels as a 1-d array instead of nested loop in 2-d?</li>
+  <li>Here’s something that can be tried without changing the code: edit the Makefile to enable various levels of compiler optimization and
+rebuild and re-run. What difference do you observe between <code class="highlighter-rouge">-O0</code>, <code class="highlighter-rouge">-Og</code>, <code class="highlighter-rouge">-O2</code> and
+<code class="highlighter-rouge">-Ofast</code>?</li>
+  <li>Think about where the function spends time. Recall that every instruction 
+contribute a cost: are there ways to change the function so that it does the 
+same work with fewer instructions? Take a look at the assembly in <code class="highlighter-rouge">speed.list</code> to see where
+the effort is going. It takes just a few instructions to write a pixel but each loop iteration adds the overhead cost to increment, compare, branch. How could you change the loop to issue fewer of these
+overhead instructions and focus more on doing the meaty work of writing pixels?</li>
+</ul>
+
+<p>How big of an improvement were you able to make overall? Where did you get the biggest bank for your buck?</p>
+
+<h2 id="check-in-with-ta">Check in with TA</h2>
+
+<p>At the end of the lab period, call over a TA to <a href="checkin">check in</a> with your progress on the lab.</p>
+
+
+  </div>
+  <div class="toc-column col-lg-2 col-md-2 col-sm-2 hidden-xs">
+    <div id="toc" class="toc" data-spy="affix" data-offset-top="0"></div>
+  </div> 
+</div>
+
+  <script src="/_assets/tocbot.min.js"></script>
+  <link rel="stylesheet" href="/_assets/tocbot.css">
+
+  <script>
+    tocbot.init({
+      // Where to render the table of contents.
+      tocSelector: '#toc',
+      // Where to grab the headings to build the table of contents.
+      contentSelector: '#main_for_toc',
+      // Which headings to grab inside of the contentSelector element.
+      headingSelector: 'h2, h3, h4',
+    });
+  </script>
+
+
+
+  </div>
+  <div class="footer navbar-default navbar-static-bottom">
+    <p style="font-size: 65%; color:green; text-align:center;">
+      <i>CS107e Winter 2020 &middot; Site generated 2020-04-19 20:35</i>
+  </p>
+</div> 
+</body>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+</html>

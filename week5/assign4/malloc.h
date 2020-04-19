@@ -51,4 +51,9 @@ void free(void *ptr);
  */
 void *realloc(void *ptr, size_t new_size);
 
+void heap_dump(char *title);
+
+// A helper method for testing
+void _reset_heap(void);
+
 #endif

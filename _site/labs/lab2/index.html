@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/_assets/site.css" rel="stylesheet">
+    <link href="/_assets/favicon.png" rel="icon" type="image/png">
+    <title>CS107E Lab 2: Below C Level</title>
+  </head>
+
+<body>
+  <!-- Include this HTML partial to set up navbar -->
+
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="navbar-header">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+    <!-- hamburger -->
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+
+  <img class="navbar-brand navbar-brand-image" src="/_assets/berry.png" >
+  <a class="navbar-brand" href="/">CS107e Winter 2020</a>
+  </div>
+
+  <div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/">Home</a></li>
+      <li><a href="/assignments">Assignments</a></li>
+      <li><a href="/labs">Labs</a></li>
+      <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            Resources
+          <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/about/">About the course</a></li>
+            <li><a href="/policies/">Policies</a></li>
+            <li><a href="/schedule/">Schedule</a></li>
+            <li><a href="/guides/">Guides</a></li>
+            <li><a href="/project_gallery/">Project gallery</a></li>
+            <li><a href="/demos/">External demos</a></li>
+            <li><a href="/resources/">External resources</a></li>
+          </ul>
+        </li>
+      <li><a href="https://github.com/cs107e/cs107e.github.io">Repository</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="container" style="max-width:55em;">
+    <h1 class="title">Lab 2: Below C Level</h1><hr>
+    
+  <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12" id="main_for_toc">
+    
+<p><img src="images/belowClevel.jpg" alt="Death Valley" width="50%" style="float:right;" /></p>
+
+<p><br />
+<em>Lab written by Pat Hanrahan</em></p>
+
+<hr />
+<p><br /></p>
+<h2 id="goals">Goals</h2>
+<p>During this lab you will:</p>
+<ul>
+  <li>Understand the assembly language produced by <code class="highlighter-rouge">gcc</code> when compiling a C program.</li>
+  <li>Understand basic makefiles.</li>
+  <li>Learn how to unit test your C program.</li>
+  <li>Begin breadboarding a 4-digit 7-segment display for your next assignment, the clock.</li>
+</ul>
+
+<h2 id="prelab-preparation">Prelab preparation</h2>
+
+<p>To prepare for this lab, please do the following:</p>
+
+<ol>
+  <li>
+    <p>Read our <a href="/guides/gcc">gcc guide</a>
+about how to compile C programs for bare metal
+programming on the Raspberry Pi.</p>
+  </li>
+  <li>
+    <p>Read our <a href="/guides/make">make guide</a>
+on the structure of makefiles.</p>
+  </li>
+  <li>Read <a href="#crossref">section 4a below</a> on the theory of operation
+for 7-segment displays. If you have time, skim the rest of exercise 4 to get the lay of the land for the breadboarding work.
+    <ul>
+      <li>You will be doing a lot of breadboarding in this lab and using hand tools such as wire strippers, cutters and pliers.  We will have tools available, but there is not enough for everyone, so you will have to share them. <strong>If you have your own tools, please bring them to lab!</strong></li>
+      <li><a href="/guides/handtools/">Pat’s advice</a> on owning your own tools.</li>
+    </ul>
+  </li>
+  <li>Pull the latest version of the <code class="highlighter-rouge">cs107e.github.io</code> courseware repository.</li>
+  <li>Clone the lab repository <code class="highlighter-rouge">https://github.com/cs107e/lab2</code>.</li>
+</ol>
+
+<h2 id="lab-exercises">Lab exercises</h2>
+
+<p>First things first: get some snack and pair up with a buddy and introduce yourself. Congratulate each other on completing your first assignment! Bring up the <a href="checkin">check-in</a> questions to ponder as you work through lab. There are four exercises today and we recommend that you spend no more than 20 minutes each on the first three, reserving the second hour of lab for the breadboarding task. You should leave lab with a solid start on the hardware setup needed for your next assignment.</p>
+
+<h3 id="1-c-to-assembly-20-min">1. C to assembly (20 min)</h3>
+
+<p>Compilers are truly an engineering marvel. Converting a C program into a fitting use of assembly instructions, registers, and memory necessitates both technical mastery and a fair bit of artistry. From here forward in the course, you’ll hand over to the compiler the task of writing assembly, but you will continue to grow your fluency reading and understanding assembly. For this exercise, you will observe and pay tribute to the handiwork of the compiler.</p>
+
+<p>Sometimes the assembly
+produced by the C compiler can be surprising. You will be pleased by its clever optimizations, although occasionally its eagerness can also remove or rearrange your code in ways that confound your intentions. When this happens to you, you can deploy your ARM superpowers to dig into the generated
+assembly and figure out what the compiler did rather that sit
+there dumbfounded by the unexpected behavior!</p>
+
+<p>Change to the <code class="highlighter-rouge">lab2/code/codegen</code> directory. Open the <code class="highlighter-rouge">codegen.c</code> source file in
+your text editor. The file contains four parts that concern different aspects of C: arithmetic, if/else, loops, and pointers.</p>
+
+<p>Skim the C code and read our comments.</p>
+
+<p>In your browser, visit the <a href="https://godbolt.org/z/fztCXO">Compiler Explorer</a>. Configure the settings to match our toolchain:  <code class="highlighter-rouge">C</code> language, compiler version <code class="highlighter-rouge">ARM gcc 5.4.1 (none)</code> and optimization flags <code class="highlighter-rouge">-Og</code>.</p>
+
+<p>Copy the  <code class="highlighter-rouge">part_a</code> function
+from <code class="highlighter-rouge">codegen.c</code> and paste into the Compiler Explorer source pane on the left and read the generated assembly shown in the right pane. Verify that the assembly accomplishes what was asked for in the C source. Do you note any surprising choices in how it goes about it?  Read our comments in <code class="highlighter-rouge">codegen.c</code> as the guide for what to look for and follow-up experiments to try. After you finish exploring <code class="highlighter-rouge">part_a</code>, do the same with parts b, c, and d.</p>
+
+<p>The Compiler Explorer is great fun for a quick interactive exploration; you can also use your regular command-line tools to see the compiler’s output. The command <code class="highlighter-rouge">arm-none-eabi-objdump -d somefile.o</code> invokes the <em>disassembler</em> to extract the assembly from a compiled object file. Run the command <code class="highlighter-rouge">make codegen.list</code> to see the steps involved. Open the resulting <code class="highlighter-rouge">codegen.list</code> file in your text editor and you can review the entire program’s worth of assembly.</p>
+
+<p>A good way to learn how a system works is by trying
+things. Curious about a particular C construct is translated to assembly? Wonder about the effect of changing the compiler optimization level? Try it out and see. Let your curiosity be your guide!</p>
+
+<h3 id="2-makefiles-20-min">2. Makefiles (20 min)</h3>
+
+<p>Change to the directory <code class="highlighter-rouge">lab2/code/makefiles</code> and view the C version of the blink program and its simple Makefile, reproduced below:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    NAME = blink
+
+    CFLAGS = -g -Wall -Og -std=c99 -ffreestanding
+    LDFLAGS = -nostdlib -e main
+
+    all: $(NAME).bin
+
+    %.bin: %.elf
+        arm-none-eabi-objcopy $&lt; -O binary $@
+
+    %.elf: %.o
+        arm-none-eabi-gcc $(LDFLAGS) $&lt; -o $@
+
+    %.o: %.c
+        arm-none-eabi-gcc $(CFLAGS) -c $&lt; -o $@
+
+    install: $(NAME).bin
+        rpi-install.py $&lt;
+
+    clean:
+        rm -f *.o *.elf *.bin
+</code></pre></div></div>
+
+<p>Discuss and document the various features and syntactical
+constructs used in this Makefile.</p>
+
+<ul>
+  <li>What is the purpose for each of the CFLAGS?</li>
+  <li>What happens if you just type <code class="highlighter-rouge">make</code>? Which commands will execute?</li>
+  <li>If you modify blink.c and run <code class="highlighter-rouge">make</code> again, which commands will rerun?
+What part of each target indicates the prerequisites? (A prerequisite means
+that if that file changes, then the target is stale and must be rebuilt)</li>
+  <li>What do the symbols <code class="highlighter-rouge">$&lt;</code> and <code class="highlighter-rouge">$@</code> mean?</li>
+</ul>
+
+<p>You should be able to answer the <a href="checkin">make check-in question</a> now.</p>
+
+<h3 id="3-testing-20-min">3. Testing (20 min)</h3>
+
+<p>An effective developer knows that testing your code goes hand-in-hand with writing it. The better your tests and more timely your efforts, the sooner you will find your bugs and the easier your debugging will be. To help you grow this important skill, upcoming assignments will include a required testing component along with our guidance on testing structure and strategies..</p>
+
+<p>The standard C library offers an <code class="highlighter-rouge">assert</code> macro for use as a simple diagnostic. Run the command <code class="highlighter-rouge">man assert</code> in your Terminal to read about the standard library version. The <code class="highlighter-rouge">assert</code> macro takes an expression that is expected to evaluate to true. If the expression is, in fact, true, then the assertion succeeds and the program continues on.  If the expression is false, the assertion fails which cause the program to print an error message and exit.</p>
+
+<p>Running bare metal means no standard libraries, and furthermore we don’t have printf (yet!). To get something akin to <code class="highlighter-rouge">assert</code>, we have to cobble it up ourselves and given our limited resources, it will be rather primitive.  There are two LEDs built onto the Raspberry Pi board that we will use to signal success and failure. One is a red LED labeled “PWR”; by default this LED is lit whenever the Pi is receiving power. There is also a green LED labeled “ACT” that we have used by the bootloader heartbeat.  Our bare bones <code class="highlighter-rouge">assert</code> is going to co-opt these LEDs for its own purposes and blink the red LED to report a failure and turn the green LED steady on to report total success.</p>
+
+<p>Let’s walk through an example that shows using assertions as rudimentary testing tool.</p>
+
+<h4 id="a-buggy-program">A buggy program</h4>
+
+<p>Change to the <code class="highlighter-rouge">lab2/code/testing</code> directory. The program in <code class="highlighter-rouge">testing.c</code> defines the <code class="highlighter-rouge">count_bits</code> function to count the on bits in a given number.  Each test case in <code class="highlighter-rouge">main()</code> calls <code class="highlighter-rouge">count_bits</code> on an input and asserts that the result is correct. The code in <code class="highlighter-rouge">count_bits</code> works correctly for some inputs but not all. Don’t try to work out the bug by inspection, instead let’s see how we can using testing to determine which test cases are failing.</p>
+
+<h4 id="what-do-you-expect">What do you expect?</h4>
+
+<p>First, let’s review what we expect to
+happen when executing the test program. If a test case fails, the <code class="highlighter-rouge">assert</code> macro (in <code class="highlighter-rouge">assert.h</code>) will call <code class="highlighter-rouge">abort</code>, but what does <code class="highlighter-rouge">abort</code> do? (hint: read the comments in the file <code class="highlighter-rouge">abort.c</code>)</p>
+
+<p>Look at <code class="highlighter-rouge">cstart.c</code> to see what happens after the
+program runs to completion without a failed assert, i.e., what
+follows after <code class="highlighter-rouge">main()</code> finishes?. (Don’t worry about the <code class="highlighter-rouge">bss</code> stuff
+for now: we will talk about that in lecture soon.)</p>
+
+<p>What do you expect to see on the Pi if:</p>
+<ul>
+  <li>if the <code class="highlighter-rouge">count_bits()</code> test case is called on a value that triggers its bug?</li>
+  <li>if the <code class="highlighter-rouge">count_bits()</code> test case is called on a value that works correctly?</li>
+  <li>if the executing program has multiple test cases, some of which succeed and some that fail?</li>
+</ul>
+
+<h4 id="run-tests">Run tests</h4>
+
+<p>Use <code class="highlighter-rouge">make</code> to build the program as-is and <code class="highlighter-rouge">rpi-install.py testing.bin</code> to execute on the Pi. You get the blinking red LED of doom. Hmmm, so at least one test failed, but which one?</p>
+
+<p>It’s time to divide and conquer. Leave in the first half of the test cases and comment out the remainder. Rebuild and re-run. If it fails, you know you have a culprit(s) in the first half; otherwise you can move on to looking in the second half. The strategy is to iterate, selectively commenting in/out
+test cases and re-running to narrow in on which specific cases fail.
+How many of the test cases pass? How many fail?  Which ones? Why?</p>
+
+<p>Organize the test results to identify the pattern to the failures. Use that information to find and fix the bug in <code class="highlighter-rouge">count_bits</code> so that it works correctly for all inputs. Note that a test case is only as good as you make it. An incorrect test case could make you think your code is working when it isn’t, or make you think your code isn’t working when it is — so, in addition to fixing <code class="highlighter-rouge">count_bits</code>, go through all the test cases and make sure the test is properly constructed, i.e. properly asserts an expression that should be true.</p>
+
+<p>After fixing <code class="highlighter-rouge">count_bits</code> and any incorrect test cases, uncomment all test cases, rebuild, re-run, and bask in the glow of the green light of happiness!</p>
+
+<h4 id="make-install">Make install</h4>
+
+<p>Phew, typing out <code class="highlighter-rouge">rpi-install.py testing.bin</code> so many times was
+a chore! Add a recipe for
+<code class="highlighter-rouge">install</code> to the Makefile that will build and run
+the program with the single command <code class="highlighter-rouge">make install</code>. Make sure that the dependencies for the install target are configured to trigger a rebuild of the program when needed.</p>
+
+<p><a name="crossref"></a></p>
+<h3 id="4-wire-up-display-breadboard-60-min">4. Wire up display breadboard (60 min)</h3>
+
+<p>The second half of the lab period is devoted to wiring up the breadboard circuit needed for Assignment 2, a clock implemented on a 4-digit 7-segment display.</p>
+
+<p>The lab exercise below guides you in stages and has you test each stage before moving on.
+This “test as you go” strategy is the hallmark of a great engineer. Do not cut corners in a mad rush to finish in record time! The important goal for tonight is to thoroughly understand the circuit you’re building, make a solid start on it, and leave with a clear plan for how to complete the rest on your own.</p>
+
+<h4 id="4a-theory-of-operation">4a) Theory of operation</h4>
+
+<p>Start by understanding how a single 7-segment display works.
+<span class="pull-right">
+<img src="images/segments.png" alt="7-segment" />
+</span>
+The 7-segment display, as its name implies, is comprised of 7 individually lightable LEDs, labeled A, B, C, D, E, F, and G. There is also a decimal point labeled DP. Each segment is an LED. Recall that an LED has an anode and a cathode. The polarity matters for an LED; the anode voltage must be positive relative to the cathode for the LED to be lit. If the cathode is positive with respect to the anode, the segment is not lit.</p>
+
+<p>On the 7-segment displays we are using,
+the cathodes (ground) are all connected together,
+to a single ground.
+Such a display is called a <em>common cathode</em> display.</p>
+
+<p><img src="images/common.cathode.png" alt="Common Cathode" /></p>
+
+<p>To display a digit, you turn on the appropriate segments by connecting the
+common cathode (ground) to ground and applying a voltage to those segment
+pins. Turning on all seven segments would display the digit <code class="highlighter-rouge">8</code>.</p>
+
+<p>Your clock will display minutes and seconds, using two digits for the minutes and two digits for the seconds,
+for a total of four digits.
+The clock display in your kit has four 7-segment displays integrated into a single unit, as shown in the photo below:</p>
+
+<p><img src="images/display.jpg" title="4-digit, 7-segment display" width="200" /></p>
+
+<p>Here is the schematic for the four-digit 7-segment display:</p>
+
+<p><img title="7-segment schematic" src="images/display.schematic.png" width="600" /></p>
+
+<p>Untangling the schematic can be a bit tricky. There are twelve pins in total: four digit pins (<code class="highlighter-rouge">DIG.1</code>, <code class="highlighter-rouge">DIG.2</code>, <code class="highlighter-rouge">DIG.3</code>, and <code class="highlighter-rouge">DIG.4</code>) and eight segment pins (<code class="highlighter-rouge">A</code>, <code class="highlighter-rouge">B</code>, <code class="highlighter-rouge">C</code>, <code class="highlighter-rouge">D</code>, <code class="highlighter-rouge">E</code>, <code class="highlighter-rouge">F</code>, <code class="highlighter-rouge">G</code>, <code class="highlighter-rouge">DP</code>). Each segment pin connects to all four digits; trace from the pin numbered 11 to see the connections to the <code class="highlighter-rouge">A</code> segment for each digit. Each digit has its own unique ground, e.g. <code class="highlighter-rouge">DIG.1</code> is the cathode/ground pin for digit 1. Trace how each of eight segments connect to this shared ground.</p>
+
+<p>If you turn on segment pins <code class="highlighter-rouge">B</code> and <code class="highlighter-rouge">C</code> and connect <code class="highlighter-rouge">DIG.1</code> and <code class="highlighter-rouge">DIG.2</code> to ground, the first
+and second digits both display <code class="highlighter-rouge">"1"</code> while the third and
+fourth digits do not display anything (their ground is not
+connected).</p>
+
+<p>The photo below shows the placement of the pins on the display. Note that the <code class="highlighter-rouge">DIG.1</code>,
+<code class="highlighter-rouge">DIG.2</code>, <code class="highlighter-rouge">DIG.3</code>, and <code class="highlighter-rouge">DIG.4</code> labels have been shortened to <code class="highlighter-rouge">D1</code>, <code class="highlighter-rouge">D2</code>, <code class="highlighter-rouge">D3</code>, and <code class="highlighter-rouge">D4</code>. The pins are also numbered for reference. By convention, numbering starts at the bottom left corner (pin #1), and proceeds in a counter-clockwise fashion until reaching the upper left corner (pin #12).</p>
+
+<p><img src="images/display.labeled3.jpg" alt="4-digit, 7-segment display" width="60%" /></p>
+
+<h4 id="4b-wire-up-resistorssegments">4b) Wire up resistors/segments</h4>
+
+<p>In steps 4b and 4c, you will connect your display pins and test
+them. For ease of debugging, we recommend that you first connect your display using jumper cables. After validating your circuit, you will re-wire it in
+a neater and more permanent fashion.</p>
+
+<p><em>Note: The wire supplied in lab is #22 AWG solid core. Some wire strippers have a
+ #22 hole that is perfectly-sized for stripping this gauge wire.</em></p>
+
+<p>First, connect the two power rails and two ground rails on your breadboard using red and black wires. This makes accessing power and ground via jumpers more convenient. My convention is to always orient my breadboard so that the blue ground rail is on
+the bottom (after all, ground is always underneath us).</p>
+
+<p><img src="images/power-rails.jpg" alt="Breadboard with two wires" /></p>
+
+<p>Now insert the display on the far right edge of breadboard. Make sure the display is
+oriented correctly: the decimal points should be on the bottom, and the digits
+slanted to the right.</p>
+
+<p>Take note of the column numbering on your breadboard when you place your
+display. Knowing which breadboard column number aligns with each pin is helpful since after you insert the display into the breadboard you can no longer
+see the pins underneath. We chose to place our display so <strong>pin 1 of the display is aligned with column 50 on the breadboard</strong>.</p>
+
+<p>The display LEDs require a current-limiting resistor just as the LEDs in your larson scanner did. Place a 1K resistor on the board bridging the
+middle. Use the cutter to clip the leads so that it sits neatly.</p>
+
+<p>Use a pair of red and black male-female jumpers to connect the power and ground rails of the breadboard to the 3.3V and Ground
+pins on your Raspberry Pi. Pick out three short male-male jumpers (orange for 3.3V, black for GND, and green). Use the orange jumper to connect the top of
+the resistor to the red power rail. Use the green jumper from the bottom of the resistor to
+segment A (Pin 11, which will be at breadboard columns 51 if you aligned Pin 1
+to column 50 as described above). Use the black jumper to tie digit D1 (Pin 12, column 50) to the ground rail. When you apply power to your Rasberry Pi, segment A of
+digit 1 should light up as shown below:</p>
+
+<p><img src="images/jumper1.jpg" alt="Wired breadboard with components" /></p>
+
+<p>You can change which segment and digit is lit by moving your jumpers to different pins. Move
+your segment jumper to light up segment B instead of segment A. Move your
+digit jumper to light up segment B of digit 2 instead of digit 1. Add an
+additional jumper to light up segment B of <strong>both</strong> digits 1 and 2.  Note
+that you cannot simultaneously display different segments on different digits:
+Why not?</p>
+
+<p>You and you partner should now discuss the <a href="checkin">checkin</a> question on the 7-segment display and confirm with the TA before moving on.</p>
+
+<p>For the remainder of the lab, the breadboard samples will be accompanied by
+<em>circuit schematics</em>. Below is the schematic for the breadboard circuit
+shown above. Take a moment to identify all of the components in the schematic.</p>
+
+<p><img src="images/schematic1.png" alt="Matching breadboard circuit diagram" /></p>
+
+<p>Now place seven additional 1K resistors on your breadboard, bringing the total to eight, one for each segment. We
+suggest the convention that the leftmost resistor controls segment A, and so
+on such that the rightmost resistor controls segment DP. After you add the
+resistors, test your circuit. Simultaneously wiring up all segments with 8
+jumper cables can be messy; instead use a pair of jumpers to wire up 2 segments
+at a time and move the jumpers to test all 8. As you go, you may want to make a
+sketch of the correct connection between each resistor and its display pin you
+can refer to when wiring up the permanent circuit.</p>
+
+<p>Wire up your jumpers to display the pattern <code class="highlighter-rouge">"1 1 "</code>, just as in
+the schematic below. Here a space means that the digit is blank (no segments
+turned on).</p>
+
+<p><img src="images/schematic2.png" alt="1-1- circuit diagram" /></p>
+
+<p><img src="images/jumper2.jpg" alt="Wired breadboard with components" /></p>
+
+<h4 id="4c-wire-up-transistorsdigits">4c) Wire up transistors/digits</h4>
+
+<p>Up to now, you have been controlling whether a digit is on by adding or
+removing a jumper that connects the digit pin to ground. We eventually want to
+control which segments and digits are turned on using the Raspberry Pi GPIO
+pins, so we need an electronic switch that can be controlled by these pins.
+To do this we will use bipolar-junction transistors, or BJTs.</p>
+
+<p>A transistor has three terminals— the base (B), collector (C), and emitter (E).
+The base controls the amount of current flowing from the collector to the
+emitter. Normally, no current flows from collector to emitter. This condition
+is an open circuit. However, if you apply 3.3V to the base, the collector will
+be connected to the emitter and current will flow. This is equivalent to
+closing the switch.</p>
+
+<p>We will be using 2N3904 transistors. The following diagram identifies which
+pins on the 2N3904 are collector, base, and emitter.</p>
+
+<p><img src="images/2n3904.jpg" alt="2n3904" /></p>
+
+<p>The transistor cap has a flat side and a rounded side. If you are looking
+at the flat side with the legs pointing down, the leftmost leg will be the
+emitter.</p>
+
+<p>Instead of wiring a digit pin directly to ground as before, you will connect the digit pin to the collector of a transistor whose emitter is connected to ground.
+Now applying power to the transistor base activates the switch and grounds the
+digit pin.</p>
+
+<p>First, disconnect the direct connections from your digit pins from ground.
+Place the four transistors in your breadboard. We suggest arranging your
+transistors such that the leftmost transistor controls digit pin D1 and the
+rightmost controls pin D4.</p>
+
+<p>Now connect D1’s transistor. Wire the collector to D1 and the emitter
+to ground. Connect the base to the control voltage through a 1K
+current-limiting resistor.</p>
+
+<p>Apply power to the base of the transistor.
+You should see <code class="highlighter-rouge">"1 ‍ ‍ ‍ "</code> on the display.</p>
+
+<p>Here’s a board and matching schematic where we’ve connected <em>both</em> D1 and D3 to
+the collectors of transistors and applied power to the bases of those two
+transistors. This circuit displays <code class="highlighter-rouge">"1 1 "</code>.</p>
+
+<p><img src="images/schematic3.png" alt="2 transistor circuit diagram" /></p>
+
+<p><img src="images/jumper3.jpg" alt="Wired breadboard with components" /></p>
+
+<p>Test your transistor-controlled display by turning on each digit
+individually to display a <code class="highlighter-rouge">1</code>.</p>
+
+<h4 id="4d-permanently-wire-circuit">4d) Permanently wire circuit</h4>
+
+<p>Now comes the time-consuming part. Each segment pin needs to be connected to
+its resistor and each digit pin connected to the collector of its transistor.
+Be patient, this takes some time.</p>
+
+<p>Here’s a photo of what it should look like before wiring…</p>
+
+<p><img src="images/parts.jpg" alt="Wired breadboard with components" /></p>
+
+<p>…and here is a full schematic of what you will be wiring up:</p>
+
+<p><img src="images/schematic4.png" alt="Full schematic" /></p>
+
+<p>In the diagram above, the 3.3V input we’ve been using up to this point has been
+replaced by labeled dots where you should connect jumpers from the GPIO pins on
+the Pi. For example, setting Pins 10 and 20 to high will turn on the top
+segment of the first digit.</p>
+
+<p>The finishing touch is to add a red pushbutton on the left edge of the breadboard to be the start button for the clock. The button is not connected into the display circuit. It will be wired to the power rail through a 10K pull-up resistor and connected to the GPIO pin 2 on your Raspberry Pi to be read as an input. Review the <a href="/labs/lab1#button">button exercise from lab1</a> if you were not able to get to it last week.</p>
+
+<p>When you wire your breadboard, be sure to choose (or cut) wires of the proper length and arrange them neatly. Select different colors of wires to annotate what each is used for. If they’re neat, it’s easier to see if everything is set up correctly. Take your time and check your work. A little bit of care here will save you a lot of time later, because, when your system has a bug, the set of things that you have to check is much smaller.</p>
+
+<p><img src="images/badgood.jpg" width="350" /></p>
+
+<hr />
+<p>Here is a photo of Pat’s completed breadboard. What a masterpiece! (Note the second blue button is optional and only used in the assignment extension.)
+<img src="images/wire1.jpg" alt="Wired breadboard with components" /></p>
+
+<h2 id="check-in">Check in</h2>
+
+<p>Be sure to <a href="checkin">check in</a> with a TA during lab. We want to confirm that you leave lab with a solid start on your clock breadboard and a clear understanding of how to complete the remaining tasks on your own.</p>
+
+<p><strong>Please take care to return all tools to the shelves &amp; leave your workspace as clean as you found it!</strong></p>
+
+
+  </div>
+  <div class="toc-column col-lg-2 col-md-2 col-sm-2 hidden-xs">
+    <div id="toc" class="toc" data-spy="affix" data-offset-top="0"></div>
+  </div> 
+</div>
+
+  <script src="/_assets/tocbot.min.js"></script>
+  <link rel="stylesheet" href="/_assets/tocbot.css">
+
+  <script>
+    tocbot.init({
+      // Where to render the table of contents.
+      tocSelector: '#toc',
+      // Where to grab the headings to build the table of contents.
+      contentSelector: '#main_for_toc',
+      // Which headings to grab inside of the contentSelector element.
+      headingSelector: 'h2, h3, h4',
+    });
+  </script>
+
+
+
+  </div>
+  <div class="footer navbar-default navbar-static-bottom">
+    <p style="font-size: 65%; color:green; text-align:center;">
+      <i>CS107e Winter 2020 &middot; Site generated 2020-04-19 20:35</i>
+  </p>
+</div> 
+</body>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+</html>

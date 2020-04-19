@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/_assets/site.css" rel="stylesheet">
+    <link href="/_assets/favicon.png" rel="icon" type="image/png">
+    <title>CS107E Installing dev tools on MacOS</title>
+  </head>
+
+<body>
+  <!-- Include this HTML partial to set up navbar -->
+
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="navbar-header">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+    <!-- hamburger -->
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+
+  <img class="navbar-brand navbar-brand-image" src="/_assets/berry.png" >
+  <a class="navbar-brand" href="/">CS107e Winter 2020</a>
+  </div>
+
+  <div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/">Home</a></li>
+      <li><a href="/assignments">Assignments</a></li>
+      <li><a href="/labs">Labs</a></li>
+      <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            Resources
+          <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/about/">About the course</a></li>
+            <li><a href="/policies/">Policies</a></li>
+            <li><a href="/schedule/">Schedule</a></li>
+            <li><a href="/guides/">Guides</a></li>
+            <li><a href="/project_gallery/">Project gallery</a></li>
+            <li><a href="/demos/">External demos</a></li>
+            <li><a href="/resources/">External resources</a></li>
+          </ul>
+        </li>
+      <li><a href="https://github.com/cs107e/cs107e.github.io">Repository</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="container" style="max-width:55em;">
+    <h1 class="title">Installing dev tools on MacOS</h1><hr>
+    
+  <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12" id="main_for_toc">
+    <p>These are the instructions for installing the development tools on MacOS. Take care to validate at each ✔️<strong>Check</strong> point before moving on to the next step.  If you hit a snag, reach out on Piazza or come to office hours for help!</p>
+
+<h3 id="install-arm-none-eabi-toolchain">Install arm-none-eabi toolchain</h3>
+
+<h4 id="install-homebrew">Install Homebrew</h4>
+
+<p>To ease the installation process, we packaged the toolchain into a Homebrew formula.
+<a href="http://brew.sh/">Homebrew</a> is a popular <a href="https://en.wikipedia.org/wiki/Package_manager">package
+manager</a> for OS X.</p>
+
+<p>If you are already using Homebrew, skip to the next section ; otherwise follow these steps.</p>
+
+<ol>
+  <li>
+    <p>Install the Xcode command line tools by running the command below and following its instructions.</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ xcode-select --install
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Install Homebrew by running the command below and following its instructions.</p>
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<p>✔️<strong>Check:</strong> confirm Homebrew installation: (okay if your version is newer)</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ brew -v
+Homebrew 2.2.1
+Homebrew/homebrew-core (git revision 8eed; last commit 2019-12-19)
+</code></pre></div></div>
+
+<h4 id="install-arm-none-eabi-formula">Install <code class="highlighter-rouge">arm-none-eabi</code> formula</h4>
+
+<ol>
+  <li>
+    <p>“Tap” into the CS107e Homebrew package.</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> $ brew tap cs107e/cs107e
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Install the <code class="highlighter-rouge">arm-none-eabi</code> formula.</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ brew install arm-none-eabi
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<p>✔️<strong>Check:</strong> confirm toolchain installation:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ arm-none-eabi-gcc --version
+arm-none-eabi-gcc (GCC) 4.8.3
+Copyright (C) 2013 Free Software Foundation, Inc.
+</code></pre></div></div>
+
+<h3 id="install-cp2012-console-driver">Install CP2012 console driver</h3>
+
+<p>The console driver enables the bootloader client to communicate with the Pi over the USB-serial device.</p>
+
+<ol>
+  <li>
+    <p>Download the CP2012 driver. The drivers are available on the Silicon Labs <a href="https://www.silabs.com/products/development-tools/software/usb-to-uart-bridge-vcp-drivers">CP210x Downloads page</a>. Scroll down to the section titled “Download for Mac OS” and download the VCP zip file. Open the zip to decompress into the dmg file <code class="highlighter-rouge">SiLabsUSBDriverDisk.dmg</code>. Open the dmg file to mount the volume named <code class="highlighter-rouge">Silicon Labs VCP Driver Install Disk</code>.</p>
+  </li>
+  <li>
+    <p>On the mounted volume, find the file named
+ <code class="highlighter-rouge">Install CP2010x VCP Driver</code>. Open this file to launch the
+ installer. Follow its instructions to install the driver.</p>
+  </li>
+</ol>
+
+<!-- This partial will open warning/danger callout box  -->
+
+<div style="background-color:#ffffcc; color:#996633; border-left: 5px solid #996633;margin: 5px 25px; padding: 5px;">
+
+  <p><strong>NOTE</strong>: You may get an warning saying “System Extension Blocked” depending on your security settings. If you see this message, you must take additional action to enable the driver. Open <code class="highlighter-rouge">System Preferences</code> and choose the <code class="highlighter-rouge">Security &amp; Privacy</code> option. On the <code class="highlighter-rouge">General</code> tab, find the message that the developer “Silicon Laboratories Inc” has been blocked and click <code class="highlighter-rouge">Allow</code> to unblock it. You must restart your computer for this change to take effect.</p>
+</div>
+
+<p>✔️<strong>Check:</strong> confirm CP2102 driver is installed and loadable:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ kextfind -B -s SiLabs -report -b -loadable
+CFBundleIdentifier  Loadable
+com.silabs.driver.CP210xVCPDriver   yes
+</code></pre></div></div>
+
+<h3 id="install-python3-and-packages">Install python3 and packages</h3>
+<p>The <code class="highlighter-rouge">rpi-install.py</code> script will be used to send programs from your computer to the Pi. This script requires installation of python3 and two support modules.</p>
+
+<p>Note: Macs come with a version of python installed, but it is an older version (version 2) which is nearing end of life. You need python version 3. If you previously have installed python3, skip step 1 below.</p>
+
+<ol>
+  <li>
+    <p>Install python3. Python installers are available from <a href="https://www.python.org/downloads/mac-osx/">https://www.python.org/downloads/mac-osx/</a>. Choose the latest stable Python 3 release and download its macOS 64-bit installer. Open the downloaded pkg file and follow the instructions to install python3.</p>
+
+    <p>✔️<strong>Check:</strong>  confirm <code class="highlighter-rouge">python3</code> installation:</p>
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> $ python3 --version
+ Python 3.8.1
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Install the pyserial and xmodem packages for python3:</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> $ python3 -m pip install pyserial xmodem
+</code></pre></div>    </div>
+
+    <p>You may see a warning about the pip version being slightly out of date, this is harmless and can be ignored.</p>
+
+    <p>✔️<strong>Check:</strong> confirm <code class="highlighter-rouge">pyserial</code> and <code class="highlighter-rouge">xmodem</code> are listed as installed packages for python3:</p>
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> $ python3 -m pip list 
+ Package    Version
+ ---------- -------
+ pyserial   3.4    
+ xmodem     0.4.5 
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h3 id="finished">Finished</h3>
+<p>After following the above steps, you’ve installed the development tools. Continue on to follow the instructions to <a href="../#steps">configure your user account</a>.</p>
+
+
+  </div>
+  <div class="toc-column col-lg-2 col-md-2 col-sm-2 hidden-xs">
+    <div id="toc" class="toc" data-spy="affix" data-offset-top="0"></div>
+  </div> 
+</div>
+
+  <script src="/_assets/tocbot.min.js"></script>
+  <link rel="stylesheet" href="/_assets/tocbot.css">
+
+  <script>
+    tocbot.init({
+      // Where to render the table of contents.
+      tocSelector: '#toc',
+      // Where to grab the headings to build the table of contents.
+      contentSelector: '#main_for_toc',
+      // Which headings to grab inside of the contentSelector element.
+      headingSelector: 'h2, h3, h4',
+    });
+  </script>
+
+
+
+  </div>
+  <div class="footer navbar-default navbar-static-bottom">
+    <p style="font-size: 65%; color:green; text-align:center;">
+      <i>CS107e Winter 2020 &middot; Site generated 2020-04-19 20:35</i>
+  </p>
+</div> 
+</body>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+</html>

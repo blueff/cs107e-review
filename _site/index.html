@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/_assets/site.css" rel="stylesheet">
+    <link href="/_assets/favicon.png" rel="icon" type="image/png">
+    <title>CS107E Home</title>
+  </head>
+
+<body>
+  <!-- Include this HTML partial to set up navbar -->
+
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="navbar-header">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+    <!-- hamburger -->
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+
+  <img class="navbar-brand navbar-brand-image" src="/_assets/berry.png" >
+  <a class="navbar-brand" href="/">CS107e Winter 2020</a>
+  </div>
+
+  <div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/">Home</a></li>
+      <li><a href="/assignments">Assignments</a></li>
+      <li><a href="/labs">Labs</a></li>
+      <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            Resources
+          <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/about/">About the course</a></li>
+            <li><a href="/policies/">Policies</a></li>
+            <li><a href="/schedule/">Schedule</a></li>
+            <li><a href="/guides/">Guides</a></li>
+            <li><a href="/project_gallery/">Project gallery</a></li>
+            <li><a href="/demos/">External demos</a></li>
+            <li><a href="/resources/">External resources</a></li>
+          </ul>
+        </li>
+      <li><a href="https://github.com/cs107e/cs107e.github.io">Repository</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="container">
+    <h3 id="welcome-to-the-winter-2020-offering-of-cs107e">Welcome to the Winter 2020 offering of CS107E!</h3>
+
+<p>CS107E is <strong>Computer Systems from the Ground Up</strong>. Read more about the course <a href="/about/">here</a>.</p>
+
+<div class="row">
+<div class="col-xs-5">
+
+    <h4 id="quick-links">Quick links</h4>
+
+    <ul>
+      <li><strong>March 9, 2020</strong>: We will continue in entirely virtual/remote format from here to end of quarter (See <a href="https://piazza.com/class/k2fwoyb4dmni1?cid=248">Piazza post</a> for logistics) Keep an eye on Piazza forum for updates and stay in touch. Above all, take care to be safe and well.</li>
+      <li><strong>March 14, 2020</strong>: Note to Prospective Spring CS107E Students
+CS107E will be offered in the Spring of 2020. Because it is a hands-on class that has a kit, we will be mailing the kits to students in the class before spring break. Because CS107E has limited enrollment, the implication of this is that we will select students for the course before Wednesday, March 25th. On Saturday, March 21st, we will email a questionnaire to all students enrolled in the course, to be completed by Monday, March 23rd. Because we are physically mailing kits, we ask that students do not shop CS107E, because we have no way of transferring the kit to another student. If you have any questions, please email me (pal@cs.stanford.edu).</li>
+    </ul>
+
+  </div>
+<div class="col-xs-7">
+    <h4 id="upcoming-events">Upcoming events</h4>
+    <div id="upcoming" class="list-group" style="font-size:80%;overflow:auto; height:240px;">
+<ul><li class="list-group-item"><i>Loading...</i></li></ul>     
+</div>
+  </div>
+</div>
+
+<h4 id="this-weeks-schedule">This week’s schedule</h4>
+<!-- populated from data in _data/quarter.yml -->
+
+<div class="schedule">
+<table class="table table-condensed">
+  <colgroup>
+    <col width="12%" />
+    <col width="44%" />
+    <col width="44%" />
+  </colgroup>
+  <thead><tr>
+    <th>Date</th>
+    <th>Topics/Readings</th>
+  </tr>
+  </thead>
+
+    
+    
+    
+    
+
+    
+        
+    
+
+     
+        
+        
+        
+        
+
+    <tr>
+        <td colspan="3" style="background-color:#cccccc; font-size:75%; font-style:italic; padding: 2px 12px 2px 12px;">Week 1 </td>
+    </tr>
+
+    
+
+    <tr>
+        <td style="font-size: 75%; vertical-align: middle;"> Lecture <br />Mon 1/6</td>
+        <td colspan="2"> <!-- This partial used like a function to harvest info for lab/lect/assign, include.plink is permalink ref  -->
+
+<!-- look up by permalink if possible -->
+
+
+
+<!-- Public site won't have unreleased assign/lab, read title from _data/unreleased.csv -->
+
+
+<b>Introduction and Welcome</b>
+
+
+
+
+
+
+
+
+( <a href="/lectures/Intro/slides.pdf">slides</a> )
+
+<div style="font-size: 80%; margin: 1em;"> <p>Readings:</p>
+<ul>
+  <li>The <a href="https://cs107e.stanford.edu">course FAQ</a> has answers to common questions from prospective students.</li>
+  <li>For background, review our guides on <a href="/guides/electricity/">electricity</a>, <a href="/guides/numbers/">binary/hexadecimal numbers</a>, and the <a href="/guides/unix">unix command line</a>.</li>
+  <li>Bookmark this collection of <a href="https://web.stanford.edu/class/archive/cs/cs107/cs107.1186/unixref/">unix video tutorials</a> that were prepared for CS107 students. These videos cover basic concepts, common utilities, development tools, and productivity features.</li>
+  <li>A fun read on <a href="https://www.techrepublic.com/article/inside-the-raspberry-pi-the-story-of-the-35-computer-that-changed-the-world/">how the Raspberry Pi came to be</a> for a taste of the adventure to come.</li>
+  <li><a href="https://www.khanacademy.org/college-careers-more/entrepreneurship2/interviews-entrepreneurs/copy-of-khan-academy-living-room-chats/v/elon-musk">Sal Khan’s interview of Elon Musk</a> described by Pat. Give it a watch – it’s very inspiring!</li>
+</ul>
+ </div>
+
+
+
+
+ </td>
+    </tr>
+    <tr>
+        <td style="font-size: 75%; vertical-align: middle">Lab/assign</td>
+        <td class="bg-warning"> <!-- This partial used like a function to harvest info for lab/lect/assign, include.plink is permalink ref  -->
+
+<!-- look up by permalink if possible -->
+
+
+
+<!-- Public site won't have unreleased assign/lab, read title from _data/unreleased.csv -->
+
+
+
+<i>No lab in first week</i>
+
+
+
+
+
+
+ </td>
+        <td class="bg-danger"> <!-- This partial used like a function to harvest info for lab/lect/assign, include.plink is permalink ref  -->
+
+<!-- look up by permalink if possible -->
+
+
+
+<!-- Public site won't have unreleased assign/lab, read title from _data/unreleased.csv -->
+
+
+<b>Assignment 0: Choose Lab Section, Learn Git</b>
+
+
+
+
+
+
+
+
+( <a href="/assignments/assign0/">writeup</a> )
+
+<div style="font-size: 80%; margin: 1em;"> 
+ </div>
+
+
+
+
+ </td>
+    </tr>
+    <tr>
+        <td style="font-size: 75%; vertical-align: middle"> Lecture <br />Fri 1/10 </td>
+        <td colspan="2"> <!-- This partial used like a function to harvest info for lab/lect/assign, include.plink is permalink ref  -->
+
+<!-- look up by permalink if possible -->
+
+
+
+<!-- Public site won't have unreleased assign/lab, read title from _data/unreleased.csv -->
+
+
+<b>ARM processor and architecture</b>
+
+
+
+
+
+
+
+
+( <a href="/lectures/ARM/slides.pdf">slides</a> , <a href="https://github.com/cs107e/cs107e.github.io/tree/master/lectures/ARM/code/">code</a> )
+
+<div style="font-size: 80%; margin: 1em;"> <ul>
+  <li>Read Baking Pi ( <a href="http://www.cl.cam.ac.uk/projects/raspberrypi/tutorials/os/introduction.html">intro</a>, <a href="http://www.cl.cam.ac.uk/projects/raspberrypi/tutorials/os/ok01.html">lesson1</a>, <a href="http://www.cl.cam.ac.uk/projects/raspberrypi/tutorials/os/ok02.html">lesson2</a> ) and skim Carl Burch’s <a href="http://www.toves.org/books/arm/">Intro to ARM assembly</a>.</li>
+  <li>I also recommend Steven Wolfram’s blog post <a href="http://blog.stephenwolfram.com/2015/12/untangling-the-tale-of-ada-lovelace">Untangling the Tale of Ada Lovelace</a> for a nice description of Charles Babbage’s and Lady Ada Lovelace’s roles in developing the concept of a general-purpose computer.</li>
+  <li>Here is a link to the <a href="http://salmanarif.bitbucket.io/visual/index.html">VisUAL simulator</a> Pat demoed in lecture.</li>
+</ul>
+ </div>
+
+
+
+
+ </td>
+    </tr>
+
+   
+        
+        
+        
+        
+
+    <tr>
+        <td colspan="3" style="background-color:#cccccc; font-size:75%; font-style:italic; padding: 2px 12px 2px 12px;">Week 2 </td>
+    </tr>
+
+    
+
+    <tr>
+        <td style="font-size: 75%; vertical-align: middle;"> Lecture <br />Mon 1/13</td>
+        <td colspan="2"> <!-- This partial used like a function to harvest info for lab/lect/assign, include.plink is permalink ref  -->
+
+<!-- look up by permalink if possible -->
+
+
+
+<!-- Public site won't have unreleased assign/lab, read title from _data/unreleased.csv -->
+
+
+<b>ARM assembly and machine code</b>
+
+
+
+
+
+
+
+
+( <a href="/lectures/ASM/slides.pdf">slides</a> , <a href="https://github.com/cs107e/cs107e.github.io/tree/master/lectures/ASM/code/">code</a> )
+
+<div style="font-size: 80%; margin: 1em;"> <ul>
+  <li>Before lecture, read/skim sections A3.1-A3.4 and A3.11 from the <a href="/readings/armisa.pdf">ARM Instruction Set Architecture</a> manual.</li>
+  <li>An <a href="https://alisdair.mcdiarmid.org/arm-immediate-value-encoding/#play-with-it">interactive demo of ARM immediate value encoding</a>. A tribute to how much can be done with just an 8-bit value and barrel shifter!</li>
+  <li>Enjoy Danny Cohen’s article
+ <a href="/readings/holywars.pdf">Holy Wars and a Plea for Peace</a> on the history of little-endian vs. big-endian.</li>
+</ul>
+ </div>
+
+
+
+
+ </td>
+    </tr>
+    <tr>
+        <td style="font-size: 75%; vertical-align: middle">Lab/assign</td>
+        <td class="bg-warning"> <!-- This partial used like a function to harvest info for lab/lect/assign, include.plink is permalink ref  -->
+
+<!-- look up by permalink if possible -->
+
+
+
+<!-- Public site won't have unreleased assign/lab, read title from _data/unreleased.csv -->
+
+
+<b>Lab 1: Setup your Raspberry Pi</b>
+
+
+
+
+
+
+
+
+( <a href="/labs/lab1/">writeup</a> )
+
+<div style="font-size: 80%; margin: 1em;"> <p>Please do the Lab 1 <a href="/labs/lab1/#prelab-preparation">prelab preparation</a> before coming to lab.</p>
+ </div>
+
+
+
+
+ </td>
+        <td class="bg-danger"> <!-- This partial used like a function to harvest info for lab/lect/assign, include.plink is permalink ref  -->
+
+<!-- look up by permalink if possible -->
+
+
+
+<!-- Public site won't have unreleased assign/lab, read title from _data/unreleased.csv -->
+
+
+<b>Assignment 1: Implement a Larson Scanner</b>
+
+
+
+
+
+
+
+
+( <a href="/assignments/assign1/">writeup</a> )
+
+<div style="font-size: 80%; margin: 1em;"> 
+ </div>
+
+
+
+
+ </td>
+    </tr>
+    <tr>
+        <td style="font-size: 75%; vertical-align: middle"> Lecture <br />Fri 1/17 </td>
+        <td colspan="2"> <!-- This partial used like a function to harvest info for lab/lect/assign, include.plink is permalink ref  -->
+
+<!-- look up by permalink if possible -->
+
+
+
+<!-- Public site won't have unreleased assign/lab, read title from _data/unreleased.csv -->
+
+
+<b>From Assembly to C</b>
+
+
+
+
+
+
+
+
+( <a href="/lectures/C_Control/slides.pdf">slides</a> , <a href="https://github.com/cs107e/cs107e.github.io/tree/master/lectures/C_Control/code/">code</a> )
+
+<div style="font-size: 80%; margin: 1em;"> <ul>
+  <li>Review sections A3.2 and A3.3 on conditional execution and branch instructions from the <a href="/readings/armisa.pdf">ARM Instruction Set manual</a></li>
+  <li>Brush up on C basics (syntax, data types, operators, control structures) via your favorite C reference; sections 1-2 of Nick Parlante’s <a href="http://cslibrary.stanford.edu/101/EssentialC.pdf">EssentialC</a>; or chapters 1, 2, and 3 of K&amp;R. Skip content on I/O and standard libraries (we are bare metal!)</li>
+  <li>Read Dennis Ritchie’s account of the <a href="https://www.bell-labs.com/usr/dmr/www/chist.html">history of C</a></li>
+  <li>Try out the <a href="https://godbolt.org">Compiler Explorer</a> demoed in lecture</li>
+</ul>
+ </div>
+
+
+
+
+ </td>
+    </tr>
+
+  
+</table>
+</div>
+
+<p>See <a href="/schedule/">schedule for entire quarter</a>.</p>
+
+<h4 id="meet-the-cs107e-team">Meet the CS107E team</h4>
+<!-- include this partial to emit gallery of staff names & photos -->
+
+<div class="gallery" style="display: inline-block;">
+<div class="row">
+
+ 
+    <div class="col-xs-2">
+        <img class="img-circle center-block" src="/_assets/pat.png" style="max-height: 100px;" />
+        <p class="text-center">Pat</p>
+    </div>
+ 
+    <div class="col-xs-2">
+        <img class="img-circle center-block" src="/_assets/julie.jpg" style="max-height: 100px;" />
+        <p class="text-center">Julie</p>
+    </div>
+ 
+    <div class="col-xs-2">
+        <img class="img-circle center-block" src="/_assets/sean.png" style="max-height: 100px;" />
+        <p class="text-center">Sean</p>
+    </div>
+ 
+    <div class="col-xs-2">
+        <img class="img-circle center-block" src="/_assets/peter.png" style="max-height: 100px;" />
+        <p class="text-center">Peter</p>
+    </div>
+ 
+    <div class="col-xs-2">
+        <img class="img-circle center-block" src="/_assets/mihir.png" style="max-height: 100px;" />
+        <p class="text-center">Mihir</p>
+    </div>
+ 
+    <div class="col-xs-2">
+        <img class="img-circle center-block" src="/_assets/shannon.jpg" style="max-height: 100px;" />
+        <p class="text-center">Shannon</p>
+    </div>
+
+</div>
+</div>
+
+<iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdBpyHM3qfbxmkqtXfjLDHyoIucF2K-4xtjehzIqUE3NUkBZg/viewform?embedded=true" width="640" height="519" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<script src="/_assets/gcal.js"></script>
+
+
+  </div>
+  <div class="footer navbar-default navbar-static-bottom">
+    <p style="font-size: 65%; color:green; text-align:center;">
+      <i>CS107e Winter 2020 &middot; Site generated 2020-04-19 20:35</i>
+  </p>
+</div> 
+</body>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+</html>

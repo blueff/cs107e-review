@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/_assets/site.css" rel="stylesheet">
+    <link href="/_assets/favicon.png" rel="icon" type="image/png">
+    <title>CS107E Stack frames</title>
+  </head>
+
+<body>
+  <!-- Include this HTML partial to set up navbar -->
+
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="navbar-header">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+    <!-- hamburger -->
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+
+  <img class="navbar-brand navbar-brand-image" src="/_assets/berry.png" >
+  <a class="navbar-brand" href="/">CS107e Winter 2020</a>
+  </div>
+
+  <div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/">Home</a></li>
+      <li><a href="/assignments">Assignments</a></li>
+      <li><a href="/labs">Labs</a></li>
+      <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            Resources
+          <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/about/">About the course</a></li>
+            <li><a href="/policies/">Policies</a></li>
+            <li><a href="/schedule/">Schedule</a></li>
+            <li><a href="/guides/">Guides</a></li>
+            <li><a href="/project_gallery/">Project gallery</a></li>
+            <li><a href="/demos/">External demos</a></li>
+            <li><a href="/resources/">External resources</a></li>
+          </ul>
+        </li>
+      <li><a href="https://github.com/cs107e/cs107e.github.io">Repository</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="container" style="max-width:55em;">
+    <h1 class="title">Stack frames</h1><hr>
+    
+  <h3 id="stack-intuition">Stack intuition</h3>
+<p>Functions often need space. For example, they allocate 
+variables or store the return
+address of their caller before calling another function. There’s
+nothing special about this space, and we could allocate it as we would
+any other memory.  However, functions calls are frequent, so we want
+them as fast as possible.  Fortunately, function calls have two important
+properties we can exploit for speed:</p>
+
+<ol>
+  <li>When functions return, all allocated memory is no longer usable.</li>
+  <li>Functions return in Last-In-First-Out (LIFO) order.</li>
+</ol>
+
+<p>To optimize for speed, people have converged on using a contiguous region of memory
+(called a <em>stack</em> because it’s LIFO, like a stack of plates).  Roughly speaking it
+works as follows:</p>
+
+<ul>
+  <li>At program start we allocate a fixed-sized region to hold the stack and set a
+pointer (the stack pointer) to the start of that region.</li>
+  <li>The memory the function needs is allocated contiguously by simply adjusting
+the stack pointer.</li>
+  <li>When a function returns, it frees the allocated memory
+all-at-once by returning the stack pointer to its position when the function
+was called.</li>
+</ul>
+
+<p>Note that the stack on our system operates as a <em>descending</em>
+stack. This means the stack pointer is initialized to at the highest
+address.  Code decrements the stack pointer to make space for
+a function call and increments the stack pointer when that function
+call returns. It looks like this:</p>
+
+<p><img src="../images/stack.png" alt="stack picture" /></p>
+
+<p>This organization is so effective that compilers explicitly
+support it (and do the stack pointer increment and decrement) and
+architecture manuals provide the rules for how to do so.</p>
+
+<h3 id="apcs-full-frame-stack-layout">APCS full frame stack layout</h3>
+<p>The executing function access the stack memory using relative offsets from the <code class="highlighter-rouge">sp</code> register and uses <code class="highlighter-rouge">push</code> and <code class="highlighter-rouge">pop</code> operations to store and retrieve values to and from the stack.</p>
+
+<p>A value being saved may be a caller-owned register or intermediate result. Large local variables (e.g. arrays and structs) that are too large to store in a register are also stored on the stack, but are more typically accommodated by adjusting the <code class="highlighter-rouge">sp</code> up and down by the needed amount than a sequence of push/pop instructions. All data stored on the stack by a function is collectively referred to its “stack frame”. The compiler has latitude in what it stores on the stack; there is no guarantee about what values are stored in each frame and how values are laid out. This makes it challenging if trying to ascertain where each stack frame starts and stops.</p>
+
+<p>Telling the compiler to use the APCS “full frame” variant enforces some order on the stack frame layout. The first four values pushed by a function are required to be the values of the four registers <code class="highlighter-rouge">fp</code>, <code class="highlighter-rouge">sp</code>, <code class="highlighter-rouge">lr</code>, and <code class="highlighter-rouge">pc</code>. These four saved registers form the “full frame”. In addition, the register <code class="highlighter-rouge">r11</code> is used a dedicated “frame pointer” (<code class="highlighter-rouge">fp</code>). The <code class="highlighter-rouge">fp</code> is set to point to the first word pushed in the current stack frame (contrast to <code class="highlighter-rouge">sp</code> which points to the last word pushed). The <code class="highlighter-rouge">fp</code> tells you where to access the full frame of the currently executing function. At the end of Friday’s lecture slides, there is a <a href="/lectures/C_Functions/slides.pdf#page=22">stack diagram</a>, showing the 4 saved registers that mark the beginning of each stack frame.</p>
+
+<p>Reading the saved fp within the full frame tells you where to access the full frame of the caller. Following the sequence of fp links will lead back to the main function. This information is used by the debugger to produce a backtrace of the current call stack.</p>
+
+
+
+
+
+  </div>
+  <div class="footer navbar-default navbar-static-bottom">
+    <p style="font-size: 65%; color:green; text-align:center;">
+      <i>CS107e Winter 2020 &middot; Site generated 2020-04-19 20:35</i>
+  </p>
+</div> 
+</body>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+</html>

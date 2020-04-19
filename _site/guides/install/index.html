@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/_assets/site.css" rel="stylesheet">
+    <link href="/_assets/favicon.png" rel="icon" type="image/png">
+    <title>CS107E Installation Guide</title>
+  </head>
+
+<body>
+  <!-- Include this HTML partial to set up navbar -->
+
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="navbar-header">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+    <!-- hamburger -->
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+
+  <img class="navbar-brand navbar-brand-image" src="/_assets/berry.png" >
+  <a class="navbar-brand" href="/">CS107e Winter 2020</a>
+  </div>
+
+  <div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/">Home</a></li>
+      <li><a href="/assignments">Assignments</a></li>
+      <li><a href="/labs">Labs</a></li>
+      <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            Resources
+          <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/about/">About the course</a></li>
+            <li><a href="/policies/">Policies</a></li>
+            <li><a href="/schedule/">Schedule</a></li>
+            <li><a href="/guides/">Guides</a></li>
+            <li><a href="/project_gallery/">Project gallery</a></li>
+            <li><a href="/demos/">External demos</a></li>
+            <li><a href="/resources/">External resources</a></li>
+          </ul>
+        </li>
+      <li><a href="https://github.com/cs107e/cs107e.github.io">Repository</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="container" style="max-width:55em;">
+    <h1 class="title">Installation Guide</h1><hr>
+    
+  <h3 id="prerequisites">Prerequisites</h3>
+<p>The installation guide assumes basic knowledge of the UNIX command line (opening a shell, entering commands, navigating file system, editing text files). Read our <a href="/guides/unix">UNIX guide</a> for a quick introduction.
+Those new to UNIX may want to check out the <a href="https://web.stanford.edu/class/archive/cs/cs107/cs107.1186/unixref/">unix videos/guides</a>
+prepared for CS107 students.</p>
+
+<h3 id="️checkpoints">✔️Checkpoints</h3>
+<p>We peppered our instructions with ✔️<strong>Check</strong> points that confirm your progress through the steps. Use them to validate a task before moving on to the next step. Do not be alarmed about the long-winded unix-babble produced during installation – these tools are total chatterboxes. If you hit a snag, ask on Piazza or come to office hours and we can help you out!</p>
+
+<h3 id="overview">Overview</h3>
+<p>You must configure your laptop with a development environment capable of writing and compiling programs to run on the Raspberry Pi. The development tools are unix-based. Mac OS and Linux natively support an appropriate environment, on Windows you must enable WSL (Windows Subsystem for Linux) and work in an Ubuntu instance running on top of Windows OS.</p>
+
+<p>The installation steps are:</p>
+
+<p><a name="steps"></a></p>
+<ol>
+  <li>Install developer tools:
+    <ul>
+      <li><code class="highlighter-rouge">arm-none-eabi</code> cross-compile toolchain.  A <em>cross-compiler</em> is a development toolchain that runs on one system (e.g., x86) and generates machine code for a different system (in this case, ARM). The toolchain includes the C compiler and other essential development tools (assembler, linker, debugger, and utilities).</li>
+      <li>python3, package prerequisites, and console driver needed by the bootloader client <code class="highlighter-rouge">rpi-install.py</code>.</li>
+      <li>Choose the appropriate instructions for your OS
+        <ul>
+          <li><a href="../install/mac">Install dev tools on MacOs</a></li>
+          <li><a href="../install/wsl">Install dev tools on Windows</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>Configure user account:
+    <ul>
+      <li>create a <code class="highlighter-rouge">cs107e_home</code> directory to store your class materials</li>
+      <li>configure shell and git environment</li>
+      <li>Follow same instructions for all
+        <ul>
+          <li><a href="../install/userconfig">Configure home/user</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="final-checklist">Final checklist</h3>
+<p>After completing above steps, use the list below to confirm your environment from top to bottom.</p>
+
+<h4 id="arm-none-eabi-toolchain">arm-none-eabi toolchain</h4>
+<p>✔️<strong>Check:</strong> confirm toolchain (ok if version is newer):</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ arm-none-eabi-as --version
+GNU assembler (GNU Binutils) 2.24
+Copyright 2013 Free Software Foundation, Inc.
+</code></pre></div></div>
+<h4 id="arm-none-eabi-gdb-with-simulator">arm-none-eabi-gdb with simulator</h4>
+<p>✔️<strong>Check:</strong> start debugger and confirm ARM simulator is available:</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ arm-none-eabi-gdb
+GNU gdb (GDB) 7.8.1
+Copyright (C) 2014 Free Software Foundation, Inc.
+ .... blah blah blah ...
+(gdb) target sim
+Connected to the simulator.
+(gdb) quit
+</code></pre></div></div>
+
+<h4 id="rpi-installpy">rpi-install.py</h4>
+<p>✔️<strong>Check:</strong> confirm rpi-install.py version 1.1:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ rpi-install.py -h
+usage: rpi-install.py [-h] [-d device] [-v]  [-p | -s] [file]
+
+This script sends a binary file to the Raspberry Pi bootloader. Version 1.1.
+</code></pre></div></div>
+
+<h4 id="cs107e-home">cs107e home</h4>
+<p>✔️<strong>Check:</strong> confirm environment variables CS107E and PATH:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ ls $CS107E/lib/libpi.a
+/Users/myname/cs107e_home/cs107e.github.io/cs107e/lib/libpi.a
+
+$ pinout
+O-------------------------------O
+| oooooooooooooooooooo J8       |
+| 1ooooooooooooooooooo          |
+|                               |
+|[RUN]   Pi Model A+ V1.1   +=====
+...
+</code></pre></div></div>
+
+<h4 id="git">git</h4>
+<p>✔️<strong>Check:</strong> confirm your git identity:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git config --get-regexp user
+user.name My Full Name
+user.email myemail@stanford.edu
+</code></pre></div></div>
+
+
+
+
+  </div>
+  <div class="footer navbar-default navbar-static-bottom">
+    <p style="font-size: 65%; color:green; text-align:center;">
+      <i>CS107e Winter 2020 &middot; Site generated 2020-04-19 20:35</i>
+  </p>
+</div> 
+</body>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+</html>

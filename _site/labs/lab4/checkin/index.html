@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/_assets/site.css" rel="stylesheet">
+    <link href="/_assets/favicon.png" rel="icon" type="image/png">
+    <title>CS107E Lab 4: Check-in</title>
+  </head>
+
+<body>
+  <!-- Include this HTML partial to set up navbar -->
+
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="navbar-header">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+    <!-- hamburger -->
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+
+  <img class="navbar-brand navbar-brand-image" src="/_assets/berry.png" >
+  <a class="navbar-brand" href="/">CS107e Winter 2020</a>
+  </div>
+
+  <div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/">Home</a></li>
+      <li><a href="/assignments">Assignments</a></li>
+      <li><a href="/labs">Labs</a></li>
+      <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            Resources
+          <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/about/">About the course</a></li>
+            <li><a href="/policies/">Policies</a></li>
+            <li><a href="/schedule/">Schedule</a></li>
+            <li><a href="/guides/">Guides</a></li>
+            <li><a href="/project_gallery/">Project gallery</a></li>
+            <li><a href="/demos/">External demos</a></li>
+            <li><a href="/resources/">External resources</a></li>
+          </ul>
+        </li>
+      <li><a href="https://github.com/cs107e/cs107e.github.io">Repository</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="container" style="max-width:55em;">
+    <h1 class="title">Lab 4: Check-in</h1><hr>
+    
+  <p>Each question below is a diagnostic question for a lab section. Test your understanding by answering the corresponding question as you finish an exercise. We encourage you to check in with a TA after
+completing a section or two, while the material is still fresh in your mind.</p>
+
+<ol>
+  <li>
+    <p>Compare the symbol list from <code class="highlighter-rouge">nm linking.o</code> to <code class="highlighter-rouge">nm linking.elf</code>. How do the symbol addresses from an object file differ from the addresses in the linked executable?  How does the instruction <code class="highlighter-rouge">bl _cstart</code> change after linking?</p>
+  </li>
+  <li>
+    <p>On a sheet of paper, with address 0x0 at the bottom of the page and
+0x8000000 at the top, sketch a diagram of the program memory for
+<code class="highlighter-rouge">code/linking</code>. Include the contents of the stack at the point
+where execution has just entered the <code class="highlighter-rouge">main</code> function. Use the <a href="../images/stack_abs.html">memory diagram for simple</a>
+as a guide.</p>
+  </li>
+  <li>
+    <p>Show the TA your group’s marked up copy of <code class="highlighter-rouge">bootloader.c</code> with your added comments.</p>
+  </li>
+  <li>
+    <p>How does the saved <code class="highlighter-rouge">pc</code> in a function’s stack frame relate to the address of the first instruction for the function? If you take the saved <code class="highlighter-rouge">pc</code> in the stack frame for <code class="highlighter-rouge">main</code> and subtract it from the saved <code class="highlighter-rouge">lr</code> in the stack frame for <code class="highlighter-rouge">diff</code>, what do you get? Express your answer as a number, then explain conceptually what that computation represents. The <a href="../images/stack_abs.html">memory diagram for simple</a> is a helpful reference.</p>
+  </li>
+  <li>
+    <p>How should the number of <code class="highlighter-rouge">free</code> calls relate to the number of <code class="highlighter-rouge">malloc</code> calls in a correctly-written program that uses heap allocation?</p>
+  </li>
+</ol>
+
+<p>Before leaving the lab, check in with a TA and discuss any challenges to
+answering the questions in the lab. If you do not feel confident about your
+responses, please ask us about it too!</p>
+
+
+
+
+  </div>
+  <div class="footer navbar-default navbar-static-bottom">
+    <p style="font-size: 65%; color:green; text-align:center;">
+      <i>CS107e Winter 2020 &middot; Site generated 2020-04-19 20:35</i>
+  </p>
+</div> 
+</body>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+</html>

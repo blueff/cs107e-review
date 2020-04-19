@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/_assets/site.css" rel="stylesheet">
+    <link href="/_assets/favicon.png" rel="icon" type="image/png">
+    <title>CS107E Project Lab 1: What is Your Project?</title>
+  </head>
+
+<body>
+  <!-- Include this HTML partial to set up navbar -->
+
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="navbar-header">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+    <!-- hamburger -->
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+
+  <img class="navbar-brand navbar-brand-image" src="/_assets/berry.png" >
+  <a class="navbar-brand" href="/">CS107e Winter 2020</a>
+  </div>
+
+  <div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/">Home</a></li>
+      <li><a href="/assignments">Assignments</a></li>
+      <li><a href="/labs">Labs</a></li>
+      <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            Resources
+          <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/about/">About the course</a></li>
+            <li><a href="/policies/">Policies</a></li>
+            <li><a href="/schedule/">Schedule</a></li>
+            <li><a href="/guides/">Guides</a></li>
+            <li><a href="/project_gallery/">Project gallery</a></li>
+            <li><a href="/demos/">External demos</a></li>
+            <li><a href="/resources/">External resources</a></li>
+          </ul>
+        </li>
+      <li><a href="https://github.com/cs107e/cs107e.github.io">Repository</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="container" style="max-width:55em;">
+    <h1 class="title">Project Lab 1: What is Your Project?</h1><hr>
+    
+  
+<h3 id="goals">Goals</h3>
+
+<p>The final two weeks of lab sessions will be used as working meetings for the project teams. Plan for your team members to attend the same lab session each week.</p>
+
+<p>Use the first week’s meeting to brainstorm project options and refine those ideas into a draft of your project proposal. What cool aspect of computer systems do you want to explore?  What neat hardware do you want to involve? How will you coordinate with your team to execute on your plan?</p>
+
+<p>By the end of the lab session, you want to</p>
+
+<ul>
+  <li>Settle on project plan with your team</li>
+  <li>Start drafting the project proposal</li>
+  <li>Curate the hardware/materials required, identify where to source any needed components</li>
+  <li>Enumerate milestones to hit by next week’s lab (aim to resolve unknowns/risks in first week)</li>
+  <li>Check-in with us to confirm your plans seem on track for a great result</li>
+</ul>
+
+<p>Refer to the <a href="/assignments/project/">project writeup</a> for more information on the project itself.</p>
+
+<h3 id="project-repository">Project repository</h3>
+
+<p>You’ve been git-wrangling all quarter as part of your individual development process; the benefits of revision control become even more critical when coordinating work across multiple authors.</p>
+
+<p>This quick lab exercise is to get your team started on using git collaboratively. Each project has its own remote repository on GitHub; you should have received an email invitation to access it. This remote repository is the “drop point” where your team synchronizes the joint work.</p>
+
+<p>The basic workflow goes like this. Each team member has a local copy of the repository on their laptop. Edit files in the local repository and commit changes. When your latest work has stabilized to a state that is ready to share, use <code class="highlighter-rouge">git push</code> to send your updates to the remote. Your teammate then uses <code class="highlighter-rouge">git pull</code> to fetch changes from the remote which are brought into their local repository.</p>
+
+<p>Do this now to have each team member add their own name to the proposal document:</p>
+
+<ul>
+  <li>Change to <code class="highlighter-rouge">cs107e_home</code> directory and clone the project repository.</li>
+  <li>In the local repository, edit the file <code class="highlighter-rouge">Proposal.md</code> file and add your name to the list of team members.  Save the file.</li>
+  <li>Commit your change and push to Github.</li>
+  <li>Have your teammates pull your change.</li>
+</ul>
+
+<p>During the pull/push operations, git will attempt to automatically merge changes made by different authors. However, if both you and a teammate have made overlapping edits, git will halt and report a “merge conflict”. Git dumps both sets of changes into the conflicted file and fences the sections with marker symbols (<code class="highlighter-rouge">&gt;&gt;&gt;</code>, <code class="highlighter-rouge">&lt;&lt;&lt;</code>, <code class="highlighter-rouge">===</code>). You must manually resolve the sections in conflict. To do this, open the conflicted file, look for the marker symbols, edit the contents to select one/other/both changes as you see fit and remove the symbols. Save the file and commit it to complete the merge.</p>
+
+<h3 id="check-in-with-ta">Check in with TA</h3>
+
+<p>Before the end of the lab period, be sure to confirm the following items with us:</p>
+
+<ul>
+  <li>
+    <p>What is the gist of your project?</p>
+  </li>
+  <li>
+    <p>What do you wish to accomplish with your project?</p>
+  </li>
+  <li>
+    <p>Can each of you access the team repository?</p>
+  </li>
+  <li>
+    <p>What is your plan for acquiring any additional materials you need in a timely fashion?</p>
+  </li>
+  <li>
+    <p>What are the milestones to achieve by next week?</p>
+  </li>
+</ul>
+
+
+
+
+
+  </div>
+  <div class="footer navbar-default navbar-static-bottom">
+    <p style="font-size: 65%; color:green; text-align:center;">
+      <i>CS107e Winter 2020 &middot; Site generated 2020-04-19 20:35</i>
+  </p>
+</div> 
+</body>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+</html>

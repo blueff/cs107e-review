@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/_assets/site.css" rel="stylesheet">
+    <link href="/_assets/favicon.png" rel="icon" type="image/png">
+    <title>CS107E Accessing files on SD card (libpisd.a)</title>
+  </head>
+
+<body>
+  <!-- Include this HTML partial to set up navbar -->
+
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="navbar-header">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+    <!-- hamburger -->
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+
+  <img class="navbar-brand navbar-brand-image" src="/_assets/berry.png" >
+  <a class="navbar-brand" href="/">CS107e Winter 2020</a>
+  </div>
+
+  <div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/">Home</a></li>
+      <li><a href="/assignments">Assignments</a></li>
+      <li><a href="/labs">Labs</a></li>
+      <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            Resources
+          <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/about/">About the course</a></li>
+            <li><a href="/policies/">Policies</a></li>
+            <li><a href="/schedule/">Schedule</a></li>
+            <li><a href="/guides/">Guides</a></li>
+            <li><a href="/project_gallery/">Project gallery</a></li>
+            <li><a href="/demos/">External demos</a></li>
+            <li><a href="/resources/">External resources</a></li>
+          </ul>
+        </li>
+      <li><a href="https://github.com/cs107e/cs107e.github.io">Repository</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="container" style="max-width:55em;">
+    <h1 class="title">Accessing files on SD card (libpisd.a)</h1><hr>
+    
+  <p>The <code class="highlighter-rouge">$CS107E</code> directory contains a library <code class="highlighter-rouge">libpisd.a</code> that provides functionality for accessing the SD card from the Raspberry Pi. If you link with this library, you can call its functions to read and write files on the internal SD card. The library is based on FatFs, a filesystem specifically designed for use in embedded systems.</p>
+
+<p>To get started with using <code class="highlighter-rouge">libpisi.a</code>:</p>
+
+<ul>
+  <li>The header file <code class="highlighter-rouge">$CS107E/include/ff.h</code> declares the available functions with very brief explanation. Read the more complete documentation for the <a href="http://elm-chan.org/fsw/ff/00index_e.html">FatFs Application Interface</a>.</li>
+  <li>There is an example project <code class="highlighter-rouge">sd_fatfs</code> in the directory <code class="highlighter-rouge">$CS107E/examples</code>. This test application demonstrates reading and writing files on the SD card. You can build and run the example application to try it out and review the code to see how it operates.</li>
+  <li>To use the library, your Makefile should link with <code class="highlighter-rouge">libpisd</code> and the source file should <code class="highlighter-rouge">#include "ff.h"</code>. The example project demonstrates a correct build configuration that you can use as a model.</li>
+</ul>
+
+<p><em>A few cautionary notes:</em></p>
+<ul>
+  <li>This code was cobbled together from open-source code. Testing shows the basic operations are functional and it has been successfully used by student projects in previous quarters. But depending on how hard you push it, you might encounter operations that are missing/broken/buggy. Keep on your toes!</li>
+  <li>The FatFs library relies on the <code class="highlighter-rouge">time</code> and <code class="highlighter-rouge">localtime</code> functions to set the modification time when writing a file. In our unhosted world, these functions are unimplemented, so a file written on the Raspberry Pi will have a bogus date for its modification time. You can investigate writing your own timekeeping functions to supply proper date/time information if you need correct timestamps.</li>
+</ul>
+
+<h3 id="credits">Credits</h3>
+<ul>
+  <li>Filesystem layer came from <a href="http://elm-chan.org/fsw/ff/00index_e.html">FatFs by ChaN</a></li>
+  <li>Low-level sd controller came from <a href="https://github.com/jncronin/rpi-boot">rpi-boot by John Cronin</a></li>
+</ul>
+
+
+
+
+
+  </div>
+  <div class="footer navbar-default navbar-static-bottom">
+    <p style="font-size: 65%; color:green; text-align:center;">
+      <i>CS107e Winter 2020 &middot; Site generated 2020-04-19 20:35</i>
+  </p>
+</div> 
+</body>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+</html>

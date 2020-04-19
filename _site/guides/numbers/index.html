@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/_assets/site.css" rel="stylesheet">
+    <link href="/_assets/favicon.png" rel="icon" type="image/png">
+    <title>CS107E Binary and Hexadecimal Numbers</title>
+  </head>
+
+<body>
+  <!-- Include this HTML partial to set up navbar -->
+
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="navbar-header">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+    <!-- hamburger -->
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+
+  <img class="navbar-brand navbar-brand-image" src="/_assets/berry.png" >
+  <a class="navbar-brand" href="/">CS107e Winter 2020</a>
+  </div>
+
+  <div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/">Home</a></li>
+      <li><a href="/assignments">Assignments</a></li>
+      <li><a href="/labs">Labs</a></li>
+      <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            Resources
+          <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/about/">About the course</a></li>
+            <li><a href="/policies/">Policies</a></li>
+            <li><a href="/schedule/">Schedule</a></li>
+            <li><a href="/guides/">Guides</a></li>
+            <li><a href="/project_gallery/">Project gallery</a></li>
+            <li><a href="/demos/">External demos</a></li>
+            <li><a href="/resources/">External resources</a></li>
+          </ul>
+        </li>
+      <li><a href="https://github.com/cs107e/cs107e.github.io">Repository</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="container" style="max-width:55em;">
+    <h1 class="title">Binary and Hexadecimal Numbers</h1><hr>
+    
+  <p>Everyone is familiar with decimal numbers.
+However, computers use binary and hexadecimal representations of numbers.
+We also need to learn how to deal with bits, and bitwise operators.</p>
+
+<p>Do you know the answers to the following questions?</p>
+
+<ul>
+  <li>What is the decimal value of <code class="highlighter-rouge">0b1000</code>?</li>
+  <li>What is <code class="highlighter-rouge">255</code> in hexadecimal?</li>
+  <li>What is <code class="highlighter-rouge">0xA</code> in binary?</li>
+  <li>What is the minimum number of bits required to store the number 8?</li>
+  <li>What does <code class="highlighter-rouge">0b01</code> + <code class="highlighter-rouge">0b10</code> equal?</li>
+  <li>The six bitwise operators are <code class="highlighter-rouge">&amp;</code> (and), <code class="highlighter-rouge">|</code> (or), <code class="highlighter-rouge">^</code> (xor), <code class="highlighter-rouge">~</code> (invert), <code class="highlighter-rouge">&lt;&lt;</code> <code class="highlighter-rouge">&gt;&gt;</code> (left and right shift). Do you know how each operates? What is the result of evaluating the following expressions:
+    <ul>
+      <li><code class="highlighter-rouge">0x01 &amp; 0x02</code></li>
+      <li><code class="highlighter-rouge">0x01 | 0x2</code></li>
+      <li><code class="highlighter-rouge">0x01 ^ 0x02</code></li>
+      <li><code class="highlighter-rouge">0x01 &lt;&lt; 2</code></li>
+    </ul>
+  </li>
+  <li>Given a number <code class="highlighter-rouge">x</code>, what expression computes a new number <code class="highlighter-rouge">y</code>
+that is equal to <code class="highlighter-rouge">x</code> but with a zero in its least significant bit?</li>
+</ul>
+
+<p>Try your hand at these <a href="https://web.stanford.edu/class/archive/cs/cs107/cs107.1186/lab1/practice.html">exercises on base conversion and bitwise operations</a> used for practice in the first lab of the regular CS107.</p>
+
+<p>If you don’t know the answers to these questions,
+we recommend that you review the following materials:</p>
+
+<ul>
+  <li>Khan Academy video on <a href="https://www.khanacademy.org/math/pre-algebra/applying-math-reasoning-topic/alternate-number-bases/v/number-systems-introduction">Number Systems</a></li>
+  <li>Wikipedia entry for <a href="http://en.wikipedia.org/wiki/Binary_number">Binary Numbers</a></li>
+  <li>Sparkfun tutorial on <a href="https://learn.sparkfun.com/tutorials/hexadecimal">Hexadecimal Numbers</a></li>
+  <li>Wikipedia entry for <a href="http://en.wikipedia.org/wiki/Bitwise_operations_in_C">Bitwise Operators</a></li>
+  <li>Play with the <a href="https://mdrach.github.io/cs107-apps/">Bitwise Explorer</a>, an visualizer for bitwise expressions written by CS107 TA Max Drach</li>
+</ul>
+
+<hr />
+<p><small>Credit to: <a href="http://cowbirdsinlove.com/43">http://cowbirdsinlove.com/43</a></small>
+<img src="http://cowbirdsinlove.com/comics/base10[1].png" alt="all your base" /></p>
+
+
+
+
+
+  </div>
+  <div class="footer navbar-default navbar-static-bottom">
+    <p style="font-size: 65%; color:green; text-align:center;">
+      <i>CS107e Winter 2020 &middot; Site generated 2020-04-19 20:35</i>
+  </p>
+</div> 
+</body>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+</html>

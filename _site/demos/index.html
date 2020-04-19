@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/_assets/site.css" rel="stylesheet">
+    <link href="/_assets/favicon.png" rel="icon" type="image/png">
+    <title>CS107E Demos</title>
+  </head>
+
+<body>
+  <!-- Include this HTML partial to set up navbar -->
+
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="navbar-header">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+    <!-- hamburger -->
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+
+  <img class="navbar-brand navbar-brand-image" src="/_assets/berry.png" >
+  <a class="navbar-brand" href="/">CS107e Winter 2020</a>
+  </div>
+
+  <div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/">Home</a></li>
+      <li><a href="/assignments">Assignments</a></li>
+      <li><a href="/labs">Labs</a></li>
+      <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            Resources
+          <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/about/">About the course</a></li>
+            <li><a href="/policies/">Policies</a></li>
+            <li><a href="/schedule/">Schedule</a></li>
+            <li><a href="/guides/">Guides</a></li>
+            <li><a href="/project_gallery/">Project gallery</a></li>
+            <li><a href="/demos/">External demos</a></li>
+            <li><a href="/resources/">External resources</a></li>
+          </ul>
+        </li>
+      <li><a href="https://github.com/cs107e/cs107e.github.io">Repository</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="container" style="max-width:55em;">
+    <h1 class="title">Demos</h1><hr>
+    
+  <p>Here we have gathered links to various interactive demos and visualization tools that CS107E students have found useful in the past. Check them out!</p>
+
+<h3 id="raspberry-pi">Raspberry Pi</h3>
+<ul>
+  <li><a href="https://pinout.xyz/">Interactive Raspberry Pi GPIO Pinout</a>. Nice way to see alternate
+functions by clicking each pin. Also, click a Ground pin to see all the
+other Ground pins.</li>
+</ul>
+
+<h3 id="arm">ARM</h3>
+<ul>
+  <li>An
+<a href="https://alisdair.mcdiarmid.org/arm-immediate-value-encoding/#play-with-it">interactive demo of the ARM immediate value encoding</a>. A tribute to how much can be done with just an 8-bit value and barrel shifter.
+<a name="visual"></a></li>
+  <li>
+    <p><a href="https://salmanarif.bitbucket.io/visual/downloads.html">Download VisUAL</a> and play with it. This simulator emulates the ARM instruction set and allows you to step through an assembly program. Pat used this tool in lecture. A few notes on using this tool:</p>
+
+    <ul>
+      <li>VisUAL has a limited <a href="https://salmanarif.bitbucket.io/visual/supported_instructions.html">list of supported instructions</a>.</li>
+      <li>The instructions must be specified in ARM syntax which <a href="http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0773a/chr1383143764305.html">differs slightly</a> from the GNU syntax we use in the course. For example, in ARM syntax, there are no colons after labels and the comment character is semi-colon.</li>
+      <li>In the VisUAL editor, position your cursor on an instruction and use <code class="highlighter-rouge">Ctrl+Space</code> to get a pop up window with detailed information and examples of that instruction.</li>
+      <li>Another gotcha is that VisUAL is not actually a Raspberry Pi! There are no GPIO pins or peripheral registers. You can simulate the code, but obviously nothing will happen when it tries to manipulate GPIOs.</li>
+      <li>For further information, see the <a href="https://salmanarif.bitbucket.io/visual/">VisUAL user manual</a>.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="c">C</h3>
+<ul>
+  <li>
+    <p>Use the Godbolt <a href="http://gcc.godbolt.org/">Compiler Explorer</a> to enter C code and see the mapping to compiled assembly. Choose <code class="highlighter-rouge">C</code> language, compiler <code class="highlighter-rouge">ARM gcc 5.4.1(none)</code> and flags <code class="highlighter-rouge">-O</code> to approximate the toolchain we use in the course.</p>
+  </li>
+  <li>
+    <p>Type a C program into <a href="https://repl.it/languages/c">Repl</a> and it will compile and execute in a virtual environment.
+Handy for quickly running a C snippet to see what it does.</p>
+  </li>
+  <li>
+    <p>Enter a C program into <a href="http://pythontutor.com/c.html#mode=edit">C Tutor</a> and you can step through and visualize its execution, including showing the contents of the stack and heap memory.</p>
+  </li>
+  <li>
+    <p><a href="http://cdecl.org/">cdecl.org</a> converts “C gibberish” declarations to and from English.</p>
+  </li>
+</ul>
+
+
+
+
+  </div>
+  <div class="footer navbar-default navbar-static-bottom">
+    <p style="font-size: 65%; color:green; text-align:center;">
+      <i>CS107e Winter 2020 &middot; Site generated 2020-04-19 20:35</i>
+  </p>
+</div> 
+</body>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+</html>

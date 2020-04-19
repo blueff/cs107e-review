@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/_assets/site.css" rel="stylesheet">
+    <link href="/_assets/favicon.png" rel="icon" type="image/png">
+    <title>CS107E Sensors for Projects</title>
+  </head>
+
+<body>
+  <!-- Include this HTML partial to set up navbar -->
+
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="navbar-header">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+    <!-- hamburger -->
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+
+  <img class="navbar-brand navbar-brand-image" src="/_assets/berry.png" >
+  <a class="navbar-brand" href="/">CS107e Winter 2020</a>
+  </div>
+
+  <div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/">Home</a></li>
+      <li><a href="/assignments">Assignments</a></li>
+      <li><a href="/labs">Labs</a></li>
+      <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            Resources
+          <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/about/">About the course</a></li>
+            <li><a href="/policies/">Policies</a></li>
+            <li><a href="/schedule/">Schedule</a></li>
+            <li><a href="/guides/">Guides</a></li>
+            <li><a href="/project_gallery/">Project gallery</a></li>
+            <li><a href="/demos/">External demos</a></li>
+            <li><a href="/resources/">External resources</a></li>
+          </ul>
+        </li>
+      <li><a href="https://github.com/cs107e/cs107e.github.io">Repository</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="container" style="max-width:55em;">
+    <h1 class="title">Sensors for Projects</h1><hr>
+    
+  <p>The following sensors are available for you to use in your projects in addition
+to the peripherals you have worked with during this quarter. Let us know if
+you want to use them!</p>
+
+<h3 id="analog">Analog</h3>
+
+<p>Unfortunately, the Raspberry Pi only accepts digital input, so any analog input/device/sensor requires conversion. We have ADC chips (analog-to-digital converter) such as the <a href="https://www.digikey.com/product-detail/en/microchip-technology/MCP3008-I-P/MCP3008-I-P-ND/319422">MCP3008</a> on hand and example SPI driver code for using this chip.</p>
+
+<!--
+* Rotary potentiomers
+
+* Sliding potentiometers
+
+* Piezo sensors
+-->
+
+<ul>
+  <li>
+    <p>Analog joystick</p>
+  </li>
+  <li>
+    <p>Analog Hall Effect sensor
+(voltage proportional to magnetic field)</p>
+  </li>
+  <li>
+    <p>Temperature sensor</p>
+  </li>
+</ul>
+
+<h3 id="optical">Optical</h3>
+
+<!--
+* Sharp GP2D12 IR Distance sensors
+(voltage proportional to distance)
+
+* [TSAL1600 IR LEDs](http://www.mouser.com/ProductDetail/Vishay-Semiconductors/TSAL6100/?qs=hQ8xas2ojoxzFnfG3K8LcA%3D%3D)
+
+* [LTR-3208E IR Phototransistors](http://www.mouser.com/ProductDetail/Lite-On/LTR-3208E/?qs=CJyu4%2FNIJyr9En4gPmghMw%3D%3D)
+
+* [BPV11 NPN Phototransistors](http://www.mouser.com/ProductDetail/Vishay-Semiconductors/BPV11/?qs=%2Fjqivxn91ccQSntIBLifOQ%3D%3D)
+
+* [BPW77NB NPN Phototransistors](http://www.mouser.com/ProductDetail/Vishay-Semiconductors/BPW77NB/?qs=sGAEpiMZZMs50KUSuyRkpr0bn2hcYGU5%252brfx68goEwU%3d)
+
+* HC_SR501 Infrared PIR Motion sensors
+-->
+
+<ul>
+  <li>
+    <p><a href="https://www.digikey.com/product-detail/en/vishay-semiconductor-opto-division/TSOP34838/751-1386-5-ND/1768188">TSOP 43838 38 KHz IR detectors</a></p>
+  </li>
+  <li>
+    <p>IR emission/sensor modules</p>
+  </li>
+  <li>
+    <p>Flame sensor module (760-1100 nm IR detector)</p>
+  </li>
+  <li>
+    <p>RGB LED module</p>
+  </li>
+  <li>
+    <p>RGB LED SMD module</p>
+  </li>
+  <li>
+    <p>7 color flash LED</p>
+  </li>
+  <li>
+    <p>2 color LED module</p>
+  </li>
+  <li>
+    <p>Laser emitter module</p>
+  </li>
+  <li>
+    <p>Photoresistor module</p>
+  </li>
+  <li>
+    <p>Photointerruptor module</p>
+  </li>
+</ul>
+
+<h3 id="audio">Audio</h3>
+
+<!--
+* Electret microphones 
+-->
+
+<ul>
+  <li>
+    <p><a href="https://cdn.sparkfun.com/datasheets/Sensors/Proximity/HCSR04.pdf">HC-SR04 Ultrasonic Sensor/Distance Measuring modules</a> (time of flight)</p>
+  </li>
+  <li>
+    <p>Microphone sound detection modules (digital threshold and analog outputs)</p>
+  </li>
+</ul>
+
+<h3 id="digital">Digital</h3>
+
+<!--
+* Rotary switches
+-->
+
+<ul>
+  <li>
+    <p>Reed switches</p>
+  </li>
+  <li>
+    <p>Ball switch</p>
+  </li>
+  <li>
+    <p>Rotary encoder module</p>
+  </li>
+  <li>
+    <p>A1104LUA-T Hall Effect sensor
+(schmitt trigger followed by open collector transistor)</p>
+  </li>
+  <li>
+    <p>Relay switch module</p>
+  </li>
+  <li>
+    <p>Touch sensor module</p>
+  </li>
+  <li>
+    <p>Temperature module</p>
+  </li>
+  <li>
+    <p>Buzzer (active and passive) modules</p>
+  </li>
+  <li>
+    <p>Shock (vibration switch) sensor module</p>
+  </li>
+  <li>
+    <p>Tap (vibration switch) module</p>
+  </li>
+  <li>
+    <p>Obstacle avoidance module</p>
+  </li>
+  <li>
+    <p>7-segment displays</p>
+  </li>
+</ul>
+
+<h3 id="i2c">I2C</h3>
+
+<!--
+* [VL6180X Time-of-Flight Distance Sensors](https://www.pololu.com/product/2489)
+
+* [VL53L0X Time-of-Flight Distance Sensors](https://www.pololu.com/product/2490)
+
+* [AltIMU-10 v3 Gyro, Accelerometer, Compass, and Altimeter (L3GD20H, LSM303D, and LPS331AP Carrier)](https://www.pololu.com/product/2469)
+-->
+
+<ul>
+  <li><a href="https://www.digikey.com/catalog/en/partgroup/sparkfun-6-degrees-of-freedom-breakout-board-lsm6ds3/58635">LSM6DS3 3D Accelerometer and Gyroscope Sensor</a></li>
+</ul>
+
+<h3 id="spi">SPI</h3>
+
+<ul>
+  <li>
+    <p>MCP3008 Analog-to-Digital convertor</p>
+  </li>
+  <li>
+    <p>DS18B20 Temperature sensor module (not pure SPI)</p>
+  </li>
+  <li>
+    <p><a href="http://www.amazon.com/gp/product/B012UXNDOY">Arducam 2-Megapixel Cameras</a></p>
+  </li>
+</ul>
+
+<!--
+* HC595 SIPO shift registers (for output)
+
+* HC165 PISO shift registers (for input)
+
+* MCP4921 Digital-to-Analog convertor
+
+* MCP4922 Dual Digital-to-Analog convertor
+
+* MCP4162 Digital potentiometer
+-->
+
+
+
+
+
+  </div>
+  <div class="footer navbar-default navbar-static-bottom">
+    <p style="font-size: 65%; color:green; text-align:center;">
+      <i>CS107e Winter 2020 &middot; Site generated 2020-04-19 20:35</i>
+  </p>
+</div> 
+</body>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+</html>

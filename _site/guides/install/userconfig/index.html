@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/_assets/site.css" rel="stylesheet">
+    <link href="/_assets/favicon.png" rel="icon" type="image/png">
+    <title>CS107E Home/user config for CS107E</title>
+  </head>
+
+<body>
+  <!-- Include this HTML partial to set up navbar -->
+
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="navbar-header">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+    <!-- hamburger -->
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+
+  <img class="navbar-brand navbar-brand-image" src="/_assets/berry.png" >
+  <a class="navbar-brand" href="/">CS107e Winter 2020</a>
+  </div>
+
+  <div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/">Home</a></li>
+      <li><a href="/assignments">Assignments</a></li>
+      <li><a href="/labs">Labs</a></li>
+      <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            Resources
+          <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/about/">About the course</a></li>
+            <li><a href="/policies/">Policies</a></li>
+            <li><a href="/schedule/">Schedule</a></li>
+            <li><a href="/guides/">Guides</a></li>
+            <li><a href="/project_gallery/">Project gallery</a></li>
+            <li><a href="/demos/">External demos</a></li>
+            <li><a href="/resources/">External resources</a></li>
+          </ul>
+        </li>
+      <li><a href="https://github.com/cs107e/cs107e.github.io">Repository</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="container" style="max-width:55em;">
+    <h1 class="title">Home/user config for CS107E</h1><hr>
+    
+  <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12" id="main_for_toc">
+    <p>After you have installed the development tools on your laptop, follow the steps below to configure your user environment. Take care to validate at each ✔️<strong>Check</strong> point before moving on to the next step.  If you hit a snag, reach out on Piazza or come to office hours for help!</p>
+
+<!-- This partial will open warning/danger callout box  -->
+
+<div style="background-color:#ffffcc; color:#996633; border-left: 5px solid #996633;margin: 5px 25px; padding: 5px;">
+
+  <p>Note: For those running WSL on Windows, be sure that you are in the Ubuntu shell when following these instructions.</p>
+</div>
+
+<h3 id="set-up-cs107e_home">Set up cs107e_home</h3>
+<ol>
+  <li>
+    <p>Create a new directory named <code class="highlighter-rouge">cs107e_home</code> to store course materials. The tilde character <code class="highlighter-rouge">~</code> is shorthand for home directory, so the path <code class="highlighter-rouge">~/cs107e_home</code> creates the directory within your home.</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> $ mkdir ~/cs107e_home
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Change to the new directory and clone the courseware repository here. This repo is used to distribute code and materials for lectures, labs, and assignments.</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> $ cd ~/cs107e_home
+ $ git clone https://github.com/cs107e/cs107e.github.io
+ Cloning into 'cs107e.github.io'...
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<p>✔️<strong>Check:</strong> confirm your cs107e_home:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ ls ~/cs107e_home/cs107e.github.io/cs107e/
+bin/     etc/     extras/  include/ lib/     src/
+</code></pre></div></div>
+
+<p>Note: If you’re using WSL, now is a good time to open File Explorer on your new cS107e_home and and “Pin to Quick Access” to add it the sidebar for future use. See <a href="../wsl/#files">accessing WSL files from Windows</a>.</p>
+
+<p><a name="env"></a></p>
+<h3 id="edit-shell-configuration-file">Edit shell configuration file</h3>
+<p>Next, configure your shell environment to match where you stored cs107e_home.</p>
+
+<p>When opening a new shell, the environment is initialized by reading a configuration file in your home directory. Editing the configuration file allows you to set the initial state of your shell.</p>
+
+<p>The name of the configuration file depends on which shell you are using. Use the command <code class="highlighter-rouge">echo $SHELL</code> to see your shell. Your shell is likely <code class="highlighter-rouge">bash</code>, although it might be <code class="highlighter-rouge">zsh</code> if on a newer Mac.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ echo $SHELL
+/bin/bash
+</code></pre></div></div>
+
+<p>If your shell is <code class="highlighter-rouge">bash</code>, the file is named <code class="highlighter-rouge">.bashrc</code>.  If your shell is <code class="highlighter-rouge">zsh</code>, the file is named <code class="highlighter-rouge">.zshrc</code>.  For any other shell, please contact a CA for help.</p>
+
+<p>Change to your home directory and look for the configuration file for your shell. Note that filenames starting with a dot are hidden in the directory listing by default. Use the command <code class="highlighter-rouge">ls -a</code> to list all files, including hidden ones:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cd ~
+$ ls -a
+.    .bash_history   .bashrc     cs107e_home     .python_history 
+..   .bash_logout    .config     .profile        .viminfo
+</code></pre></div></div>
+
+<p>If your home directory does not yet have the configuration file, you can create an empty file with the appropriate name:</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ touch .bashrc
+</code></pre></div></div>
+
+<p>Open the configuration file in a text editor and append the following two lines verbatim:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>export CS107E=~/cs107e_home/cs107e.github.io/cs107e
+export PATH=$PATH:$CS107E/bin
+</code></pre></div></div>
+
+<p>The first line sets the environment variable <code class="highlighter-rouge">CS107E</code> to the path to where the class files are stored. The second line adds our <code class="highlighter-rouge">bin</code> subdirectory to your executable path.</p>
+
+<p>The configuration file will be automatically read when creating a new shell in the future. Use the <code class="highlighter-rouge">source</code> command to re-read the configuration right now in your current shell:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ source ~/.bashrc
+</code></pre></div></div>
+
+<p>✔️<strong>Check:</strong> confirm your current shell configuration:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ echo $CS107E
+/Users/student/cs107e_home/cs107e.github.io/cs107e
+$ ls $CS107E/lib/libpi.a
+/Users/student/cs107e_home/cs107e.github.io/cs107e/lib/libpi.a
+
+$ which pinout
+/Users/student/cs107e_home/cs107e.github.io/cs107e/bin/pinout
+</code></pre></div></div>
+
+<p>If your shell is <code class="highlighter-rouge">bash</code> and you are using the Terminal app on Mac OS, you will need an additional customization to make the shell configuration persistent. <strong>This step is NOT necessary if your shell is <code class="highlighter-rouge">zsh</code> or you are using WSL</strong>.</p>
+
+<ul>
+  <li>
+    <p>Find the file named <code class="highlighter-rouge">.bash_profile</code> in your home directory. If you do not yet have such a file, use the <code class="highlighter-rouge">touch</code> command to create an empty file with that name. Open that file in a text editor and append the following line verbatim:</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  source ~/.bashrc
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<p>✔️<strong>Check:</strong> confirm your shell customization is persistent:</p>
+
+<p>Close your current shell and open a new one. Try the check step above in the new shell and confirm the new shell is also properly configured.</p>
+
+<h3 id="configure-git-identity">Configure git identity</h3>
+<p>We distribute course materials as git repos and you will use git to access, manage, and submit your work. The commands below will properly set the identity recorded with your git actions.</p>
+
+<p>(Replace <code class="highlighter-rouge">My Name</code> and <code class="highlighter-rouge">myemail@stanford.edu</code> with your own.)</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git config --global user.name "My Name"
+$ git config --global user.email myemail@stanford.edu
+</code></pre></div></div>
+
+<p>✔️<strong>Check:</strong> confirm your git identity:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git config --get-regexp user
+user.name My Name
+user.email myemail@stanford.edu
+</code></pre></div></div>
+
+<h3 id="finished">Finished</h3>
+<p>After following the above steps, you’ve configured your user account. Continue on to the <a href="../#steps">Final Checklist</a> to confirm your entire environment.</p>
+
+
+  </div>
+  <div class="toc-column col-lg-2 col-md-2 col-sm-2 hidden-xs">
+    <div id="toc" class="toc" data-spy="affix" data-offset-top="0"></div>
+  </div> 
+</div>
+
+  <script src="/_assets/tocbot.min.js"></script>
+  <link rel="stylesheet" href="/_assets/tocbot.css">
+
+  <script>
+    tocbot.init({
+      // Where to render the table of contents.
+      tocSelector: '#toc',
+      // Where to grab the headings to build the table of contents.
+      contentSelector: '#main_for_toc',
+      // Which headings to grab inside of the contentSelector element.
+      headingSelector: 'h2, h3, h4',
+    });
+  </script>
+
+
+
+  </div>
+  <div class="footer navbar-default navbar-static-bottom">
+    <p style="font-size: 65%; color:green; text-align:center;">
+      <i>CS107e Winter 2020 &middot; Site generated 2020-04-19 20:35</i>
+  </p>
+</div> 
+</body>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/_assets/site.css" rel="stylesheet">
+    <link href="/_assets/favicon.png" rel="icon" type="image/png">
+    <title>CS107E </title>
+  </head>
+
+<body>
+  <!-- Include this HTML partial to set up navbar -->
+
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="navbar-header">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+    <!-- hamburger -->
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+
+  <img class="navbar-brand navbar-brand-image" src="/_assets/berry.png" >
+  <a class="navbar-brand" href="/">CS107e Winter 2020</a>
+  </div>
+
+  <div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/">Home</a></li>
+      <li><a href="/assignments">Assignments</a></li>
+      <li><a href="/labs">Labs</a></li>
+      <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            Resources
+          <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/about/">About the course</a></li>
+            <li><a href="/policies/">Policies</a></li>
+            <li><a href="/schedule/">Schedule</a></li>
+            <li><a href="/guides/">Guides</a></li>
+            <li><a href="/project_gallery/">Project gallery</a></li>
+            <li><a href="/demos/">External demos</a></li>
+            <li><a href="/resources/">External resources</a></li>
+          </ul>
+        </li>
+      <li><a href="https://github.com/cs107e/cs107e.github.io">Repository</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="container" style="max-width:55em;">
+    
+    
+  <h4 id="course-facts-winter-2020">Course facts Winter 2020</h4>
+
+<ul>
+  <li><strong>Lectures:</strong> Mon and Fri 11:30am-12:50pm in Lathrop 299</li>
+  <li><strong>Labs</strong>: Tue or Wed 7-9pm in Gates B21</li>
+  <li><strong>Lecturers</strong>: Pat Hanrahan, Julie Zelenski</li>
+  <li><strong>CAs</strong>: Sean Konz, Peter McEvoy</li>
+  <li><strong>SLs</strong>: Mihir Garimella, Shannon Yan</li>
+</ul>
+
+<!-- include this partial to emit gallery of staff names & photos -->
+
+<div class="gallery" style="display: inline-block;">
+<div class="row">
+
+ 
+    <div class="col-xs-2">
+        <img class="img-circle center-block" src="/_assets/pat.png" style="max-height: 100px;" />
+        <p class="text-center">Pat</p>
+    </div>
+ 
+    <div class="col-xs-2">
+        <img class="img-circle center-block" src="/_assets/julie.jpg" style="max-height: 100px;" />
+        <p class="text-center">Julie</p>
+    </div>
+ 
+    <div class="col-xs-2">
+        <img class="img-circle center-block" src="/_assets/sean.png" style="max-height: 100px;" />
+        <p class="text-center">Sean</p>
+    </div>
+ 
+    <div class="col-xs-2">
+        <img class="img-circle center-block" src="/_assets/peter.png" style="max-height: 100px;" />
+        <p class="text-center">Peter</p>
+    </div>
+ 
+    <div class="col-xs-2">
+        <img class="img-circle center-block" src="/_assets/mihir.png" style="max-height: 100px;" />
+        <p class="text-center">Mihir</p>
+    </div>
+ 
+    <div class="col-xs-2">
+        <img class="img-circle center-block" src="/_assets/shannon.jpg" style="max-height: 100px;" />
+        <p class="text-center">Shannon</p>
+    </div>
+
+</div>
+</div>
+
+<h3 id="about-the-course">About the course</h3>
+<p>CS107 is the third course in Stanford’s introductory programming sequence.
+The CS106A/B courses provide students with a solid foundation in programming methodology and abstractions, and CS107 follows on to develop the skills needed to build
+computer systems.</p>
+
+<p><strong>CS107e: Computer Systems from the Ground Up</strong> is an experimental variant of CS107 that teaches the fundamental concepts of
+computer systems through bare metal programming on the Raspberry Pi. Bare metal
+programming means you will not run an operating system on the Raspberry Pi and
+will make minimal use of libraries. This course also serves as an
+introduction to embedded systems.The course will start with the microprocessor and move up to
+the C programming language, without skipping anything in between. The goal is
+to build a solid understanding of all aspects of how modern computers execute
+programs and how program development tools work.</p>
+
+<p>The major learning goals for the course are:</p>
+
+<ol>
+  <li>To understand how computers represent information, execute programs, and control peripherals.</li>
+  <li>To master command-line programming tools and the C programming language.</li>
+</ol>
+
+<p>Topics covered include:</p>
+
+<ul>
+  <li>the ARM architecture</li>
+  <li>assembly language and machine-level code</li>
+  <li>the C programming language</li>
+  <li>compilation, linking and loading</li>
+  <li>debugging</li>
+  <li>memory organization and management</li>
+  <li>controlling peripherals: GPIO, graphics, sound, and keyboards</li>
+</ul>
+
+<p>Students will receive a Raspberry Pi and a kit of parts,
+and all assignments will run on the Raspberry Pi. Assignments build upon each other by adding more and more functionality to a core library.
+They culminate in a simple personal computer shell
+using a keyboard and display. Finally, students do a project of their choosing 
+where they build a complete hardware-software system.</p>
+
+<p>This class is organized by weeks. Each week consists of lectures
+on Fri and Mon, a lab session on Tue or Wed evening, and a programming
+assignment which is due the following week. Lecture and lab attendance is mandatory. The final project is completed over the last two weeks of the quarter. There are no exams.</p>
+
+<p>For information about the differences between CS107 and CS107e,
+check out this <a href="https://web.stanford.edu/class/cs107e/">FAQ</a>.</p>
+
+<h4 id="history">History</h4>
+<p>CS107e is an experiment in creating a new approach to introducing students to computer systems. It is the brainchild of <strong>Pat Hanrahan</strong>; the course owes its very existence to Pat’s inspiration and travail, along with the heroic contributions of the multi-talented <strong>Isabel Bush</strong>, the Lead TA in the first offerings of the course. <strong>Phil Levis</strong>, <strong>Dawson Engler</strong>, <strong>Julie Zelenski</strong>, and <strong>Chris Gregg</strong> have contributed to the cause as instructors and we’ve have enjoyed superb student collaborators: <strong>Anna</strong>, <strong>Ashwin</strong>, <strong>Eric</strong>, <strong>Jane</strong>, <strong>Jennifer</strong>, <strong>Lenny</strong>, <strong>Matt</strong>, <strong>Michelle</strong>, <strong>Mihir</strong>, <strong>Natasha</strong>, <strong>Ngoc</strong>, <strong>Omar</strong>, <strong>Peter</strong>, <strong>Sean</strong>, <strong>Sergio</strong>, <strong>Shannon</strong> and <strong>Will</strong>. The tireless efforts of the TAs to support student learning have earned boundless praise from our students.
+A huge shout-out to <strong>David Welch</strong>, the person most
+responsible for figuring out how to write bare metal programs on the Raspberry
+Pi. If it wasn’t for David <a href="https://github.com/dwelch67/raspberrypi">sharing his great work</a>, we would not be offering this course!</p>
+
+<p>As of Winter 2020, the course materials have evolved to a fairly solid and stable state. We would be delighted for others to adopt from our work. Contact us at <code class="highlighter-rouge">cs107e@cs.stanford.edu</code> for more information and access to our private-facing material.</p>
+
+
+
+
+
+  </div>
+  <div class="footer navbar-default navbar-static-bottom">
+    <p style="font-size: 65%; color:green; text-align:center;">
+      <i>CS107e Winter 2020 &middot; Site generated 2020-04-19 20:35</i>
+  </p>
+</div> 
+</body>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+</html>

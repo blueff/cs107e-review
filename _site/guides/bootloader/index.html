@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/_assets/site.css" rel="stylesheet">
+    <link href="/_assets/favicon.png" rel="icon" type="image/png">
+    <title>CS107E Using the bootloader</title>
+  </head>
+
+<body>
+  <!-- Include this HTML partial to set up navbar -->
+
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="navbar-header">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+    <!-- hamburger -->
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+
+  <img class="navbar-brand navbar-brand-image" src="/_assets/berry.png" >
+  <a class="navbar-brand" href="/">CS107e Winter 2020</a>
+  </div>
+
+  <div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/">Home</a></li>
+      <li><a href="/assignments">Assignments</a></li>
+      <li><a href="/labs">Labs</a></li>
+      <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            Resources
+          <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/about/">About the course</a></li>
+            <li><a href="/policies/">Policies</a></li>
+            <li><a href="/schedule/">Schedule</a></li>
+            <li><a href="/guides/">Guides</a></li>
+            <li><a href="/project_gallery/">Project gallery</a></li>
+            <li><a href="/demos/">External demos</a></li>
+            <li><a href="/resources/">External resources</a></li>
+          </ul>
+        </li>
+      <li><a href="https://github.com/cs107e/cs107e.github.io">Repository</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="container" style="max-width:55em;">
+    <h1 class="title">Using the bootloader</h1><hr>
+    
+  <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12" id="main_for_toc">
+    <p><em>Written by Pat Hanrahan and Julie Zelenski</em></p>
+
+<h3 id="what-is-a-bootloader">What is a bootloader?</h3>
+<p>You will edit and compile programs on your laptop,
+but you must transfer the compiled program to the Pi to execute it. One way to move a program from your laptop to the Pi is using a micro-SD card.  You would insert the card on your laptop, 
+copy the newly compiled program onto it, eject the
+card and then insert into Pi. You can see how following up each re-compile with this process would quickly become tedious!</p>
+
+<p>Instead, you can set up a serial connection between your laptop and the Pi and use a <strong>bootloader</strong> to transfer the program. The bootloader runs on your Pi
+and listens on the serial connection. On your laptop, you send the newly compiled program over the serial connection to the waiting 
+bootloader. The bootloader receives the program and writes it to the
+memory of the Pi, a process called “loading” the program. After the
+program is loaded, the bootloader jumps to the start address of the program,
+and the program begins to run.</p>
+
+<p>Using a bootloader, the cycle to run a newly-compiled program is just:</p>
+
+<ol>
+  <li>Reset the Raspberry Pi to restart the bootloader</li>
+  <li>Use <code class="highlighter-rouge">rpi-install.py</code> from your laptop to send your program to the bootloader</li>
+</ol>
+
+<p>The bootloader we are using was developed by David Welch and modified by Dawson
+Engler and Julie Zelenski. 
+If you have some time, we highly
+recommend you explore David Welch’s <a href="https://github.com/dwelch67/raspberrypi">github repository</a> of code for bare-metal development on Raspberry Pi.</p>
+
+<p>This guide walks you through configuring and using the bootloader.</p>
+
+<h3 id="configure-micro-sd-card-for-bootloader">Configure micro-SD card for bootloader</h3>
+
+<p>You should have previously set up a micro-SD card for your Pi with the 
+<a href="https://github.com/cs107e/cs107e.github.io/tree/master/firmware">firmware files</a> 
+as directed in the <a href="/guides/sd">SD card guide</a>.</p>
+
+<p>The firmware files include the program <code class="highlighter-rouge">bootloader.bin</code>; this is the compiled binary for the bootloader. Insert the SD card into your
+laptop and copy <code class="highlighter-rouge">bootloader.bin</code> to <code class="highlighter-rouge">kernel.img</code>. Eject the card and insert it
+into the micro-SD slot on your Pi. The next and every subsequent time that you reset the
+Pi, the bootloader will run.</p>
+
+<h3 id="connect-your-laptop-to-the-pi">Connect your laptop to the Pi</h3>
+
+<p>You will use a CP2102 USB to serial breakout board (hereafter referred to as just “USB-serial”) to connect your laptop to the Pi. The CP2102
+is the chip that converts from a USB interface to a serial interface.</p>
+
+<!-- This partial will open warning/danger callout box  -->
+
+<div style="background-color:#ffcccc; color:#993333; border-left: 5px solid #993333;margin: 5px 25px; padding: 5px;">
+
+  <p>To use the USB-serial, your laptop needs the CS2012 console driver. You should have installed it when configuring your development environment. Refer to the section “CP2102 console driver” in the <a href="/guides/install">installation guide</a> for your OS.</p>
+</div>
+
+<p>One
+end of the USB-serial is a USB Type A connector that plugs
+into any USB port on your laptop. The other end contains a
+6 pin header. Two of the pins deliver 5V and GND. They can be used to power the
+Pi; for details, consult the <a href="/guides/power">Powering the Pi Guide</a>.</p>
+
+<p>Two other pins on the USB-serial are used for transmitting (TX) and receiving (RX). The Pi also
+has a TX and RX pin on its GPIO header. Review the <a href="../images/pinout.pdf">Pi’s pinout diagram</a> to find the pins labeled <code class="highlighter-rouge">UART TXD</code> and <code class="highlighter-rouge">UART RXD</code>.</p>
+
+<p>Use female-female jumpers to connect the TX and RX pins on your Pi to the TX and RX pins on the USB-serial.  By convention, the transmit TX on one end is connected to the receive RX on the
+other end.</p>
+
+<p>In the configuration pictured below, the green wire connects
+the RX header pin on the USB-serial
+to the TX GPIO on the Pi’s header.
+The blue wire connects the TX header pin
+to the Pi’s RX GPIO.</p>
+
+<p><img src="../images/bootloader.cable.jpg" alt="Console cable" /></p>
+
+<p>Note that the pins on your USB-serial
+may be in different positions or have different label names. Don’t just follow the picture blindly!</p>
+
+<h3 id="load-and-run-a-program">Load and run a program</h3>
+<p>The <code class="highlighter-rouge">rpi-install.py</code> script sends a binary file from your laptop to the bootloader. Change to the firmware directory and send the blink program:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cd ~/cs107e_home/cs107e.github.io/firmware
+$ rpi-install.py blink-actled.bin 
+Found serial port: /dev/cu.SLAB_USBtoUART
+Sending `blink-actled.bin` (72 bytes): .
+Successfully sent!
+</code></pre></div></div>
+
+<p>After a brief pause, you should see the green activity LED on the Pi slowly blinking.</p>
+
+<p>To load and run a different program, your must first reset the Pi by briefly unplugging the USB-serial. This step is necessary to restart the bootloader so it is ready to receive the program you sent via <code class="highlighter-rouge">rpi-install.py</code>.</p>
+
+<p><a name="troubleshooting"></a></p>
+<h3 id="troubleshooting">Troubleshooting</h3>
+<p>If you are having bootloader trouble, work through this checklist to find and resolve your issue.</p>
+
+<ol>
+  <li>
+    <p>Reset Pi and verify bootloader is running by looking for its “heartbeat”.</p>
+
+    <ul>
+      <li>
+        <p>When the bootloader is running, it repeatedly gives 
+ two short flashes of the ACT LED (the green LED on the Pi board).
+ This “da-dum” is the heartbeat that tells you the 
+ bootloader is ready and listening.</p>
+      </li>
+      <li>
+        <p>If your Pi doesn’t have a heartbeat, the most common cause is because
+ you have already bootloaded a program which is now running on the Pi. To stop that program and restart the bootloader, you must reset the Pi.	Do that now!   You can reset the Pi by briefly unplugging the USB-serial or using your <a href="../reset-button">reset switch</a>.</p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>If bootloader does not run after reset, check the micro-SD card.</p>
+
+    <ul>
+      <li>
+        <p>Be sure that the micro-SD card is fully inserted into the slot on the underside of the Pi.</p>
+      </li>
+      <li>
+        <p>Verify the files of the micro-SD card by inserting it into your
+ laptop. There should be a file named <code class="highlighter-rouge">kernel.img</code> that is a copy
+ of the file originally called <code class="highlighter-rouge">bootloader.bin</code> from the
+  <a href="https://github.com/cs107e/cs107e.github.io/tree/master/firmware">firmware</a> directory.</p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>If bootloader is running, but your laptop fails to communicate with it, check your connections.</p>
+
+    <ul>
+      <li>The TX and RX from your USB-serial should be connected to
+  RX and TX pins on your Pi.  Remember: TX should go to RX and 
+  vice versa.</li>
+      <li>If your jumper cables have become stressed/worn, try replacing them with fresh ones.</li>
+    </ul>
+  </li>
+</ol>
+
+
+  </div>
+  <div class="toc-column col-lg-2 col-md-2 col-sm-2 hidden-xs">
+    <div id="toc" class="toc" data-spy="affix" data-offset-top="0"></div>
+  </div> 
+</div>
+
+  <script src="/_assets/tocbot.min.js"></script>
+  <link rel="stylesheet" href="/_assets/tocbot.css">
+
+  <script>
+    tocbot.init({
+      // Where to render the table of contents.
+      tocSelector: '#toc',
+      // Where to grab the headings to build the table of contents.
+      contentSelector: '#main_for_toc',
+      // Which headings to grab inside of the contentSelector element.
+      headingSelector: 'h2, h3, h4',
+    });
+  </script>
+
+
+
+  </div>
+  <div class="footer navbar-default navbar-static-bottom">
+    <p style="font-size: 65%; color:green; text-align:center;">
+      <i>CS107e Winter 2020 &middot; Site generated 2020-04-19 20:35</i>
+  </p>
+</div> 
+</body>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+</html>

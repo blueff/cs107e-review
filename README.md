@@ -4,7 +4,24 @@
   </h1>
 </div>
 
-My study note of the awesome course [CS107E Winter 2020](http://cs107e.github.io/).
+My study notes of the awesome course CS107E (Winter 2020).
+
+I have bundled all the material inside `_site` and `_resource` dirs because the course is keep going and keep chaning.
+
+If you want to follow along the notes, you should use the bundled version.
+
+Click to check [the latest course](http://cs107e.github.io/).
+
+## Setup
+
+```bash
+$ git clone https://github.com/cj1128/cs107e-review
+$ cd cs107e-review
+$ source ./setup.sh
+$ # Use something to serve _site. Here I use http-server.
+$ http-server -p 4000 _site
+# Open browser at localhost:4000 and enjoy!
+```
 
 ## Table of Contents
 
@@ -53,10 +70,10 @@ My study note of the awesome course [CS107E Winter 2020](http://cs107e.github.io
     - [Check-in Question](#check-in-question)
   - [Assignment 4: Backtrace and Malloc](#assignment-4-backtrace-and-malloc)
     - [Prepare starter files](#prepare-starter-files)
-    - [Backtrace](#backtrace)
     - [Backtrace Module](#backtrace-module)
+    - [Malloc Module](#malloc-module)
 - [ARM Tips](#arm-tips)
-- [GCC](#gcc)
+- [GCC Tips](#gcc-tips)
   - [`-mpoke-function-name`](#-mpoke-function-name)
   - [Inline Assembly](#inline-assembly)
 
@@ -79,7 +96,7 @@ The CPU model of the Pi is [BCM2835](https://www.raspberrypi.org/documentation/h
 
 Check the manual here [BCM2835 Peripherals Specification](https://www.raspberrypi.org/documentation/hardware/raspberrypi/bcm2835/BCM2835-ARM-Peripherals.pdf).
 
-You need to know that this manual __has a lot of errors__, must read it with [BCM 2835 Datasheet Errata](https://elinux.org/BCM2835_datasheet_errata#p96).
+Please note that this manual __has a lot of errors__, must read it with [BCM 2835 Datasheet Errata](https://elinux.org/BCM2835_datasheet_errata#p96).
 
 NOTE: __The address in the manual `0x7E...` is the logic address. We will change it to `0x20...` in the code__.
 
@@ -397,7 +414,7 @@ This is our final clock, check the full code [week3/assign2/apps/clocl.c](./week
 
 ![](./assets/clock-extended.gif)
 
-NOTE: If you encounter this error: _undefined reference to `__aeabi_idivmod`_, that means you have used some division operations and need to link to `libgcc.a`.
+NOTE: If you encounter this error: _undefined reference to `__aeabi_idivmod`_, that means you have used some division operations and you need to link to `libgcc.a`.
 
 ## Week 4: Communication and the Serial Protocol
 
@@ -795,7 +812,7 @@ Use abs stack frame for example, `main` = 0x0000801c and `diff` = 0xbc. It repre
 $ arm-none-eabi-ar -xv libpi.a gpio.o timer.o uart.o strings.o
 ```
 
-`backtrace.h` and `malloc.h` are copied from official include directory.
+`backtrace.h` and `malloc.h` are copied from `_resource/cs107e/include`.
 
 `printf.h`, `printf_internal.h`, `printf.c`, `cstart.c` and `start.s` are copied from assignment 3.
 
@@ -803,20 +820,39 @@ $ arm-none-eabi-ar -xv libpi.a gpio.o timer.o uart.o strings.o
 
 Now we are ready to tackle the challenges 🥊.
 
-#### Backtrace
-
-This task is not hard but time-consuming. You need a lot of patience to debug what went wrong.
-
-`stack_abs.html` is very helpful.
-
 #### Backtrace Module
+
+Have you ever wondered how stack tracking is implemented? No matter what programming language we are using, every time we messed up, we got a helpful stack tracking log.
+
+Now let's implement this essential feature for ourself!
+
+This task is not hard but time-consuming. We need a lot of patience to debug what things go wrong.
+
+[stack_abs.html](./_site/labs/lab4/images/stack_abs.html) is very helpful.
+
+Check the final code [backtrace.c](./week5/assign4/backtrace.c).
+
+#### Malloc Module
+
+Actually I think this task is very straight forward. Do some drawing with a pen and paper. We can figure out what to do for each function pretty easily.
+
+NOTE: `sbrk` should check the up bound. We surely don't want our heap corrupt our stack.
+
+We can get current stack pointer using inline asm.
+
+```c
+char *cur_sp = NULL;
+__asm__("mov %0, sp" : "=r"(cur_sp));
+```
+
+Check the final code [malloc.c](./week5/assign4/malloc.c) and [test_backtrace_malloc.c](./week5/assign4/tests/test_backtrace_malloc.c). Always write the test!
 
 ## ARM Tips
 
 - Disassemble object file: `arm-none-eabi-objdump -D input.o`.
 - Disassemble binary file: `arm-none-eabi-objdump -b binary -D -marm input.bin`.
 
-## GCC
+## GCC Tips
 
 ### `-mpoke-function-name`
 

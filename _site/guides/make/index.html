@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/_assets/site.css" rel="stylesheet">
+    <link href="/_assets/favicon.png" rel="icon" type="image/png">
+    <title>CS107E Guide to Make for ARM cross-development</title>
+  </head>
+
+<body>
+  <!-- Include this HTML partial to set up navbar -->
+
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="navbar-header">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+    <!-- hamburger -->
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+
+  <img class="navbar-brand navbar-brand-image" src="/_assets/berry.png" >
+  <a class="navbar-brand" href="/">CS107e Winter 2020</a>
+  </div>
+
+  <div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/">Home</a></li>
+      <li><a href="/assignments">Assignments</a></li>
+      <li><a href="/labs">Labs</a></li>
+      <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            Resources
+          <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/about/">About the course</a></li>
+            <li><a href="/policies/">Policies</a></li>
+            <li><a href="/schedule/">Schedule</a></li>
+            <li><a href="/guides/">Guides</a></li>
+            <li><a href="/project_gallery/">Project gallery</a></li>
+            <li><a href="/demos/">External demos</a></li>
+            <li><a href="/resources/">External resources</a></li>
+          </ul>
+        </li>
+      <li><a href="https://github.com/cs107e/cs107e.github.io">Repository</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="container" style="max-width:55em;">
+    <h1 class="title">Guide to Make for ARM cross-development</h1><hr>
+    
+  <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12" id="main_for_toc">
+    <p><em>Written for CS107E by Anna Zeng, Michelle Park, and Julie Zelenski</em></p>
+
+<h3 id="what-is-a-makefile">What is a Makefile?</h3>
+
+<p>Make is a tool that automates building programs;
+a Makefile describes the commands and options used in the build
+process. As you will see soon enough, using a Makefile saves you a lot of retyping and makes your life
+as a developer a whole lot smoother!</p>
+
+<p>This guide introduces Makefiles using examples of cross-development for the ARM architecture. For further information about Makefiles in general,
+check out the <a href="#resources">other resources</a> on the bottom of this page.</p>
+
+<h3 id="an-example-makefile">An example Makefile</h3>
+<p>The example makefile below builds the <code class="highlighter-rouge">blink.bin</code> program out of the <code class="highlighter-rouge">blink.c</code> source file.
+Our labs and assignments will include similar Makefiles, 
+so you will soon become familiar with the common structure.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    NAME = blink
+
+    CFLAGS = -g -Wall -Og -std=c99 -ffreestanding
+    LDFLAGS = -nostdlib
+
+    all: $(NAME).bin
+     
+    %.bin: %.elf
+        arm-none-eabi-objcopy $&lt; -O binary $@
+
+    %.elf: %.o
+        arm-none-eabi-gcc $(LDFLAGS) $&lt; -o $@
+
+    %.o: %.c
+        arm-none-eabi-gcc $(CFLAGS) -c $&lt; -o $@
+    
+    %.list: %.o
+        arm-none-eabi-objdump -d $&lt; &gt; $@
+
+    install: $(NAME).bin
+        rpi-install.py $&lt;
+
+    clean:
+        rm -f *.o *.elf *.bin *.list
+</code></pre></div></div>
+
+<p>This Makefile may look a bit cryptic at first! Let’s try breaking it down step by step.</p>
+
+<h3 id="rules-and-recipes">Rules and recipes</h3>
+
+<p>In lecture, Pat whipped up a simple <a href="/lectures/ASM/code/blink/doit">doit script</a> to automate retyping the commands to rebuild a program. The <code class="highlighter-rouge">make</code> tool is just a fancier version of doit. A <code class="highlighter-rouge">Makefile</code> is a text file that describes the steps needed to build a program.
+Here is an example of a very simple hard-coded Makefile containing three targets <code class="highlighter-rouge">all</code>, <code class="highlighter-rouge">button.bin</code> and <code class="highlighter-rouge">clean</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>all: button.bin
+
+button.bin: button.c
+    arm-none-eabi-gcc -Og -g -Wall -std=c99 -ffreestanding -c button.c -o button.o
+    arm-none-eabi-gcc -nostdlib button.o -o button.elf
+    arm-none-eabi-objcopy button.elf -O binary button.bin
+
+clean: 
+    rm -f *.bin *.o
+</code></pre></div></div>
+
+<p><strong>Rules</strong> are written in the following way: “the <strong>dependencies</strong> on the right-hand-side are required
+to make the <strong>target</strong> on the left-hand-side.” Thus the first line
+indicates that <code class="highlighter-rouge">button.bin</code> is required to make <code class="highlighter-rouge">all</code>. In other words, to make <code class="highlighter-rouge">all</code>, we must first make <code class="highlighter-rouge">button.bin</code>.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>all: button.bin
+</code></pre></div></div>
+
+<p>This brings us to the next rule for <code class="highlighter-rouge">button.bin</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>button.bin: button.c
+    arm-none-eabi-gcc -Og -g -Wall -std=c99 -ffreestanding -c button.c -o button.o
+    arm-none-eabi-gcc -nostdlib button.o -o button.elf
+    arm-none-eabi-objcopy button.elf -O binary button.bin
+</code></pre></div></div>
+
+<p>The ingredients (dependencies on the right-hand-side) are needed as the starting point to create the desired output (target on the left-hand-side). The indented lines that follow the rule are the commands that turn the ingredients into the final product. These steps are collectively called the <strong>recipe</strong>. Thus, in order to make <code class="highlighter-rouge">button.bin</code>, we start with our ingredient (<code class="highlighter-rouge">button.c</code>) and then step through the commands in the recipe.</p>
+
+<p>We could add a comment to explain the additional flags included when invoking the compiler. Lines starting with <code class="highlighter-rouge">#</code> are treated as comments.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># Compiler flags used:
+#  -std=c99        use the c99 standard
+#  -Og             generate optimized code designed for debugging
+#  -g              add debugging information
+#  -Wall           give warnings about *all* issues
+#  -ffreestanding  generate code assuming no operating system
+</code></pre></div></div>
+
+<p>The final rule indicates what should happen when we <code class="highlighter-rouge">make clean</code>; the recipe for the clean target removes any previous build products so the next compile starts fresh.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>clean: 
+    rm -f *.bin *.o
+</code></pre></div></div>
+
+<p>One particularly nifty thing <code class="highlighter-rouge">make</code> is that only rebuilds a target when one or more of the components it depends on has changed.  If you attempt to re-build a target which is already up-to-date, <code class="highlighter-rouge">make</code> will tell you:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ make
+make: Nothing to be done for `all'.
+</code></pre></div></div>
+
+<h3 id="macros">Macros</h3>
+
+<p>After repeatedly copy-pasting the example Makefile to create a version for a new program, you can see the value in structuring it to be more general-purpose. After all, Makefiles are written for convenience!</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    NAME = blink
+    CFLAGS  = -std=c99 -Og -g -Wall -ffreestanding
+    LDFLAGS = -nostdlib
+
+    all: $(NAME).bin
+
+    $(NAME).bin: $(NAME).c
+        arm-none-eabi-gcc $(CFLAGS) -c $(NAME).c -o $(NAME).o
+        arm-none-eabi-gcc $(LDFLAGS) $(NAME).o -o $(NAME).elf
+        arm-none-eabi-objcopy $(NAME).elf -O binary $(NAME).bin
+    
+    clean: 
+        rm -f *.bin *.o
+</code></pre></div></div>
+<p>We’ve added three <strong>macros</strong> up top. They’re similar to variables
+in that they replace instances of the macro throughout the file with their assigned text.
+The <code class="highlighter-rouge">$(macro_name)</code> syntax is used to access the value of the macro.
+This makes it easy to change the name for a new program.</p>
+
+<h3 id="pattern-rules">Pattern rules</h3>
+<p>We can further generalize our Makefile by using <em>pattern rules</em> that can be used to operate on any source file, without hard-coding to a particular name.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    # This pattern rule compiles a C program into an object file.
+    # filename.o is built from filename.c
+    %.o: %.c
+        arm-none-eabi-gcc $(CFLAGS) -c $&lt; -o $@
+
+    # This pattern rule converts assembly instructions into an object file.
+    # filename.o is built from filename.s
+    %.o: %.s
+        arm-none-eabi-as $(CFLAGS) $&lt; -o $@
+
+    # This pattern rule links an object file into an executable ELF file.
+    # filename.elf is built from filename.o
+    %.elf: %.o
+        arm-none-eabi-gcc $(LDFLAGS) $&lt; -o $@
+
+    # This pattern rule extract binary from an ELF executable
+    # filename.bin is built from filename.elf
+    %.bin: %.elf
+        arm-none-eabi-objcopy $&lt; -O binary $@
+</code></pre></div></div>
+
+<p>The symbols that begin with <code class="highlighter-rouge">$</code> and <code class="highlighter-rouge">%</code> in a pattern rule are handled by <code class="highlighter-rouge">make</code> using the following interpretations:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">%</code> is a wildcard symbol when used in a rule; <code class="highlighter-rouge">%.o</code> for example matches any file that ends with <code class="highlighter-rouge">.o</code></li>
+  <li><code class="highlighter-rouge">$@</code> refers to the left part of the rule, before the <code class="highlighter-rouge">:</code></li>
+  <li><code class="highlighter-rouge">$&lt;</code> refers to the first element in the right part of the rule, after the <code class="highlighter-rouge">:</code></li>
+</ul>
+
+<p>One more special variable <code class="highlighter-rouge">$^</code> refers to all elements in the right part of the rule, after the <code class="highlighter-rouge">:</code>, which is to say all of the dependencies.</p>
+
+<p>For further convenience, we can add a rule for the <code class="highlighter-rouge">install</code> target. We use this target to invoke the command <code class="highlighter-rouge">rpi-install.py blink.bin</code> to load our newly-built program on the Pi.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># The install target uploads a freshly made binary image to rpi bootloader
+install: $(NAME).bin
+    rpi-install.py $&lt;
+</code></pre></div></div>
+
+<p>With that finishing touch, you have a general Makefile that can be easily re-purposed for any Raspberry Pi project. Now that you know that a Makefile is just a cookbook that culminates in the tasty program you wish to create, you’re ready to add your favorite recipes and bon appetit!</p>
+
+<h3 id="going-further">Going further</h3>
+<p><a name="resources"></a></p>
+
+<p>Some follow up references on Makefiles:</p>
+<ul>
+  <li><a href="http://www.opussoftware.com/tutorial/TutMakefile.htm">a Makefile tutorial</a></li>
+  <li><a href="http://www.delorie.com/djgpp/doc/ug/larger/makefiles.html">another Makefile tutorial</a></li>
+  <li><a href="https://web.stanford.edu/class/archive/cs/cs107/cs107.1186/guide/make.html">CS107 Guide to Makefiles</a></li>
+  <li>An inexhaustible source of make wisdom is the full manual for <a href="https://www.gnu.org/software/make/manual/html_node/index.html">GNU make</a> which will tell you more that you could ever want to know.</li>
+  <li>Reading makefiles from real world projects is a good way to see make in action.  A search on <a href="https://github.com/search?utf8=✓&amp;q=makefile&amp;type=">github.com</a> will turn up a treasure trove.</li>
+</ul>
+
+<p><strong>Q. Make is failing with a cryptic error about <code class="highlighter-rouge">Makefile: *** missing separator</code>. What gives?</strong></p>
+
+<p>A. In what is widely considered one of the dumber decisions in the history of computing, a Makefile distinguishes between tabs and spaces. The recipe lines for a target must begin with a tab and an equivalent number of spaces just won’t do. Edit your makefile and replace those errant spaces with a tab to restore Makefile joy.</p>
+
+  </div>
+  <div class="toc-column col-lg-2 col-md-2 col-sm-2 hidden-xs">
+    <div id="toc" class="toc" data-spy="affix" data-offset-top="0"></div>
+  </div> 
+</div>
+
+  <script src="/_assets/tocbot.min.js"></script>
+  <link rel="stylesheet" href="/_assets/tocbot.css">
+
+  <script>
+    tocbot.init({
+      // Where to render the table of contents.
+      tocSelector: '#toc',
+      // Where to grab the headings to build the table of contents.
+      contentSelector: '#main_for_toc',
+      // Which headings to grab inside of the contentSelector element.
+      headingSelector: 'h2, h3, h4',
+    });
+  </script>
+
+
+
+  </div>
+  <div class="footer navbar-default navbar-static-bottom">
+    <p style="font-size: 65%; color:green; text-align:center;">
+      <i>CS107e Winter 2020 &middot; Site generated 2020-04-19 20:35</i>
+  </p>
+</div> 
+</body>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+</html>

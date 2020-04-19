@@ -1,6 +1,7 @@
 #include "../backtrace.h"
 #include "../assert.h"
 #include "../printf.h"
+#include "../malloc.h"
 #include <uart.h>
 #include <strings.h>
 
@@ -9,6 +10,11 @@ void _cstart(void);
 int backtrace_1(int);
 int backtrace_2(int);
 void test_backtrace_complex(void);
+
+void
+print_title(char *title) {
+  printf("====== %s ======\n\n", title);
+}
 
 int
 backtrace_3(int a) {
@@ -45,7 +51,7 @@ backtrace_3(int a) {
   assert(strcmp(frames[5].name, "_cstart") == 0);
   assert(frames[5].resume_addr == frames[5].resume_offset + (uintptr_t)_cstart);
 
-  printf("====== Test Backtrace Complex ======\n");
+  print_title("Test Backtrace Complex");
   print_frames(frames, result);
   printf("\n");
 
@@ -102,9 +108,94 @@ test_backtrace_simple(void) {
   assert(strcmp(frames[2].name, "_cstart") == 0);
   assert(frames[2].resume_addr == frames[2].resume_offset + (uintptr_t)_cstart);
 
-  printf("====== Test Backtrace Simple ======\n");
+  print_title("Test Backtrace Simple");
   print_frames(frames, result);
   printf("\n");
+}
+
+void
+test_heap_dump(void) {
+  print_title("Test Heap Dump");
+
+  heap_dump("Empty Heap");
+
+  void *p1 = malloc(1);
+  heap_dump("After p1=malloc(1)");
+
+  void *p2 = malloc(10);
+  heap_dump("After p2=malloc(10)");
+
+  free(p1);
+  heap_dump("After free(p1)");
+
+  free(p2);
+  heap_dump("After free(p2)");
+}
+
+void
+test_malloc_recycle(void) {
+  print_title("Test Malloc Recycle");
+
+  void *p1 = malloc(20);
+  heap_dump("After p1=malloc(20)");
+
+  free(p1);
+  heap_dump("After free(p1)");
+
+  void *p2 = malloc(10);
+  heap_dump("After p2=malloc(10)");
+
+  free(p2);
+}
+
+void
+test_free_adjacent(void) {
+  print_title("Test Free Adjacent");
+
+  void *p1 = malloc(10);
+  heap_dump("After p1=malloc(10)");
+
+  void *p2 = malloc(10);
+  heap_dump("After p2=malloc(10)");
+
+  free(p2);
+  heap_dump("After free(p2)");
+
+  free(p1);
+  heap_dump("After free(p1)");
+}
+
+void
+test_realloc(void) {
+  print_title("Test Realloc");
+
+  {
+    void *p1 = malloc(20);
+    heap_dump("After p1=malloc(20)");
+
+    realloc(p1, 10);
+    heap_dump("After realloc(p1, 10)");
+  }
+
+  {
+    void *p2 = malloc(20);
+    void *p3 = malloc(20);
+    heap_dump("After p2=malloc(20), p3=malloc(20)");
+
+    free(p3);
+    heap_dump("After free(p3)");
+
+    realloc(p2, 30);
+    heap_dump("After relocation(p2, 30)");
+  }
+
+  {
+    void *p4 = malloc(20);
+    heap_dump("After p4=malloc(20)");
+
+    realloc(p4, 40);
+    heap_dump("After realloc(p4, 40)");
+  }
 }
 
 void
@@ -114,6 +205,18 @@ main(void) {
   test_backtrace_simple();
 
   test_backtrace_complex();
+
+  test_heap_dump();
+  _reset_heap();
+
+  test_malloc_recycle();
+  _reset_heap();
+
+  test_free_adjacent();
+  _reset_heap();
+
+  test_realloc();
+  _reset_heap();
 
 #if !GDB_DEBUG
   uart_putchar(EOT);

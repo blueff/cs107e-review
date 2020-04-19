@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/_assets/site.css" rel="stylesheet">
+    <link href="/_assets/favicon.png" rel="icon" type="image/png">
+    <title>CS107E UART to WiFi bridge for two Raspberry Pis</title>
+  </head>
+
+<body>
+  <!-- Include this HTML partial to set up navbar -->
+
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="navbar-header">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+    <!-- hamburger -->
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+
+  <img class="navbar-brand navbar-brand-image" src="/_assets/berry.png" >
+  <a class="navbar-brand" href="/">CS107e Winter 2020</a>
+  </div>
+
+  <div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/">Home</a></li>
+      <li><a href="/assignments">Assignments</a></li>
+      <li><a href="/labs">Labs</a></li>
+      <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            Resources
+          <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/about/">About the course</a></li>
+            <li><a href="/policies/">Policies</a></li>
+            <li><a href="/schedule/">Schedule</a></li>
+            <li><a href="/guides/">Guides</a></li>
+            <li><a href="/project_gallery/">Project gallery</a></li>
+            <li><a href="/demos/">External demos</a></li>
+            <li><a href="/resources/">External resources</a></li>
+          </ul>
+        </li>
+      <li><a href="https://github.com/cs107e/cs107e.github.io">Repository</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="container" style="max-width:55em;">
+    <h1 class="title">UART to WiFi bridge for two Raspberry Pis</h1><hr>
+    
+  <p><em>Written by Chris Gregg</em></p>
+
+<p>This tutorial describes how to set up two Raspberry Pi devices to communicate wirelessly
+using two ESP32 devices. The Raspberry Pis will communicate over UART, and the ESP32s will
+provide a wireless bridge between them. Although not particularly fast, the Raspberry Pis
+will act as if they are directly connected via their UART pins. E.g., calling 
+<code class="highlighter-rouge">uart_putchar('a')</code> from one device can be received on the other device with a
+corresponding <code class="highlighter-rouge">uart_getchar()</code>.</p>
+
+<p>Use the following steps to setup the Arduino development environment:</p>
+
+<ol>
+  <li>
+    <p>Get two ESP-32 devices. This library works for the following Hiletgo devices from Amazon.com (2x for $21.98):<a href="https://www.amazon.com/HiLetgo-ESP-WROOM-32-Development-Microcontroller-Integrated/dp/B0718T232Z/ref=sr_1_2_sspa">ESP32 on Amazon.com</a></p>
+  </li>
+  <li>
+    <p>Download our <a href="/guides/extras/esp32.zip">esp32.zip</a> file and unzip.</p>
+  </li>
+  <li>
+    <p>Download and install the Arduino IDE for your computer: <a href="https://www.arduino.cc/en/Main/Software">Arduino Download link</a></p>
+
+    <p>On a Mac, copy the IDE program to your <code class="highlighter-rouge">/Applications</code> folder, and then run it once to install. Then quit the application.</p>
+  </li>
+  <li>
+    <p>Copy the following libraries from the zip folder’s <code class="highlighter-rouge">libraries</code> folder into your Arduino <code class="highlighter-rouge">libraries</code> folder (for a Mac, the default location is <code class="highlighter-rouge">~/Documents/Arduino/libraries/</code>):</p>
+
+    <p><code class="highlighter-rouge">ESP8266-Websocket-master</code></p>
+
+    <p><code class="highlighter-rouge">QueueList</code></p>
+  </li>
+  <li>
+    <p>Open up the Arduino application again. Follow the instructions at the following website to install the ESP32 library (under “Testing the Installation”, choose the <code class="highlighter-rouge">Node32s</code> board): <a href="https://randomnerdtutorials.com/installing-the-esp32-board-in-arduino-ide-mac-and-linux-instructions/">Install ESP32 on Arduino</a></p>
+  </li>
+  <li>
+    <p>In the Arduino application, open the <code class="highlighter-rouge">Websocket_server.ino</code> program from the zip folder. In the program, change the <code class="highlighter-rouge">ssid</code> variable near the top of the program to be your team name (or another unique WiFi name). You may also change the password for better security.</p>
+  </li>
+  <li>
+    <p>Connect one of the ESP32s to the computer using a micro-USB cable. If you have the USB-serial device connected for your Raspberry Pi, disconnect it first. In the Arduino IDE, select <code class="highlighter-rouge">Tools-&gt;Port-&gt;SLAB_USBtoUART</code> (or similar).</p>
+  </li>
+  <li>
+    <p>Click the Upload button in the <code class="highlighter-rouge">Websocket_server | Arduino</code> window (it is a right-facing arrow). After the “compiling sketch…” message disappears, you should see an “Uploading…” message. If the sketch doesn’t automatically upload to the device, you can hold down the button labeled “001” on the ESP32 to force it to listen for the upload (release once it starts uploading).</p>
+  </li>
+  <li>
+    <p>To check to see if the upload worked, open <code class="highlighter-rouge">Tools-&gt;Serial Monitor</code>, select <code class="highlighter-rouge">115200 baud</code>, and then click the <code class="highlighter-rouge">EN</code> button on the ESP32. You should see a message that says, “Setting AP (Access Point)_AP IP address: 192.168.4.1”. You should also be able to find the <code class="highlighter-rouge">ssid</code> listed on your phone or computer as a WiFi network to join.</p>
+  </li>
+  <li>
+    <p>Repeat steps 7-9 for your second ESP32, but load the <code class="highlighter-rouge">Websocket_client</code> program and install it, instead.</p>
+  </li>
+  <li>
+    <p>To test the second ESP32, re-connect your first ESP32. The second ESP32 should find the new WiFi network and automatically connect to the second ESP32, and the blue LED on both devices should turn on to indicate that they are ready to transmit over UART.</p>
+  </li>
+</ol>
+
+<p>For further testing, you can connect two USB-serial connectors to the ESP32s on pins 4 and 5 (labeled <code class="highlighter-rouge">P4</code> and <code class="highlighter-rouge">P5</code> on the ESP32 devices), and you can run the screen program on both in separate windows. Keep in mind that you will have multiple <code class="highlighter-rouge">/dev/tty.SLAB_USBtoUART</code> devices and will need to choose between them. E.g.,</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>screen /dev/tty.SLAB_USBtoUART12 115200
+screen /dev/tty.SLAB_USBtoUART 115200
+</code></pre></div></div>
+
+<p>When testing, you should be able to type text into one of the <code class="highlighter-rouge">screen</code> windows and see it appear in the other <code class="highlighter-rouge">screen</code> window.</p>
+
+
+
+
+  </div>
+  <div class="footer navbar-default navbar-static-bottom">
+    <p style="font-size: 65%; color:green; text-align:center;">
+      <i>CS107e Winter 2020 &middot; Site generated 2020-04-19 20:35</i>
+  </p>
+</div> 
+</body>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+</html>

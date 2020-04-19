@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/_assets/site.css" rel="stylesheet">
+    <link href="/_assets/favicon.png" rel="icon" type="image/png">
+    <title>CS107E Assignment 1: Implement a Larson Scanner</title>
+  </head>
+
+<body>
+  <!-- Include this HTML partial to set up navbar -->
+
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="navbar-header">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+    <!-- hamburger -->
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+
+  <img class="navbar-brand navbar-brand-image" src="/_assets/berry.png" >
+  <a class="navbar-brand" href="/">CS107e Winter 2020</a>
+  </div>
+
+  <div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/">Home</a></li>
+      <li><a href="/assignments">Assignments</a></li>
+      <li><a href="/labs">Labs</a></li>
+      <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            Resources
+          <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/about/">About the course</a></li>
+            <li><a href="/policies/">Policies</a></li>
+            <li><a href="/schedule/">Schedule</a></li>
+            <li><a href="/guides/">Guides</a></li>
+            <li><a href="/project_gallery/">Project gallery</a></li>
+            <li><a href="/demos/">External demos</a></li>
+            <li><a href="/resources/">External resources</a></li>
+          </ul>
+        </li>
+      <li><a href="https://github.com/cs107e/cs107e.github.io">Repository</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="container" style="max-width:55em;">
+    <h1 class="title">Assignment 1: Implement a Larson Scanner</h1><hr>
+    
+  <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12" id="main_for_toc">
+    
+<p><img src="images/knightrider.jpg" alt="Knight Rider Car" style="float:right;" /></p>
+
+<p><em>Written by Pat Hanrahan</em></p>
+
+<!-- If duedate set in front_matter, use that, otherwise calculate based on n*weeks + assign1 due -->
+
+<p><b>Due: Tuesday, January 21 at  6:00 pm</b></p>
+
+<hr />
+<p><a href="http://en.wikipedia.org/wiki/Glen_A._Larson">Glen A. Larson</a>,
+the man responsible for producing
+the original
+<a href="http://en.wikipedia.org/wiki/Battlestar_Galactica">Battlestar Galactica</a>
+and
+<a href="http://en.wikipedia.org/wiki/Knight_Rider_%281982_TV_series%29">Knight Rider</a>
+television series,
+often used simple lighting effects in his shows.
+One famous example is a scanner
+that consists of a set of red LEDs that scan back and forth.
+The front of the Knight Rider car had a scanner.</p>
+
+<p>Watch this video tribute to Glen Larson.
+How many times does the scanner pattern appear?</p>
+
+<iframe width="500" height="281" src="https://www.youtube-nocookie.com/embed/hDUoyeMLxqM?modestbranding=1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+
+<hr />
+<p>The Larson scanner demoed in this video is a <a href="https://shop.evilmadscientist.com/productsmenu/tinykitlist/152-scanner">DIY kit from Evil Mad Scientist Labs</a>.</p>
+
+<iframe width="350" height="196" src="https://www.youtube-nocookie.com/embed/alW5zHiF6_0?modestbranding=1&amp;end=10&amp;version=3&amp;loop=1&amp;playlist=alW5zHiF6_0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+
+<h2 id="goals">Goals</h2>
+<p>When you’re done with this assignment, you should</p>
+
+<ul>
+  <li>understand ARM assembly language,</li>
+  <li>feel fluent with the ARM cross-development tools,</li>
+  <li>know how to use breadboards and use LEDs,</li>
+  <li>and be able to program general-purpose input/output (GPIO) pins.</li>
+</ul>
+
+<h2 id="how-do-assignments-work">How do assignments work?</h2>
+<p>The course follows a weekly cadence where material is introduced in the Friday-Monday lectures and lab follows up with hands-on guided practice so that you’re ready to tackle the week’s assignment. The assignment is released after Wednesday lab and due before Tuesday lab of the next week.  Completing each assignment will solidify your understanding of the week’s topics. In addition to being a satisfying accomplishment on its own, the code you write forms a building block that contributes to a library you construct over the course of the quarter. This complete system is an accomplishment of which you will be immensely proud!</p>
+
+<p>Each assignment is structured into a basic part and one or more proposed extensions. Completing the basic part is required. Doing solid work on the basic part puts you on track for earning a B grade. Adding in the optional extensions is what will boost your grade up into the A range. We encourage everyone to try out some of the extensions, they are a fun way to go further with the material and advance your understanding!</p>
+
+<p>Check out our website pages <a href="/assignments/#faq">assignments</a> and <a href="/policies">course policies</a> for more information on assignments, grading, lateness, and collaboration.</p>
+
+<h4 id="yeah--your-early-assignment-help">YEAH! = Your Early Assignment Help</h4>
+<p>Shannon will be leading a YEAH session for the assignment Thursday 3-4pm in Gates B21. Come join us and kickstart your work! We’ll have a working version to demo and share best practices for success, highlight tricky details, warn of pitfalls to avoid, answer your questions, and more.</p>
+
+<h2 id="basic-part-simple-scan-pattern">Basic part: simple scan pattern</h2>
+
+<p>This assignment involves modifying the blink program showed in class.
+<code class="highlighter-rouge">blink.s</code> is an ARM assembly language program that blinks a single LED.
+To implement a scanner, you will need to control at least 4 LEDs.</p>
+
+<h3 id="1-wire-up-your-breadboard">1. Wire up your breadboard</h3>
+<p>The basic scanner should have a row of 4 LEDs. If you feel ambitious and want to make more interesting patterns, wire up 8 LEDs. Validate your breadboard wiring by testing that each LED lights up when powered.</p>
+
+<h3 id="2-connect-the-leds-to-gpio-20-23">2. Connect the LEDs to GPIO 20-23</h3>
+<p>The leftmost LED in your scanner should be connected to GPIO 20 of your Raspberry Pi, the second from the left to GPIO 21, and so on, such that the rightmost LED in your scanner is connected to GPIO 23 (or GPIO 27 if using 8 LEDs). Refer to the <a href="/guides/images/pinout.pdf">Raspberry Pi pinout</a> to map each GPIO to the physical pin so that you correctly wire up the connections.</p>
+
+<h3 id="3-get-starter-files">3. Get starter files</h3>
+<p>Before starting each new assignment, first do a <code class="highlighter-rouge">git pull</code> in your copy of the <code class="highlighter-rouge">cs107e.github.io</code> repository to ensure your courseware files are up to date.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cd ~/cs107e_home/cs107e.github.io
+$ git pull
+</code></pre></div></div>
+
+<p>To get the assignment starter code, change to your local assignments repository, fetch any changes from the remote repository and switch to the assignment basic branch:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cd ~/cs107e_home/assignments
+$ git fetch origin
+$ git checkout assign1-basic
+</code></pre></div></div>
+
+<p>Once you switch to the <code class="highlighter-rouge">assign1-basic</code> branch, the new files  <code class="highlighter-rouge">larson.s</code> and <code class="highlighter-rouge">Makefile</code> will be added to your directory. The <code class="highlighter-rouge">larson.s</code> is the file in which you will write your code for the assignment. The starter version of <code class="highlighter-rouge">larson.s</code> is simply a copy of <code class="highlighter-rouge">blink.s</code> from lab.</p>
+
+<p>The starter files include a file named <code class="highlighter-rouge">Makefile</code>. This is a build script
+similar to the <code class="highlighter-rouge">doit</code> scripts you saw in lecture—it will use the <code class="highlighter-rouge">as</code> and <code class="highlighter-rouge">objcopy</code> utilities
+to compile your <code class="highlighter-rouge">larson.s</code> into a <code class="highlighter-rouge">larson.bin</code> file that you can install to the Pi. To use
+the Makefile to build your project, run <code class="highlighter-rouge">make</code> from the command line in the directory containing the Makefile, e.g.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ make
+arm-none-eabi-as larson.s -o larson.o
+arm-none-eabi-objcopy larson.o -O binary larson.bin
+$ make install
+rpi-install.py larson.bin
+</code></pre></div></div>
+
+<p>For now, don’t worry about how <code class="highlighter-rouge">make</code> works. We’ll go through Makefiles in-depth in the next lab.</p>
+
+<p>If you build the starter program and install it on the Pi, it will blink GPIO 20. This GPIO is wired to the leftmost LED of the scanner on a correctly-wired breadboard.  Confirm this on your setup and you’re now ready to write your scanner program!</p>
+
+<h3 id="4-configure-scanner-gpios">4. Configure scanner GPIOs</h3>
+<p>The starter program is a copy of the <code class="highlighter-rouge">blink.s</code> you studied in lab1. This program configures the single pin GPIO 20 and enters an infinite loop to set and clear that pin. Carefully review this code and be sure you understand how it accomplishes its tasks. Ask questions if anything is unclear! Your job is to modify this program to instead blink the scanner sequence.</p>
+
+<p>A good first step is to extend the initialization code to configure all of the GPIOs your scanner uses, not just GPIO 20. Refer to section 6 of the <a href="/readings/BCM2835-ARM-Peripherals.pdf">Broadcom ARM Peripheral</a> for the details on the GPIO registers.</p>
+
+<p>Be sure to verify that your configuration code is correct. You can test an individual pin by changing the existing loop to blink GPIO 21 or GPIO 22 and so on instead of GPIO 20. Once you have verified that all pins are properly configured, you’re now ready to tackle changing the loop body to blink the pins in the scanner sequence.</p>
+
+<p>One strong recommendation from us is that you make a habit of <strong>regular git commits</strong>. A commit takes a snapshot of your changes and records them into your repository history. This creates a marker that allows you to later return to this version if need be. When should you commit? Any time you hit an “interesting” point in your development: after achieving a milestone, before stopping for break, after fixing a bug, before embarking on an exploratory path, and so on. Be sure to include a descriptive message with each commit. Following up a commit with <code class="highlighter-rouge">git push</code> will sync your local repository to your GitHub remote repository.</p>
+
+<h3 id="5-generate-scanner-pattern">5. Generate scanner pattern</h3>
+<p>The loop will scan back and forth from the GPIO 20 LED to the GPIO 23 LED. Each iteration of the loop still turns on/off one GPIO, but instead of blinking the same GPIO each time, it will blink the next GPIO pin in sequence.</p>
+
+<p>To receive full credit, the scanning pattern should look smooth. In particular, exactly one LED should be on at any given time, so the light appears to be “moving” between LEDs. Make sure you handle the left and right 
+ends properly (that is, the leftmost and rightmost LED should be each 
+on for the same amount of time that a middle LED would be on). The scanning frequency should be around 1Hz (that is, the light should bounce back and force about once per second).</p>
+
+<p>Here is a short video of our 8-LED scanner in action:</p>
+
+<iframe width="420" height="236" src="https://www.youtube-nocookie.com/embed/vhDcb7lxCF4?modestbranding=1&amp;version=3&amp;loop=1&amp;playlist=vhDcb7lxCF4" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+
+<p>Writing clean, readable assembly code is a challenge. Commenting is essential!  Be sure to choose good label names and add named constants using <code class="highlighter-rouge">.equ</code> to aid readability. You should write the program without any function calls (because we haven’t taught you how to create and call functions in assembly language yet). Although you cannot use functions, you can still strive for clarity in your design.</p>
+
+<p>Minimize the uses of branches in assembly. Straight-line code is code without branches
+and is almost always easier to understand. However, a downside of straight-line code is that there
+may be a lot of code duplication. Try to factor your code to remove repeated code.
+Here there is a trade-off between less code and clearer code.</p>
+
+<p>If you have time, experiment with different ways to structure the code. (Be sure to use git commits to separately track your explorations!) Of the options you considered, which approach seems most clear to you and why?</p>
+
+<p>Besides being understandable, good code should be easy to extend and maintain.
+A rule of thumb for style is that if your code is well-designed, it should take little additional code to extend it from 4 to 8 LEDs, ideally just changing a constant.</p>
+
+<p>Be sure to commit the final version of your code and push to GitHub.</p>
+
+<p>Congratulations on completing your first step on the path to bare-metal mastery! Sit back and enjoy the show. Turn off the lights and impress your friends.</p>
+
+<h2 id="extension">Extension</h2>
+
+<p>The basic part of this assignment should not take too long once you
+understand ARM assembly.</p>
+
+<p>If you want to explore further, extend the program.
+The extension is more challenging, and
+may involve using additional ARM assembly instructions.
+It will almost certainly require more complicated code
+involving conditional branches.</p>
+
+<!---
+1 Program up 4 more patterns.
+If you want ideas,
+check out some of these
+[patterns](https://www.youtube.com/watch?v=uUlkumlkryo#t=17).
+-->
+
+<p>If you watch the Larson scanner carefully,
+several LEDs are turned on at once.
+The center one is at full brightness,
+and the ones on the edge are dimmer.
+How would you dim an LED? Your challenge for the assignment extension is to 
+implement a scanner with LEDs aesthetically dimmed
+in a way that would please Glen Larson.</p>
+
+<p>You should have a central, full-brightness light that scans just like
+in the basic version of the assignment, but you should visibly dim the
+neighbors of that central light as it moves. Aim for a look similar to
+the
+<a href="https://www.youtube.com/watch?v=yYawDGDsmjk">Larson Scanner Kit Demo</a>.</p>
+
+<p>You should have at least three distinct levels of brightness.</p>
+
+<p>Before starting on an extension, be sure you have first committed and pushed a working copy of your basic code on the <code class="highlighter-rouge">assign1-basic</code> branch. Now create a new branch for the extension:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git checkout -b assign1-extension
+</code></pre></div></div>
+
+<p>Commit and push your changes for the extension on this new branch. Implement the extension by modifying the <code class="highlighter-rouge">larson.s</code> file. DO NOT create any new files for the extension.</p>
+
+<p><em>Note</em>
+When you create a new branch locally, you’ll need to push that branch to your github repo online. This is a process called setting the “upstream” reference for this branch in git. In order to do this, the first time you push to your new branch, you’ll need to use the following special push command after adding and commiting your changes</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git push --set-upstream origin assign1-extension
+</code></pre></div></div>
+
+<p>After the first time you push to your new branch, you can just use the push command normally.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git push
+</code></pre></div></div>
+
+<h2 id="submit-and-automated-check">Submit and automated check</h2>
+<p>Submit the finished version of your assignment by making a git “pull request”
+from the <code class="highlighter-rouge">assign1-basic</code> branch to <code class="highlighter-rouge">master</code>, following the steps given in the
+<a href="/assignments/assign0/">Assignment 0 writeup</a>.  If you implemented the
+extension, create a separate pull request for <code class="highlighter-rouge">assign1-extension</code>
+into <code class="highlighter-rouge">master</code>.</p>
+
+<p>To grade your submission, the human grader will invoke <code class="highlighter-rouge">make</code> to build your <code class="highlighter-rouge">larson.bin</code> and test it on a Raspberry Pi
+with the LEDs plugged in. For this process to go smoothly, your project must successfully build as submitted. We run an automated checker on your submission to warn about errors that must be resolved before your submission can be accepted.</p>
+
+<p>The automated check for this assignment is more likely to fail than in assignment 0,
+since there are more things that can go wrong. In this assignment, the
+automated checker is verifying that:</p>
+
+<ul>
+  <li>you have a Makefile (which we’ve included in the starter code, so
+you should be fine if you keep that as is)</li>
+  <li>you have NOT checked in <code class="highlighter-rouge">larson.bin</code> in (you should only be checking in
+your source code, and we’ll build the program from source)</li>
+  <li><code class="highlighter-rouge">make</code> runs successfully in the clean testing environment</li>
+  <li><code class="highlighter-rouge">make</code> generates a <code class="highlighter-rouge">larson.bin</code> file</li>
+</ul>
+
+<p>If your submission does not pass the automatic checker, it is your responsibility to resolve the issue. See our <a href="/guides/ci/">guide to the automated checker</a> for information on the system. Come by office hours if you need our help sorting it out. If the grader has to fix your unresolved build errors, there will be an <strong>automatic 1 point deduction from your basic grade</strong>.</p>
+
+
+  </div>
+  <div class="toc-column col-lg-2 col-md-2 col-sm-2 hidden-xs">
+    <div id="toc" class="toc" data-spy="affix" data-offset-top="0"></div>
+  </div> 
+</div>
+
+  <script src="/_assets/tocbot.min.js"></script>
+  <link rel="stylesheet" href="/_assets/tocbot.css">
+
+  <script>
+    tocbot.init({
+      // Where to render the table of contents.
+      tocSelector: '#toc',
+      // Where to grab the headings to build the table of contents.
+      contentSelector: '#main_for_toc',
+      // Which headings to grab inside of the contentSelector element.
+      headingSelector: 'h2, h3, h4',
+    });
+  </script>
+
+
+
+  </div>
+  <div class="footer navbar-default navbar-static-bottom">
+    <p style="font-size: 65%; color:green; text-align:center;">
+      <i>CS107e Winter 2020 &middot; Site generated 2020-04-19 20:35</i>
+  </p>
+</div> 
+</body>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+</html>

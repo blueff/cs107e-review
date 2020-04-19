@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/_assets/site.css" rel="stylesheet">
+    <link href="/_assets/favicon.png" rel="icon" type="image/png">
+    <title>CS107E Lab 6: Drawing into the Framebuffer</title>
+  </head>
+
+<body>
+  <!-- Include this HTML partial to set up navbar -->
+
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="navbar-header">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+    <!-- hamburger -->
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+
+  <img class="navbar-brand navbar-brand-image" src="/_assets/berry.png" >
+  <a class="navbar-brand" href="/">CS107e Winter 2020</a>
+  </div>
+
+  <div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/">Home</a></li>
+      <li><a href="/assignments">Assignments</a></li>
+      <li><a href="/labs">Labs</a></li>
+      <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            Resources
+          <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/about/">About the course</a></li>
+            <li><a href="/policies/">Policies</a></li>
+            <li><a href="/schedule/">Schedule</a></li>
+            <li><a href="/guides/">Guides</a></li>
+            <li><a href="/project_gallery/">Project gallery</a></li>
+            <li><a href="/demos/">External demos</a></li>
+            <li><a href="/resources/">External resources</a></li>
+          </ul>
+        </li>
+      <li><a href="https://github.com/cs107e/cs107e.github.io">Repository</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="container" style="max-width:55em;">
+    <h1 class="title">Lab 6: Drawing into the Framebuffer</h1><hr>
+    
+  <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12" id="main_for_toc">
+    
+<p><em>Lab written by Philip Levis and Pat Hanrahan</em></p>
+
+<h2 id="goals">Goals</h2>
+
+<p>For your next assignment, you will implement library of simple graphics routines and use them to implement a text console for your shell. The goal of this lab is to review concepts and code in preparation.</p>
+
+<p>During this lab you will:</p>
+
+<ul>
+  <li>Connect your Raspberry Pi to a monitor and generate video</li>
+  <li>Read and understand the mailbox and framebuffer code</li>
+  <li>Review C syntax for pointers to multi-dimensional arrays</li>
+  <li>Read and understand fonts and the representation of characters</li>
+</ul>
+
+<h2 id="prelab-preparation">Prelab preparation</h2>
+<p>To prepare for lab, do the following:</p>
+
+<ul>
+  <li>Pull the latest version of the <code class="highlighter-rouge">cs107e.github.io</code> courseware repository.</li>
+  <li>Clone the lab repository <code class="highlighter-rouge">https://github.com/cs107e/lab6</code>.</li>
+  <li>Review the code shown in the <a href="/lectures/Framebuffer/slides.pdf">framebuffer lecture</a>.</li>
+</ul>
+
+<h2 id="lab-exercises">Lab exercises</h2>
+
+<p>Pull up the <a href="checkin">check in questions</a> so you have it open as you go.</p>
+
+<h3 id="1-connect-your-pi-to-a-monitor-5-min">1. Connect your Pi to a monitor (5 min)</h3>
+
+<p>If you connect an HDMI cable from the HDMI port on your Raspberry Pi to the HDMI input of a monitor, TV, or projector, the default test pattern is displayed.</p>
+
+<p>Try this now with your Pi and one of the lab monitors. You will need an HDMI cable and an HDMI-to-DVI adapter. (The adapter is needed because our monitors are older and accept only DVI inputs, not HDMI).</p>
+
+<p>Attach the HDMI-to-DVI adapter to the DVI input on the monitor and connect the HDMI cable from the adapter to the HDMI port on the Raspberry Pi. Now power up your Pi, and you should see the following.</p>
+
+<p><img src="images/pifb.png" alt="Raspberry Pi video" /></p>
+
+<p>Be sure that each of you connect your Pi to a monitor to confirm the test pattern. For the rest of the lab, partners can share one Pi/monitor.</p>
+
+<p>While working on your assignments, you are welcome to come to the lab room to use our monitors or use any HDMI-capable display that you have access to. Please do not remove monitors or take our cables/adapters; these should remain in the lab room for all to use.</p>
+
+<h3 id="2-draw-pixels-40-min">2. Draw pixels (40 min)</h3>
+
+<p>Change to the directory <code class="highlighter-rouge">code/grid</code> and build and run the grid program.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> $ make install
+</code></pre></div></div>
+
+<p>The monitor should now display a grid pattern.</p>
+
+<p>Open the <code class="highlighter-rouge">grid.c</code> file in your text editor and modify the program in the following three ways:</p>
+
+<ol>
+  <li>
+    <p>Change the video resolution to 1024 by 768, and redraw the grid.</p>
+  </li>
+  <li>
+    <p>Change the grid code to draw horizontal lines in red and vertical lines in yellow.
+  <em>Remember from lecture that the B (blue) in BGRA is the lowest byte.</em></p>
+  </li>
+  <li>
+    <p>Change the grid code to draw a checkerboard pattern 
+(alternating filled black and white squares).</p>
+  </li>
+</ol>
+
+<h3 id="3-study-fb-and-mailbox-code-30-min">3. Study fb and mailbox code (30 min)</h3>
+
+<p>The <em>framebuffer</em> is a contiguous block of memory that stores pixel data; this memory is shared between the CPU and GPU.  When the CPU writes to the framebuffer, the GPU reads the new data and displays the updated pixels on the screen.</p>
+
+<p>The CPU and the GPU communicate about the framebuffer via a mailbox mechanism. The CPU composes a message to memory and sends to the GPU by putting the message address into the mailbox. The <em>mailbox</em> is a set of hardware registers that can be accessed by both processors.</p>
+
+<h4 id="the-framebuffer-configuration-message">The framebuffer configuration message</h4>
+
+<p>Change to the directory <code class="highlighter-rouge">code/fb</code>. The directory contains these files:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ ls
+Makefile    fb.c        mailbox.c   main.c      start.s
+cstart.c    fb.h        mailbox.h   memmap
+</code></pre></div></div>
+
+<p>The file <code class="highlighter-rouge">fb.c</code> contains code to initialize the framebuffer by sending a configuration message to the GPU. The configuration message is represented by the struct <code class="highlighter-rouge">fb_config_t</code>.</p>
+
+<p>The CPU writes these struct fields when sending the message:</p>
+<ul>
+  <li><strong>physical size</strong>: requested width/height for the physical screen.</li>
+  <li><strong>virtual size</strong>: requested width/height of pixel data in framebuffer. The virtual size can differ from the physical size, and if so, the virtual image will be scaled when displayed on the physical screen.</li>
+  <li><strong>bit depth</strong>: requested number of <strong>bits</strong> per pixel</li>
+  <li><strong>offset</strong>: requested location within framebuffer for upper left corner of screen image (0 for now)</li>
+  <li>All other fields should be set to 0 (GPU will set these fields in response)</li>
+</ul>
+
+<p>The CPU uses <code class="highlighter-rouge">mailbox_write</code> to send the configuration message to the GPU and calls <code class="highlighter-rouge">mailbox_read</code> to receive the GPU’s response. If the return value from <code class="highlighter-rouge">mailbox_read</code> is 0, this confirms the request was satisfied and the GPU has filled in values to the remaining struct fields. A non-zero result indicates the GPU cannot support the requested configuration and your graphics are in a confused/indeterminate state.</p>
+
+<p>The CPU reads these fields from a successful GPU response message:</p>
+<ul>
+  <li><strong>framebuffer</strong>: address of the start of the framebuffer in memory.</li>
+  <li><strong>total_bytes</strong>: total number of bytes allocated to the framebuffer.</li>
+  <li><strong>pitch</strong>:  number of <strong>bytes</strong> in each row of the framebuffer. The pitch is at least equal to the virtual width multiplied by the pixel depth in bytes. The pitch will be larger when the GPU has added padding at
+the end of each row for alignment reasons.</li>
+</ul>
+
+<p>Review the code in the <code class="highlighter-rouge">fb_init()</code> function. Discuss with your lab neighbors and try to answer the questions below.</p>
+
+<ol>
+  <li>
+    <p>What is the difference between physical size and virtual size? What is the difference between width and pitch?</p>
+  </li>
+  <li>
+    <p>What typecast could you apply to the framebuffer address to access the  pixel data as a one-dimensional array of 8-bit bytes? As a two-dimensional array of 32-bit pixels? (Be sure to take into account the difference between width and pitch!)</p>
+  </li>
+</ol>
+
+<h4 id="gpu-mailbox-code">GPU mailbox code</h4>
+<p>The CPU and GPU communicate by composing a message in memory and writing the address of the message into the hardware register for the mailbox. 
+When the sender places a message in the mailbox, it is considered <em>full</em>.
+When the message is read by the receiver, it becomes <em>empty</em>.</p>
+
+<p>Overall, the communication pattern we’ll be using is:</p>
+<ul>
+  <li>The CPU starts the exchange by creating a message 
+and putting a pointer to that message in the mailbox. The mailbox is now full.</li>
+  <li>The hardware alerts the GPU to read the message, which empties the mailbox.</li>
+  <li>After processing the message,
+the GPU responds by putting a return message in the mailbox 
+(filling it again) for the CPU to read.</li>
+  <li>Meanwhile, the CPU is waiting at the mailbox for the GPU’s response.
+When the mailbox status changes to full, the CPU reads the return message from the GPU.</li>
+</ul>
+
+<p>The message passing between CPU to GPU uses the functions <code class="highlighter-rouge">mailbox_write</code> and <code class="highlighter-rouge">mailbox_read</code> defined in <code class="highlighter-rouge">mailbox.c</code>. Read the code in this file now and discuss with your lab neighbors and try to answer the questions below. Ask the TA to clarify if there is confusion.</p>
+
+<ol>
+  <li>
+    <p>Why does the code need each of the checks for whether the mailbox is <code class="highlighter-rouge">EMPTY</code>
+or <code class="highlighter-rouge">FULL</code>? What might go wrong if these checks weren’t there?</p>
+  </li>
+  <li>
+    <p>Why can we add the <code class="highlighter-rouge">addr</code> and <code class="highlighter-rouge">channel</code> in <code class="highlighter-rouge">mailbox_write</code>?
+Could we also <code class="highlighter-rouge">|</code> them together?
+Which bit positions are used for the <code class="highlighter-rouge">addr</code> and which are used for the <code class="highlighter-rouge">channel</code>?</p>
+  </li>
+  <li>
+    <p>Sketch a memory map diagram of where <code class="highlighter-rouge">fb</code>, <code class="highlighter-rouge">mailbox</code>, and the framebuffer live.
+      Mark where the CPU’s memory and GPU’s memory are, as well as
+      non-RAM device registers. Your Pi is configured to give the 
+      bottom 256MB of memory (0x00000000 - 0x0ffffffff) to the CPU and the top 256MB 
+      (0x10000000 - 0x1fffffff) to the GPU.  Do <code class="highlighter-rouge">fb</code>, <code class="highlighter-rouge">mailbox</code>, and the framebuffer live 
+      in GPU or CPU memory?   Which of these
+      data structures can we choose where to allocate, and which are given to us?</p>
+  </li>
+  <li>
+    <p>The Makefile in this project is configured to compile two versions of the mailbox code; one version qualifies the mailbox
+as <code class="highlighter-rouge">volatile</code>, the other that does not.
+Open the two listing files <code class="highlighter-rouge">mailbox.list</code> to <code class="highlighter-rouge">mailbox-not-volatile.list</code> and compare to see the difference in the generated assembly. What happens to the loop that waits until not full/empty? What would be the observed behavior of executing the code that doesn’t use <code class="highlighter-rouge">volatile</code> ?</p>
+  </li>
+</ol>
+
+<h3 id="4-multidimensional-pointers-30-min">4. Multidimensional pointers (30 min)</h3>
+
+<p>Pointers are one of the hardest concepts in C. When you have a linear sequence of elements, Arrays provide an indexed abstraction on top of 
+The goal of this part of the lab is to review 
+pointers to multidimensional arrays
+to better prepare you for the assignment.</p>
+
+<p>One convenient way to represent
+images is with a two-dimensional array.
+Treating it as a 2D array
+can be much easier
+than explicitly calculating offsets into a one-dimensional array.</p>
+
+<p>To start, here is a quick self-test:</p>
+
+<ul>
+  <li>
+    <p>What is the difference between the following two declarations?
+Think about what operations are valid on <code class="highlighter-rouge">a</code> versus <code class="highlighter-rouge">b</code>.</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>char *a  = "Hello, world\n";
+char b[] = "Hello, world\n";
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>What is the difference between the following two declarations?</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>int *p[2];
+int (*c)[2];
+</code></pre></div>    </div>
+
+    <p>You may find the <strong><a href="http://cdecl.org/">cdecl tool</a></strong> helpful in demystifying a complex C declaration.</p>
+  </li>
+</ul>
+
+<p>Inspect the code in <code class="highlighter-rouge">code/pointers/pointers.c</code>. Compile the program using <code class="highlighter-rouge">make</code>, run it on your Pi, and interpret the results.</p>
+
+<h3 id="5-fonts-15-min">5. Fonts (15 min)</h3>
+
+<p>A major part of your assignment will be to draw text on the screen.
+In order to do this, you need a <em>font</em>. Each character in the font is a little picture that represents the glyph to draw.</p>
+
+<p><img src="images/Apple2e.bmp" alt="Font" /></p>
+
+<p>This famous font was used by the original Apple IIe. We chose it to provide that extra-special retro touch for your graphical console.</p>
+
+<p>Review the files <a href="https://github.com/cs107e/cs107e.github.io/blob/master/cs107e/include/font.h">font.h</a> and <a href="https://github.com/cs107e/cs107e.github.io/blob/master/cs107e/src/font.c">font.c</a>. The file <code class="highlighter-rouge">font.h</code> declares a <code class="highlighter-rouge">font_t</code> struct for representing a font and the <code class="highlighter-rouge">font.c</code> defines the variable  <code class="highlighter-rouge">font_default</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/* from font.h */
+typedef struct  {
+    unsigned char first_char, last_char;
+    unsigned int  char_width, char_height;
+    unsigned char pixel_data[];
+} font_t;
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/* from font.c */
+static const font_t font_default = {
+    .first_char = 0x21, .last_char = 0x7F,
+    .char_width = 14, .char_height = 16,
+    .pixel_data = {
+    0x0c, 0x00, 0xcc, 0x03, 0x30, 0x03, 0x00, 0xf0, 
+    0x00, 0xc0, 0x00, 0xc0, 0x03, 0x00, 0x0c, 0x00, 
+     ...
+    0xfc, 0x00, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x00, 
+    0x00, 0x00, 0x00, 0x00 }
+};
+</code></pre></div></div>
+
+<p>The pixel data for the font characters is stored as a bitmap. 
+In a bitmap, each pixel is represented by a single bit.
+If the bit is ‘on’, the pixel is to be drawn in the foreground color; if
+‘off’, the pixel is set to the background color.
+We use a bitmap rather than full RGBA because it takes much less (32 times less) memory.
+This makes the font data much smaller,
+and hence faster to upload to your Raspberry Pi.</p>
+
+<p>Below is a pictorial representation of <code class="highlighter-rouge">font_default</code> using green to display each ‘on’ pixel in the bitmap. (click the image to see larger version):</p>
+
+<p><a href="images/apple2e-line.bmp"><img title="Font" src="images/apple2e-line.bmp" /></a></p>
+
+<p>The characters are stored in a single line.
+The leftmost character is ‘<code class="highlighter-rouge">!</code>’, whose ASCII value is 33 (0x21).
+The rightmost character is ASCII value 127 (0x7f) Delete, which is displayed as a little checkerboard.
+The font contains 95 characters in total.</p>
+
+<p>Each character is the same size: 14 pixels wide and 16 pixels tall.
+This is termed a <em>fixed-width</em> font.</p>
+
+<p>Each line of the image is 1330 pixels long (95 characters * 14 pixels wide),
+and requires 1330 bits.
+The bitmap is stored using an array of <code class="highlighter-rouge">unsigned char</code> values.
+For example, the first two bytes in the array are <code class="highlighter-rouge">0x0c, 0x00</code>.
+Group the 8 bits from the first byte and 6 bits from the second into the 14-bit sequence <code class="highlighter-rouge">0b 00001100 000000</code>.  These 14 bits correspond to the top row of the first character in the font, which is an exclamation point. The vertical line for the exclamation point is 2 pixels wide and positioned slightly off-center to the left.</p>
+
+<ul>
+  <li>Talk with your neighbor: why does pixel_data have size <code class="highlighter-rouge">95 * 14 * 16 / 8</code>?</li>
+</ul>
+
+<p>Look carefully at the function <code class="highlighter-rouge">font_get_char()</code> in <a href="https://github.com/cs107e/cs107e.github.io/blob/master/cs107e/src/font.c">font.c</a> which copies a single character
+from the font image into a buffer.  Read this function carefully,
+since you will use it in the next assignment.</p>
+
+<ul>
+  <li>Trace the operation of <code class="highlighter-rouge">font_get_char</code> for ASCII character <code class="highlighter-rouge">&amp;</code> (hex 0x26)? At what location in pixel_data does it look to find the appropriate bits?</li>
+</ul>
+
+<h2 id="check-in-with-ta">Check in with TA</h2>
+
+<p>At the end of the lab period, call over a TA to <a href="checkin">check in</a> with your progress on the lab.</p>
+
+<p>If you haven’t made it through the whole lab, we still highly encourage you to
+go through the parts you skipped over, so you are well prepared to tackle the assignment.</p>
+
+  </div>
+  <div class="toc-column col-lg-2 col-md-2 col-sm-2 hidden-xs">
+    <div id="toc" class="toc" data-spy="affix" data-offset-top="0"></div>
+  </div> 
+</div>
+
+  <script src="/_assets/tocbot.min.js"></script>
+  <link rel="stylesheet" href="/_assets/tocbot.css">
+
+  <script>
+    tocbot.init({
+      // Where to render the table of contents.
+      tocSelector: '#toc',
+      // Where to grab the headings to build the table of contents.
+      contentSelector: '#main_for_toc',
+      // Which headings to grab inside of the contentSelector element.
+      headingSelector: 'h2, h3, h4',
+    });
+  </script>
+
+
+
+  </div>
+  <div class="footer navbar-default navbar-static-bottom">
+    <p style="font-size: 65%; color:green; text-align:center;">
+      <i>CS107e Winter 2020 &middot; Site generated 2020-04-19 20:35</i>
+  </p>
+</div> 
+</body>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+</html>

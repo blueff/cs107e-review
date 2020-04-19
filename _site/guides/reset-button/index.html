@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/_assets/site.css" rel="stylesheet">
+    <link href="/_assets/favicon.png" rel="icon" type="image/png">
+    <title>CS107E Reset the Pi without unplugging</title>
+  </head>
+
+<body>
+  <!-- Include this HTML partial to set up navbar -->
+
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="navbar-header">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+    <!-- hamburger -->
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+
+  <img class="navbar-brand navbar-brand-image" src="/_assets/berry.png" >
+  <a class="navbar-brand" href="/">CS107e Winter 2020</a>
+  </div>
+
+  <div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/">Home</a></li>
+      <li><a href="/assignments">Assignments</a></li>
+      <li><a href="/labs">Labs</a></li>
+      <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            Resources
+          <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/about/">About the course</a></li>
+            <li><a href="/policies/">Policies</a></li>
+            <li><a href="/schedule/">Schedule</a></li>
+            <li><a href="/guides/">Guides</a></li>
+            <li><a href="/project_gallery/">Project gallery</a></li>
+            <li><a href="/demos/">External demos</a></li>
+            <li><a href="/resources/">External resources</a></li>
+          </ul>
+        </li>
+      <li><a href="https://github.com/cs107e/cs107e.github.io">Repository</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="container" style="max-width:55em;">
+    <h1 class="title">Reset the Pi without unplugging</h1><hr>
+    
+  <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12" id="main_for_toc">
+    <p><em>Written by Anna Zeng, updated by Jennifer Lin</em></p>
+
+<p>Tired of repeatedly unplugging and replugging your USB-serial adapter to reset your Pi? Read on to learn how to solder a new header that accesses the Pi’s processor reset pin. Connect a hardware or software switch to the new header and then resetting your Pi is as simple as flipping the switch.  Handy!</p>
+
+<!-- This partial will open warning/danger callout box  -->
+
+<div style="background-color:#ffffcc; color:#996633; border-left: 5px solid #996633;margin: 5px 25px; padding: 5px;">
+
+  <p><strong>New to soldering?</strong> Start with this <a href="https://sites.google.com/stanford.edu/soldering-internal/learning">excellent tutorial</a>, written by PhD student Max Holliday from the Stanford EE maker space <a href="http://lab64.stanford.edu">Lab64</a>.</p>
+</div>
+
+<h3 id="solder-run-header">Solder RUN header</h3>
+<p>In the photo below, look for the red circle around two contacts labeled <code class="highlighter-rouge">RUN</code>. The RUN contact is connected to the reset pin on the processor. Pulling this pin low will reset the Pi.</p>
+
+<p><a href="../images/reset.pin.ingredients.jpg"><img title="Things you will need" src="../images/reset.pin.ingredients.jpg" width="400" /></a></p>
+
+<p>Grab a 2-pin header (available in our lab cabinet) and place onto the RUN contacts as shown below:</p>
+
+<p><a href="../images/reset.pin.placement.jpg"><img title="Pin placement" src="../images/reset.pin.placement.jpg" width="400" /></a></p>
+
+<p>Heat the soldering iron to approximately 600 degrees F (60 on the dial), and wait until the light blinks rapidly.</p>
+
+<p><a href="../images/reset.pin.solder.light.jpg"><img title="Soldering Light" src="../images/reset.pin.solder.light.jpg" width="400" /></a></p>
+
+<p>While holding the soldering iron like a pen, touch the solder on one side of the pin and hold the soldering iron on the other side. The iron will heat up the pin and pad and the liquid solder will flow over the joint and forms a little volcano.</p>
+
+<p><a href="../images/reset.pin.soldering.jpg"><img title="Soldering Position" src="../images/reset.pin.soldering.jpg" width="50%" style="display:inline;" /></a><a href="../images/reset.pin.action.jpg"><img title="Soldering Action" src="../images/reset.pin.action.jpg" width="50%" style="float:right;" /></a></p>
+
+<p>Once the joint is complete, remove the soldering iron and the solder. Repeat for the second pin. The contacts will look sort of like this:</p>
+
+<p><a href="../images/reset.pin.done.jpg"><img title="Finished Soldering" src="../images/reset.pin.done.jpg" width="400" /></a></p>
+
+<p>✔️<strong>Check</strong></p>
+
+<p>If you temporarily connect the two header pins (such as with a wire or pair of metal tweezers), your Pi should restart. This is a good test to verify your solder connections.</p>
+
+<h3 id="hardware-reset-switch">Hardware reset switch</h3>
+<p>Attach two jumpers to the RUN header and connect the pins through a button. The button will act as hardware reset switch. Simply press the button to reset the Pi. Neat!</p>
+
+<p><a href="../images/reset.pin.button.jpg"><img title="Reset Button" src="../images/reset.pin.button.jpg" width="300" /></a></p>
+
+<h3 id="software-reset-switch">Software reset switch</h3>
+<p>To take it to the next level, make a software-controlled switch by connecting  the RUN header to your USB-serial adapter.</p>
+
+<p>Find the pin labeled <code class="highlighter-rouge">DTR</code> on your USB-serial. Use a jumper to connect the DTR pin to the RUN pin on your Pi. (We used a white jumper in the photos below.)</p>
+
+<p><a href="../images/reset.dtr.location.jpg"><img title="DTR pin location" src="../images/reset.dtr.location.jpg" width="50%" style="display:inline" /></a><a href="../images/reset.dtr.run.jpg"><img title="DTR pin to RUN pin connection" src="../images/reset.dtr.run.jpg" width="50%" style="float:right;" /></a></p>
+
+<p>With this connection in place, grounding DTR on the USB-serial will reset the Pi. Our <code class="highlighter-rouge">rpi-install.py</code> script grounds DTR as a first step as a convenience for you. If DTR is unconnected, this action has no effect, but now that you have DTR connected to the RUN pin, this will reset the Pi. This automatically restarts the bootloader so it is ready to receive the new program. No more USB plugging and unplugging for you. Welcome to bootloader nirvana!</p>
+
+
+  </div>
+  <div class="toc-column col-lg-2 col-md-2 col-sm-2 hidden-xs">
+    <div id="toc" class="toc" data-spy="affix" data-offset-top="0"></div>
+  </div> 
+</div>
+
+  <script src="/_assets/tocbot.min.js"></script>
+  <link rel="stylesheet" href="/_assets/tocbot.css">
+
+  <script>
+    tocbot.init({
+      // Where to render the table of contents.
+      tocSelector: '#toc',
+      // Where to grab the headings to build the table of contents.
+      contentSelector: '#main_for_toc',
+      // Which headings to grab inside of the contentSelector element.
+      headingSelector: 'h2, h3, h4',
+    });
+  </script>
+
+
+
+  </div>
+  <div class="footer navbar-default navbar-static-bottom">
+    <p style="font-size: 65%; color:green; text-align:center;">
+      <i>CS107e Winter 2020 &middot; Site generated 2020-04-19 20:35</i>
+  </p>
+</div> 
+</body>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+</html>

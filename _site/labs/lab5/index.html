@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/_assets/site.css" rel="stylesheet">
+    <link href="/_assets/favicon.png" rel="icon" type="image/png">
+    <title>CS107E Lab 5: Keyboard Surfin'</title>
+  </head>
+
+<body>
+  <!-- Include this HTML partial to set up navbar -->
+
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="navbar-header">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+    <!-- hamburger -->
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+
+  <img class="navbar-brand navbar-brand-image" src="/_assets/berry.png" >
+  <a class="navbar-brand" href="/">CS107e Winter 2020</a>
+  </div>
+
+  <div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/">Home</a></li>
+      <li><a href="/assignments">Assignments</a></li>
+      <li><a href="/labs">Labs</a></li>
+      <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            Resources
+          <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/about/">About the course</a></li>
+            <li><a href="/policies/">Policies</a></li>
+            <li><a href="/schedule/">Schedule</a></li>
+            <li><a href="/guides/">Guides</a></li>
+            <li><a href="/project_gallery/">Project gallery</a></li>
+            <li><a href="/demos/">External demos</a></li>
+            <li><a href="/resources/">External resources</a></li>
+          </ul>
+        </li>
+      <li><a href="https://github.com/cs107e/cs107e.github.io">Repository</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="container" style="max-width:55em;">
+    <h1 class="title">Lab 5: Keyboard Surfin'</h1><hr>
+    
+  <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12" id="main_for_toc">
+    
+<p><em>Lab written by Philip Levis, updated by Pat Hanrahan</em></p>
+
+<h2 id="goals">Goals</h2>
+
+<p>In your next assignment, you will write a PS/2 keyboard driver for your Pi. The goal of this lab is to set up the
+keyboard so that you can immediately start on the assignment.</p>
+
+<p>During this lab you will:</p>
+
+<ul>
+  <li>Install jumpers into your PS/2 keyboard mini-DIN connector.</li>
+  <li>Watch the signals from the keyboard using a logic analyzer.</li>
+  <li>Print out the scancodes sent by the keyboard.</li>
+  <li>Write code to decode the PS/2 protocol to produce scancodes.</li>
+</ul>
+
+<h2 id="prelab-preparation">Prelab preparation</h2>
+<p>To prepare for lab, do the following:</p>
+
+<ul>
+  <li>Pull the latest version of the <code class="highlighter-rouge">cs107e.github.io</code> courseware repository.</li>
+  <li>Clone the lab repository
+ <code class="highlighter-rouge">https://github.com/cs107e/lab5</code>.</li>
+  <li><a href="https://www.saleae.com/downloads">Download and install the <em>Logic</em> application from the Saleae
+web site.</a> This application visualizes the signals captured by the logic analyzer.
+You may also want to download the 
+<a href="http://downloads.saleae.com/Saleae+Users+Guide.pdf">Logic user manual</a>.</li>
+  <li>Review the <a href="/lectures/Keyboard/slides.pdf">lecture slides from Monday</a> and this document detailing the <a href="https://web.archive.org/web/20180302005138/http://computer-engineering.org/ps2protocol/">PS/2 protocol</a>.</li>
+</ul>
+
+<h2 id="lab-exercises">Lab exercises</h2>
+
+<p>Pull up the <a href="checkin">check in questions</a> so you have it open as you go.</p>
+
+<h3 id="1-install-jumpers-in-your-ps2-keyboard-connector">1. Install jumpers in your PS/2 keyboard connector</h3>
+
+<p>Most modern keyboards are USB keyboards.  Unfortunately, the USB
+protocol is complicated; it’s approximately 2,000 lines of code to
+interface with a USB keyboard.  Instead, we will
+interface with a PS/2 keyboard, which uses a simple serial protocol
+that is easy to decode.  The PS/2 keyboard appeared on the original
+IBM PC. Computers have long since stopped including a PS/2 port as standard equipment so we will wire a direct connection from the PS/2 connector to the GPIO pins on the Raspberry Pi.</p>
+
+<p>There are two common PS/2 devices: a keyboard and a mouse.  PS/2
+devices connect to a PC using a 6-pin
+<a href="https://en.wikipedia.org/wiki/Mini-DIN_connector">mini-DIN connector</a>.
+By convention, mice use a green connector and keyboards use a
+purple connector.</p>
+
+<p><img src="images/ps2_keyboard_connector.jpg" alt="PS/2 mini-din connector" /></p>
+
+<p>We have a lending inventory of PS/2 keyboards. The TA will check out a keyboard to each of you in lab. The keyboard is yours to use for the quarter, but must be returned at the end of the course. Please keep track of it!</p>
+
+<p>Inspect the inside of the keyboard connector. It contains a plastic tab (that forces you to 
+plug it in with the correct polarity) and 6 male pins.
+Two pins are NC (not-connected), and the others carry VCC, GND, DATA and CLK.</p>
+
+<p><img src="images/minidin.png" alt="PS/2 6-pin mini-din pinout" /></p>
+
+<p>Identify which four pins correspond to VCC, GND, DATA, and CLK. Install a female-to-female jumper onto each pin. Use the following convention: red for VCC,
+black for GND, yellow for DATA, and white for CLK.</p>
+
+<p>The four jumpers are a tight fit, so it may require use of pliers and a bit of force.
+The good news is that once they are in, they are unlikely to fall out.</p>
+
+<p>To ease the crowding, you can remove the plastic housing from one of the jumpers. Pry up the black tab on the side of the housing and the crimped pin will slide right out. (Video demonstration: <a href="https://www.youtube.com/watch?v=-InoAbkNVdQ">https://www.youtube.com/watch?v=-InoAbkNVdQ</a>)</p>
+
+<p><a href="images/ps2jumper.jpg"><img title="Jumpers 1" src="images/ps2jumper.jpg" width="50%" style="display:inline;" /></a><a href="images/ps2wires.JPG"><img title="Jumpers 2" src="images/ps2wires.JPG" width="50%" style="float:right;padding-bottom:10px;" /></a></p>
+<div style="clear:right;">&nbsp;</div>
+
+<h3 id="2-use-a-logic-analyzer-to-visualize-keyboard-signals">2. Use a logic analyzer to visualize keyboard signals</h3>
+
+<p>Let’s use a logic analyzer to examine the signals sent by the keyboard. Do this in groups of 2 or 3
+so we have enough logic analyzers to go around.</p>
+
+<!-- This partial will open warning/danger callout box  -->
+
+<div style="background-color:#ffffcc; color:#996633; border-left: 5px solid #996633;margin: 5px 25px; padding: 5px;">
+
+  <p><strong>Note:</strong> Choose a keyboard <strong>without</strong> an “Inland” logo to use with the logic analyzer.  The Inland keyboards require pull-up resistors on the clock and data lines to handshake correctly. When using these keyboards with your Pi, you will configure the clock and data GPIOs to use the Pi’s internal pull-ups. To use with the logic analyzer, we would need to bust out some hardware resistors. Instead just analyze one of the non-Inland keyboards.</p>
+</div>
+
+<p>Open the <em>Logic</em> application you installed on your laptop as prelab preparation. The start-up screen should be similar to this:</p>
+
+<p><img src="images/saleae_screenshot.png" alt="Saleae Startup" /></p>
+
+<p>Familiarize yourself with the hardware of the logic analyzer. It has a bank of pins that correspond to the different signals or <em>channels</em> to be monitored by the analyzer. Most of our analyzers support up to 8 simultaneous channels. The analyzer uses a USB connection to your laptop to receive power and send data.</p>
+
+<p>The Saleae analyzers have a custom wiring harness that plugs into the channel pins for channels 0 through 7. Each channel has a pair of jumpers; a colored one for signal, and black for ground.  The ground line for each channel is directly underneath its signal line.</p>
+
+<p>The generic analyzers use an ordinary DuPont cable for jumpers. All channels share one common ground pin. Even though the label on the generic analyzer numbers the channels as 1-8, we, and the Logic application, will refer to them as channels 0-7.</p>
+
+<p>On the analyzer you are using, identify the pins/jumpers for channels 0 and 1 and the corresponding ground pin(s). You are going to connect these two channels to the CLK and DATA pins of a PS/2 keyboard.</p>
+
+<p>Our convention uses white for clock and yellow for data. Add a white jumper connecting channel 0 of the logic analyzer to the white CLK jumper you placed in your PS/2 keyboard connector. Add a yellow jumper connecting channel 1 to the yellow DATA jumper.</p>
+
+<p>You must also ground the channels on the logic analyzer. Identify the appropriate ground pin(s) for channels 0 and 1 and use jumpers to connect them to ground pins on your Raspberry Pi. There may be a separate ground per channel or one shared ground, depending on the model of logic analyzer you are using.</p>
+
+<p>You need to supply power to your keyboard.  Connect the GND and VCC jumpers from your keyboard connector to 5V and GND pins on your Raspberry Pi.</p>
+
+<p>Lastly, connect the USB cable from the logic analyzer to a USB port on your laptop.</p>
+
+<p>This is what it looks like wired up.</p>
+
+<p><img src="images/saleae_wiredup.JPG" alt="wired up" /></p>
+
+<p>In the Logic application, configure the logic analyzer to acquire the signal. Click the green button labeled with up/down arrows to access configuration options. Use a sampling rate of at least 1 MS
+(megasample) per second and a duration of several seconds. 
+<img src="images/saleae_setup.png" alt="Saleae Setup" /></p>
+
+<p>You can set a “trigger” in the Logic application to make it start recording whenever a certain channel does a specific thing (like when it “falls” from high to low). To access the trigger settings for a specific channel, click the small square button labeled “+ wave” next to that channel.  Set the trigger to start recording when the CLK signal (channel 0) is falling.</p>
+
+<p>Click “Start” and
+begin typing on the keyboard. The logic analyzer should pop up a dialog
+saying that it is capturing data.  After a few seconds, it will stop recording and display the data it collected.  You can zoom in and out and
+pan left and right to see the details of the captured signal.
+You should see the characteristic pattern of the PS/2 protocol.</p>
+
+<p>The Logic application provides protocol analyzers that can be applied to
+the captured data. Click the “+” button in the <em>Analyzers</em> pane and find the PS/2 protocol. Choose it and configure for CLK on channel 0 and DATA on channel 1. The captured data is now decoded according to the PS/2
+protocol and displays the hex values sent by the keyboard.</p>
+
+<p>Hover over the visualization of the PS/2 clock channel to see the signal timing data. How far apart is each falling clock edge? At what frequency is the PS/2 clock running?  Is the keyboard operating with the range dictated by the <a href="https://web.archive.org/web/20180302005138/http://computer-engineering.org/ps2protocol/">spec</a>?</p>
+
+<p>You’re ready to answer question 1 on the <a href="checkin">check in list</a>.</p>
+
+<h3 id="3-run-keyboard-test">3. Run keyboard test</h3>
+
+<p>We’re now ready to try reading the keyboard signals on the Pi. Disconnect the logic analyzer from the keyboard and your laptop.   Connect the white jumper (CLK) from your PS/2 connector to GPIO 3 on your Raspberry Pi
+and the yellow jumper (DATA) to GPIO 4.</p>
+
+<p>Here is what it should look like if everything is connected
+up properly.</p>
+
+<p><img src="images/ps2pi.JPG" alt="Keyboard plugged into the Raspberry Pi" /></p>
+
+<p>The <code class="highlighter-rouge">keyboard_test</code> application uses the reference implementation of the keyboard driver. Let’s try it now:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% cd code/keyboard_test
+% make install
+</code></pre></div></div>
+
+<p>Type keys on the PS/2 keyboard and the program should print the scancodes received. If you aren’t getting events, check your wiring.</p>
+
+<p>Note that scancodes are not ASCII characters. Instead, these values relate to the physical
+placement of the key on the keyboard.  Inside the keyboard, there’s a 2D matrix
+of wires that generates the scancode bits. It is the keyboard driver that will implement the logic to lookup that code and generate the appropriate ASCII character.</p>
+
+<p>Each key press and key release is reported as a distinct action. Press a key; the keyboard sends a scancode. Release the key; the keyboard sends another scancode; this code is same as the first one, except
+it is one byte longer: it has a leading <code class="highlighter-rouge">0xF0</code>. Tap the <code class="highlighter-rouge">z</code> key now. The keyboard sends <code class="highlighter-rouge">0x1A</code> on key press, followed by <code class="highlighter-rouge">0xF0</code> <code class="highlighter-rouge">0x1A</code> on key release.</p>
+
+<p>If you press <code class="highlighter-rouge">z</code> and hold it down, the keyboard enters auto-repeat or <em>typematic</em> mode where it repeatedly generates key press actions until you release the key.  Press and hold <code class="highlighter-rouge">z</code>and watch for the repeat events to start firing. About how long does it seem to take for auto-repeat to kick in? At about what rate does it seem to generate auto-repeat events?</p>
+
+<p>Type some single letters to observe the codes for press,
+release, and auto-repeat.  Then try typing modifier keys like Shift and Alt. Try pressing more than one key at a time.</p>
+
+<ul>
+  <li>
+    <p>What sequence of codes do you see when typing (capital) <code class="highlighter-rouge">A</code>?</p>
+  </li>
+  <li>
+    <p>What does this tell you about what will be required for your keyboard driver to handle the Shift or Control keys?</p>
+  </li>
+</ul>
+
+<p>A note on <strong>N-key rollover</strong>: The PS/2 protocol reports a key action with an individual scancode. If the user simultaneously presses N keys on a PS/2 keyboard, the keyboard should report this state by sending N scancodes, i.e., there is no limit on the number of key actions that can be detected and reported.  In contrast, the USB protocol asks the keyboard for the current state and the keyboard’s answer is limited to reporting at most 6 pressed keys, i.e., USB is constrained to 6-key rollover. Ty observing this on your laptop keyboard (which is likely USB). Open your editor or use the Mac “Keyboard Viewer” to visualize (In Preferences-&gt;Keyboard, enable “Show keyboard and emoji view in menu bar”, then choose “Open Keyboard Viewer” from input menu). Hold down one letter, then two, and so on, and you’ll reach a point at which no further key presses are detected.</p>
+
+<p>While the PS/2 protocol has no limitation and in theory allows full N-key rollover, in practice, the internal wiring of many PS/2 keyboards shares circuity among keys rather than wire each key independently. As a result, as you hold down more and more keys on your PS/2 keyboard, you’ll likely reach a point where additional keys are mis-detected. Try it now on your PS/2 keyboard. How many simultaneous keys can your keyboard reliably detect?</p>
+
+<p>Here is a good explanation from Microsoft Research on <a href="http://web.archive.org/web/20180112133411/https://www.microsoft.com/appliedsciences/content/projects/AntiGhostingExplained.aspx">N-key rollover and keyboard circuitry</a> if you want to learn more.</p>
+
+<h3 id="4-implement-read-scancode">4. Implement read scancode</h3>
+
+<p>Your final achievement tonight will be to get a start on writing your own keyboard driver. We want you to do this in lab because it touches on both
+hardware and software, so it can be tricky to debug; it helps to
+have staff around!</p>
+
+<p>Change to the directory <code class="highlighter-rouge">code/my_keyboard</code>. This is the
+same application as <code class="highlighter-rouge">code/keyboard_test</code>, except that rather than
+using the reference implementation of the keyboard driver, it uses your driver in <code class="highlighter-rouge">keyboard.c</code>.</p>
+
+<p>Review <a href="https://github.com/cs107e/cs107e.github.io/blob/master/cs107e/include/keyboard.h">keyboard.h</a> which documents the interface to the keyboard module. During lab, you will implement initial versions of the functions <code class="highlighter-rouge">keyboard_read_scancode</code> and <code class="highlighter-rouge">keyboard_read_sequence</code>.</p>
+
+<p>Open <code class="highlighter-rouge">keyboard.c</code> in your text editor. The function <code class="highlighter-rouge">keyboard_init</code> has already been written for you. It
+configures the clock and data GPIOs as inputs and enables the internal pull-up resistor so these pins default to high, as expected in the PS/2 protocol.</p>
+
+<p>The function <code class="highlighter-rouge">keyboard_read_scancode</code> reads the individual bits that make up a scancode.</p>
+
+<p>Before reading each bit, it must first wait for the falling edge on the clock line. You will need to repeatedly do these tasks and rather than replicate code, we suggest you define a private helper function <code class="highlighter-rouge">read_bit</code>. The helper waits until observes the transition from high to low on the clock line and then reads a bit from the data line. Unifying repeated code into a shared helper aids readability and maintainability; this is a good habit to adopt.</p>
+
+<p>A scancode transmission consists of 11 bits: a start bit (must be
+low), 8 data bits, a parity bit, and a stop bit.  To synchronize with the keyboard, your driver should verify that first bit read is a valid start bit, e.g. is 0. If not, discard it and read again until a valid start bit is received.  Next, read the 8 data bits.</p>
+
+<ul>
+  <li>In which order do the 8 data bits arrive? <em>Hint: if you’re not sure, take a look at the signal you captured for the keyboard’s data line with the logic analyzer, or look back at the PS/2 protocol documentation linked in the prelab.</em></li>
+</ul>
+
+<p>Lastly, read the parity and stop bits. For the assignment, your driver will validate these bits have the correct values, but for lab, just read the bits and assume they are correct.</p>
+
+<p>If your <code class="highlighter-rouge">keyboard_read_scancode</code> is working correctly, then you should
+be able to build and run the application and see that it receives each scancode sent by the keyboard.</p>
+
+<p>The next layer in the keyboard driver is <code class="highlighter-rouge">keyboard_read_sequence</code>. This function recognizes when a scancode is not a standalone action, but part of a larger sequence, such as the two scancodes sent together for a key up action. Review the PS/2 protocol to see the format of those two and three-byte sequences and then edit the body of <code class="highlighter-rouge">keyboard_read_sequence</code> to read a sequence of 1, 2, or 3 scancodes as appropriate and return the key action corresponding to the entire sequence.</p>
+
+<p>If your driver’s implementation of <code class="highlighter-rouge">keyboard_read_scancode</code> and  <code class="highlighter-rouge">keyboard_read_sequence</code> are working correctly, you should be able to compile your application and have it act identically to
+the <code class="highlighter-rouge">keyboard_test</code> version you tested in Step 3.</p>
+
+<h2 id="check-in-with-ta">Check in with TA</h2>
+
+<p>At the end of the lab period, call over a TA to <a href="checkin">check in</a>
+with your progress on the lab.</p>
+
+<p>Before leaving lab, make sure your <code class="highlighter-rouge">keyboard_read_scancode</code> is working correctly. If you haven’t made it through the whole
+lab, we still highly encourage you to go through the parts you skipped
+over, so you are well prepared to tackle the assignment.</p>
+
+  </div>
+  <div class="toc-column col-lg-2 col-md-2 col-sm-2 hidden-xs">
+    <div id="toc" class="toc" data-spy="affix" data-offset-top="0"></div>
+  </div> 
+</div>
+
+  <script src="/_assets/tocbot.min.js"></script>
+  <link rel="stylesheet" href="/_assets/tocbot.css">
+
+  <script>
+    tocbot.init({
+      // Where to render the table of contents.
+      tocSelector: '#toc',
+      // Where to grab the headings to build the table of contents.
+      contentSelector: '#main_for_toc',
+      // Which headings to grab inside of the contentSelector element.
+      headingSelector: 'h2, h3, h4',
+    });
+  </script>
+
+
+
+  </div>
+  <div class="footer navbar-default navbar-static-bottom">
+    <p style="font-size: 65%; color:green; text-align:center;">
+      <i>CS107e Winter 2020 &middot; Site generated 2020-04-19 20:35</i>
+  </p>
+</div> 
+</body>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+</html>

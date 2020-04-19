@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/_assets/site.css" rel="stylesheet">
+    <link href="/_assets/favicon.png" rel="icon" type="image/png">
+    <title>CS107E Install dev tools on Windows WSL</title>
+  </head>
+
+<body>
+  <!-- Include this HTML partial to set up navbar -->
+
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="navbar-header">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+    <!-- hamburger -->
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+
+  <img class="navbar-brand navbar-brand-image" src="/_assets/berry.png" >
+  <a class="navbar-brand" href="/">CS107e Winter 2020</a>
+  </div>
+
+  <div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/">Home</a></li>
+      <li><a href="/assignments">Assignments</a></li>
+      <li><a href="/labs">Labs</a></li>
+      <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            Resources
+          <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/about/">About the course</a></li>
+            <li><a href="/policies/">Policies</a></li>
+            <li><a href="/schedule/">Schedule</a></li>
+            <li><a href="/guides/">Guides</a></li>
+            <li><a href="/project_gallery/">Project gallery</a></li>
+            <li><a href="/demos/">External demos</a></li>
+            <li><a href="/resources/">External resources</a></li>
+          </ul>
+        </li>
+      <li><a href="https://github.com/cs107e/cs107e.github.io">Repository</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="container" style="max-width:55em;">
+    <h1 class="title">Install dev tools on Windows WSL</h1><hr>
+    
+  <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12" id="main_for_toc">
+    <p>These are the instructions for setting up a development environment OS version Windows 10 using the Windows Subsystem for Linux (WSL). Take care to validate at each ✔️<strong>Check</strong> point before moving on to the next step. If you hit a snag, reach out on Piazza or come to office hours for help!</p>
+
+<p>You may need to restart your computer a few times throughout this process, so it’s a good idea to save all work before starting so you can restart when prompted.</p>
+
+<h3 id="requirements">Requirements</h3>
+
+<p>These instructions are newly updated for Winter Quarter 2020. We did our testing on <strong>Windows 10 version 1903</strong> and recommend that your version match ours. Confirm your OS version by typing “winver” into the start menu search bar and run the suggested command. A panel appears that reports the OS version as shown in this screenshot:</p>
+
+<p><img src="/guides/images/winver.png" alt="Window Version 1903" /></p>
+
+<p>If your OS version is 1903 (or newer), you are good to go!</p>
+
+<!-- This partial will open warning/danger callout box  -->
+
+<div style="background-color:#ffcccc; color:#993333; border-left: 5px solid #993333;margin: 5px 25px; padding: 5px;">
+
+  <p>If you are running an earlier version of Windows; do not proceed with the installation instructions. Stop here and update to a compatible OS version first. If you need help, reach out to the staff.</p>
+</div>
+
+<h3 id="enable-wsl-with-ubuntu-1604">Enable WSL with Ubuntu 16.04</h3>
+
+<p>Windows OS does not natively support the development tools used in this course. Enabling WSL (Windows Subsystem for Linux) allows you to run an Ubuntu instance on top of Windows OS. You will install the necessary development tools into the Ubuntu WSL environment and do your coursework there.</p>
+
+<h4 id="enable-wsl-in-settings">Enable WSL in Settings</h4>
+
+<ol>
+  <li>Type “features” into start bar and open the Control panel to “Turn Windows features on or off”.</li>
+  <li>In the panel, find the checkbox “Windows Subsystem for Linux”. Check the box, and click “OK”. Wait for it to complete the requested changes and then restart your computer when prompted.</li>
+</ol>
+
+<h4 id="install-ubuntu-1604">Install Ubuntu 16.04</h4>
+
+<p>We will use Ubuntu version 16.04 under WSL.</p>
+
+<!-- This partial will open warning/danger callout box  -->
+
+<div style="background-color:#ffffcc; color:#996633; border-left: 5px solid #996633;margin: 5px 25px; padding: 5px;">
+
+  <p><strong>NOTE</strong>: Ubuntu 18.04 does not support all of the software requirements for the course! Make sure you select the Ubuntu 16.04 application when installing your Ubuntu system!</p>
+</div>
+
+<ol>
+  <li>Open the Microsoft Store app. Search for “Ubuntu”, select <code class="highlighter-rouge">Ubuntu 16.04 LTS</code> and install it.</li>
+  <li>Once it’s done, launch the application. A terminal window will open that says “Installing, this may take a few minutes…”.</li>
+  <li>Once that command finishes, you’ll be prompted to enter a new username and password for your Ubuntu account. You’ll need this name and password for administrator privileges, so be sure to remember it!</li>
+  <li>
+    <p>You now have a linux terminal running on Windows. It’s a good idea to bring the OS up-to-date, so we’ll do that first. Run the following commands:</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ sudo apt update
+$ sudo apt upgrade
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<p>✔️<strong>Check:</strong> confirm Ubuntu release:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ lsb_release -a
+No LSB modules are available.
+Distributor ID: Ubuntu
+Description:    Ubuntu 16.04.6 LTS
+Release:        16.04
+Codename:       xenial
+</code></pre></div></div>
+
+<p>You now have an up-to-date version of Ubuntu running on top of your Windows OS.</p>
+
+<p><a name="files"></a></p>
+
+<h4 id="accessing-wsl-files-from-windows">Accessing WSL files from Windows</h4>
+
+<p>An important thing to note about WSL is that it hosts its own file system. The files you access within the WSL terminal are separate from your regular Windows file system. You can integrate your WSL files into the Windows File Explorer by changing to a particular directory in the WSL terminal and using the command:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ explorer.exe .
+</code></pre></div></div>
+
+<p>A File Explorer window opens in Windows that shows the WSL files in the current directory. Windows applications can now access these files that live in the WSL file system. This allows you to edit WSL text files using your favorite Windows text editing app. Nifty!</p>
+
+<h3 id="install-arm-none-eabi-toolchain">Install arm-none-eabi toolchain</h3>
+
+<!-- This partial will open warning/danger callout box  -->
+
+<div style="background-color:#ffffcc; color:#996633; border-left: 5px solid #996633;margin: 5px 25px; padding: 5px;">
+
+  <p>Note: Be sure that you are in the Ubuntu shell when following the next steps to install the developer toolchain and python.</p>
+</div>
+<p>We use a cross-compiler toolchain to compile programs for the Raspberry Pi.</p>
+
+<ol>
+  <li>
+    <p>Install the gcc compiler and gdb debugger packages.</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ sudo apt install gcc-arm-none-eabi gdb-arm-none-eabi
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<p>✔️<strong>Check:</strong> confirm toolchain installation with these two commands:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ arm-none-eabi-gcc --version
+arm-none-eabi-gcc (15:4.9.3+svn231177-1) 4.9.3 20150529
+Copyright (C) 2014 Free Software Foundation, Inc.
+$ grep gdbsim `which arm-none-eabi-gdb`
+Binary file /usr/bin/arm-none-eabi-gdb matches 
+</code></pre></div></div>
+
+<h3 id="install-python3-and-packages">Install Python3 and packages</h3>
+
+<p>The <code class="highlighter-rouge">rpi-install.py</code> script will be used to send programs from your computer to the Pi. This script requires installation of python3 and two support modules.</p>
+
+<p>Note: Ubuntu 16.04 comes with a version of python installed, but it is an older version (version 2) which is nearing end of life. You need python version 3.</p>
+
+<ol>
+  <li>
+    <p>Install python3 and pip. Run the following command from your WSL terminal:</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ sudo apt install python3-pip
+</code></pre></div>    </div>
+
+    <p>✔️<strong>Check:</strong> confirm <code class="highlighter-rouge">python3</code> installation:</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ python3 --version
+Python 3.5.2
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Install the pyserial and xmodem packages for python3:</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ python3 -m pip install pyserial xmodem
+</code></pre></div>    </div>
+
+    <p>You may see a warning about the pip version being slightly out of date, this is harmless and can be ignored.</p>
+
+    <p>✔️<strong>Check:</strong> confirm <code class="highlighter-rouge">pyserial</code> and <code class="highlighter-rouge">xmodem</code> are listed as installed packages for python3:</p>
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ python3 -m pip list --user 
+pyserial (3.4)
+xmodem (0.4.5)
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h3 id="finished">Finished</h3>
+<p>After following the above steps, you’ve installed the development tools. Continue on to follow the instructions to <a href="../#steps">configure your user account</a>.</p>
+
+  </div>
+  <div class="toc-column col-lg-2 col-md-2 col-sm-2 hidden-xs">
+    <div id="toc" class="toc" data-spy="affix" data-offset-top="0"></div>
+  </div> 
+</div>
+
+  <script src="/_assets/tocbot.min.js"></script>
+  <link rel="stylesheet" href="/_assets/tocbot.css">
+
+  <script>
+    tocbot.init({
+      // Where to render the table of contents.
+      tocSelector: '#toc',
+      // Where to grab the headings to build the table of contents.
+      contentSelector: '#main_for_toc',
+      // Which headings to grab inside of the contentSelector element.
+      headingSelector: 'h2, h3, h4',
+    });
+  </script>
+
+
+
+  </div>
+  <div class="footer navbar-default navbar-static-bottom">
+    <p style="font-size: 65%; color:green; text-align:center;">
+      <i>CS107e Winter 2020 &middot; Site generated 2020-04-19 20:35</i>
+  </p>
+</div> 
+</body>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+</html>

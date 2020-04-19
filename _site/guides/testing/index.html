@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/_assets/site.css" rel="stylesheet">
+    <link href="/_assets/favicon.png" rel="icon" type="image/png">
+    <title>CS107E Test Strategy</title>
+  </head>
+
+<body>
+  <!-- Include this HTML partial to set up navbar -->
+
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="navbar-header">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+    <!-- hamburger -->
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+
+  <img class="navbar-brand navbar-brand-image" src="/_assets/berry.png" >
+  <a class="navbar-brand" href="/">CS107e Winter 2020</a>
+  </div>
+
+  <div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/">Home</a></li>
+      <li><a href="/assignments">Assignments</a></li>
+      <li><a href="/labs">Labs</a></li>
+      <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            Resources
+          <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/about/">About the course</a></li>
+            <li><a href="/policies/">Policies</a></li>
+            <li><a href="/schedule/">Schedule</a></li>
+            <li><a href="/guides/">Guides</a></li>
+            <li><a href="/project_gallery/">Project gallery</a></li>
+            <li><a href="/demos/">External demos</a></li>
+            <li><a href="/resources/">External resources</a></li>
+          </ul>
+        </li>
+      <li><a href="https://github.com/cs107e/cs107e.github.io">Repository</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="container" style="max-width:55em;">
+    <h1 class="title">Test Strategy</h1><hr>
+    
+  <p><em>Written by Pat Hanrahan</em></p>
+
+<p>If you become a software engineer, people will rely on your software.
+Bugs in software can be dangerous or even deadly. Users do not enjoy
+using software that is buggy and crashes. Fixing bugs once the software
+is released is very costly. Most importantly, good engineers take pride
+in building things that work well and are robust.</p>
+
+<p>In this course, the assignments build on themselves,
+and you will be using the software 
+you build in early assignments in later assignments.
+Remember also we give a bonus if you hand in
+the final assignment and it uses only your software 
+(and not our reference implementations).</p>
+
+<p>The key to writing working software is developing tests.
+In this course we use an approach called test-driven development.
+As you develop a module,
+you first write a unit test that describes the expected behaviour,
+then implement it and see if it passes this test.
+This is also sometimes called test-as-you-go.
+Testing as you go means starting with a simple first step,
+testing it, and then moving onto the next step.
+Each step adds more functionality.
+The beauty of this approach is that each step is relatively
+simple and easy to debug.
+Imagine the opposite approach, where you write hundreds of
+lines of code, this code does not work, and you need to figure
+out what doesn’t work!</p>
+
+<p>In this course, you are expected to develop good unit tests for your software.
+We evaluate your tests similarly to how we evaluate style,
+using a bucket system.
+Weak or limited tests fall into the [-] bucket,
+solid tests are in the [ok] bucket,
+and exceptionally comprehensive tests falls in the [+] bucket.
+We will also provide comments on your tests to help you improve your testing
+approach. 
+Please incorporate our feedback into future assignments;
+it will improve your grade and more importantly your effectiveness as a programmer.
+We guarantee future employers will appreciate your ability to 
+write tested code!</p>
+
+<p>Here are some things we look for in good tests.</p>
+
+<ul>
+  <li>
+    <p>Are the tests comprehensive? Is all the functionality tested?</p>
+  </li>
+  <li>
+    <p>Did you test fundamental properties of a system? For example, if you
+write to memory, then if you read memory it should return what you wrote.</p>
+  </li>
+  <li>
+    <p>Did you anticipate potential problems, tricky cases, on boundary conditions?</p>
+  </li>
+  <li>
+    <p>Did you develop the tests in a good order? Did you test basic functionality
+before more advanced functionality? Did you take small, carefully chosen steps?</p>
+  </li>
+</ul>
+
+
+
+
+
+  </div>
+  <div class="footer navbar-default navbar-static-bottom">
+    <p style="font-size: 65%; color:green; text-align:center;">
+      <i>CS107e Winter 2020 &middot; Site generated 2020-04-19 20:35</i>
+  </p>
+</div> 
+</body>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+</html>

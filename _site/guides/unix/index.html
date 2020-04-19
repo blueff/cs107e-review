@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/_assets/site.css" rel="stylesheet">
+    <link href="/_assets/favicon.png" rel="icon" type="image/png">
+    <title>CS107E Guide to the Unix command line</title>
+  </head>
+
+<body>
+  <!-- Include this HTML partial to set up navbar -->
+
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="navbar-header">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+    <!-- hamburger -->
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+
+  <img class="navbar-brand navbar-brand-image" src="/_assets/berry.png" >
+  <a class="navbar-brand" href="/">CS107e Winter 2020</a>
+  </div>
+
+  <div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/">Home</a></li>
+      <li><a href="/assignments">Assignments</a></li>
+      <li><a href="/labs">Labs</a></li>
+      <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            Resources
+          <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/about/">About the course</a></li>
+            <li><a href="/policies/">Policies</a></li>
+            <li><a href="/schedule/">Schedule</a></li>
+            <li><a href="/guides/">Guides</a></li>
+            <li><a href="/project_gallery/">Project gallery</a></li>
+            <li><a href="/demos/">External demos</a></li>
+            <li><a href="/resources/">External resources</a></li>
+          </ul>
+        </li>
+      <li><a href="https://github.com/cs107e/cs107e.github.io">Repository</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="container" style="max-width:55em;">
+    <h1 class="title">Guide to the Unix command line</h1><hr>
+    
+  <p><em>Prepared by Alexandre Becker, cs107 TA, Modified for cs107E by Pat Hanrahan</em></p>
+
+<p>This course will use Unix for all the assignments. An important goal
+of the course is to familiarize you with the Unix programming
+environment. This includes the command line, text editors, and program
+development tools.</p>
+
+<p>To begin, you should be familiar with the <em>command line</em>.</p>
+
+<p>Are you familiar with the following commands?</p>
+
+<ul>
+  <li>Do you know how to open a terminal window that is running a
+ <em>shell</em>?</li>
+  <li>What are the commands for changing directories and listing files in a
+ directory? Do you know how the filesystem is organized in Unix?</li>
+  <li>Do you know how to create, move, rename, and delete files and directories
+ from the command line?</li>
+  <li>Do you know how to run a command with different options? Do you know how to
+ find documentation about the options to a Unix command?</li>
+  <li>Do you know how to create a text file using a Unix text editor such as vi or emacs? If not, you
+ should learn one of these editors. CS107 has some info on
+ <a href="https://web.stanford.edu/class/archive/cs/cs107/cs107.1186/unixref/topics/emacs">emacs</a> and
+ <a href="https://web.stanford.edu/class/archive/cs/cs107/cs107.1186/unixref/topics/vim">vi</a>.</li>
+  <li>Do you know about environment variables such as <code class="highlighter-rouge">PATH</code>?
+ Do you know the purpose of <code class="highlighter-rouge">PATH</code>? Do you know how to change <code class="highlighter-rouge">PATH</code>?</li>
+</ul>
+
+<p>If you don’t know how to do these things, you will need to learn these skills.</p>
+
+<p>Philip Guo, a former PhD student at Stanford, produce some short
+<a href="http://pgbovine.net/command-line-tutorial.htm">videos</a> that introduce basic
+unix commands. The CS107 course maintains an extensive collection of <a href="https://web.stanford.edu/class/archive/cs/cs107/cs107.1186/unixref/">unix reference documents and videos</a> that may be helpful to you.</p>
+
+<h2 id="unix-commands">Unix commands</h2>
+
+<p>This tutorial walks you through the use of most basic Unix commands for navigating the file system, viewing files, and reading the manual pages.</p>
+
+<h3 id="browsing-the-file-system">Browsing the file system</h3>
+
+<p>Open a terminal. The terminal window will show:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$
+</code></pre></div></div>
+
+<p>What does this mean? The <code class="highlighter-rouge">$</code> is called the “command prompt”.
+(Depending on what flavor of unix and your login profile,
+you may see a different prompt.)</p>
+
+<p>Let’s try running our first command. 
+Enter the <code class="highlighter-rouge">ls</code> command and then press the return key (or “enter” key):</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ ls
+Documents  Downloads   Mail
+</code></pre></div></div>
+
+<p>What does this command do? It lists all the files and folders contained in the current directory. To include more details about each file, such as the type or the size, you can add the <code class="highlighter-rouge">-l</code> flag to the command:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ ls -l
+</code></pre></div></div>
+
+<p>Then, you may need to change the current directory. Use the <code class="highlighter-rouge">cd</code> command to set a different directory as current:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cd Documents
+</code></pre></div></div>
+
+<p>Typing <code class="highlighter-rouge">cd</code> by itself, returns you to your home directory (the root
+of your personal file system).
+Wherever you are in the filesystem, 
+you can print the full path of the current directory with the <code class="highlighter-rouge">pwd</code> command.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cd
+$ pwd
+/Users/hanrahan
+</code></pre></div></div>
+
+<p>Congratulations, you can now browse and display the files 
+wherever you have access on your machine!</p>
+
+<h3 id="creating-folders-and-files">Creating folders and files</h3>
+
+<p>You may want to create a folder dedicated to cs107. 
+To do that, go in the folder where you want to create a directory,
+and use the <code class="highlighter-rouge">mkdir</code> command:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ mkdir Class
+$ cd Class
+$ ls
+Class
+$ mkdir cs107
+$ ls
+cs107
+</code></pre></div></div>
+
+<p>You can create a new file ‘foo.c’ using your favorite editor (Emacs or Vim).</p>
+
+<p>You can move the file to another directory with the <code class="highlighter-rouge">mv source destdir</code> command.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ mv foo.c cs107
+</code></pre></div></div>
+
+<p>If destination is a file, the <code class="highlighter-rouge">mv source destination</code> command will rename the file:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cd cs107
+$ ls
+foo.c
+$ mv foo.c bar.c
+$ ls
+bar.c
+</code></pre></div></div>
+
+<p>You can also use the <code class="highlighter-rouge">cp source destination</code> command to make a copy of the file with a new name.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cp bar.c foo.c
+$ ls
+bar.c foo.c
+</code></pre></div></div>
+
+<p>To delete folders and fies, use these commands:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">rm file</code> will delete a file</li>
+  <li><code class="highlighter-rouge">rmdir folder</code> will delete a folder, if it is empty</li>
+  <li><code class="highlighter-rouge">rm -r folder</code> will delete a folder and all the files or subdirectories that it contains</li>
+</ul>
+
+<h3 id="viewing-a-file">Viewing a file</h3>
+
+<p>Besides opening a file in your favorite text editor (e.g. Emacs or Vim), 
+you can view its contents with <code class="highlighter-rouge">cat file</code> or <code class="highlighter-rouge">more file</code>. 
+Whereas  <code class="highlighter-rouge">cat</code> will print the entire file in one go,
+<code class="highlighter-rouge">more</code> allows you to scroll up and down.
+You can use these keystrokes to scroll:</p>
+
+<ul>
+  <li><strong>space</strong> to scroll down</li>
+  <li><strong>b</strong> to scroll up (b stands for “backward”)</li>
+  <li><strong>q</strong> to quit</li>
+  <li><strong>/</strong> to open a search box at the bottom of the screen. After typing the word that you are looking for, its occurrences will be highlighted. Use <strong>n</strong> and <strong>p</strong> to jump to the next and previous occurrence of the word.</li>
+</ul>
+
+<h3 id="using-the-man-pages">Using the man pages</h3>
+
+<p>Each command has a manual page that shows you how to use it 
+and what its options are.
+You can view a man page using <code class="highlighter-rouge">man command</code>.
+This is one of the most useful commands to know!</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ man ls
+</code></pre></div></div>
+
+<p>Tip: you can use the same keyboard shortcuts to scroll the man page as in the <code class="highlighter-rouge">more</code> program!</p>
+
+<p>Most commands also accept options to print out a short <em>usage</em> reminder.
+For example,</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ more --help
+</code></pre></div></div>
+
+<p>list all the options and keyboard shortcuts. 
+If <code class="highlighter-rouge">--help</code> doesn’t work, try <code class="highlighter-rouge">-h</code>.</p>
+
+<h3 id="tips">Tips</h3>
+
+<ul>
+  <li>
+    <p>Tired of manually <code class="highlighter-rouge">cd</code>-ing to where you need to be, or typing in
+lengthy paths by hand? If you’re on a Mac, you can drag a file or
+folder from the Finder into your Terminal window to fill its path
+in.</p>
+  </li>
+  <li>
+    <p>Did you accidentally <code class="highlighter-rouge">cd</code> into the wrong directory? Run <code class="highlighter-rouge">cd -</code> to go
+back to where you were.</p>
+  </li>
+  <li>
+    <p>Use the Up arrow key at the command line to get a previous command,
+so you can rerun it, or edit it and then rerun it. Press Ctrl-R and
+type to search through previous commands you’ve entered.</p>
+  </li>
+</ul>
+
+
+
+
+  </div>
+  <div class="footer navbar-default navbar-static-bottom">
+    <p style="font-size: 65%; color:green; text-align:center;">
+      <i>CS107e Winter 2020 &middot; Site generated 2020-04-19 20:35</i>
+  </p>
+</div> 
+</body>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+</html>

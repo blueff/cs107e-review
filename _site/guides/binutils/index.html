@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/_assets/site.css" rel="stylesheet">
+    <link href="/_assets/favicon.png" rel="icon" type="image/png">
+    <title>CS107E Binary Utilities (binutils)</title>
+  </head>
+
+<body>
+  <!-- Include this HTML partial to set up navbar -->
+
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="navbar-header">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+    <!-- hamburger -->
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+
+  <img class="navbar-brand navbar-brand-image" src="/_assets/berry.png" >
+  <a class="navbar-brand" href="/">CS107e Winter 2020</a>
+  </div>
+
+  <div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/">Home</a></li>
+      <li><a href="/assignments">Assignments</a></li>
+      <li><a href="/labs">Labs</a></li>
+      <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            Resources
+          <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/about/">About the course</a></li>
+            <li><a href="/policies/">Policies</a></li>
+            <li><a href="/schedule/">Schedule</a></li>
+            <li><a href="/guides/">Guides</a></li>
+            <li><a href="/project_gallery/">Project gallery</a></li>
+            <li><a href="/demos/">External demos</a></li>
+            <li><a href="/resources/">External resources</a></li>
+          </ul>
+        </li>
+      <li><a href="https://github.com/cs107e/cs107e.github.io">Repository</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="container" style="max-width:55em;">
+    <h1 class="title">Binary Utilities (binutils)</h1><hr>
+    
+  <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12" id="main_for_toc">
+    <p>This document describes binutils (binary utilities). These are utility programs used for compiling,
+inspecting, and transforming binaries (machine code files). Some of them you’ve probably
+heard of or used before. Other, more specialized ones, might be new to you. Learning these
+tools and what they can do will greatly improve your productivity as a programmer. They’ll
+let you quickly and easily figure out what is wrong and why with a large number of otherwise
+very difficult problems.</p>
+
+<p>This guide refers to each tool with its short name (e.g., <code class="highlighter-rouge">ld</code>, <code class="highlighter-rouge">as</code>). Typically, on a UNIX/Linux/Darwin
+machine, these names refer to the native tools, tools for that computer. For example, <code class="highlighter-rouge">gcc</code> on
+a myth machine is a version of the Gnu C Compiler for Linux on an x86 processor. Since we’re
+using a laptop to cross-compile for the Raspberry Pi, you want to use the binary utilities
+that are designed to run on your machine but compile for the Raspberry Pi. These tools are
+prefixed with <code class="highlighter-rouge">arm-none-eabi</code>. So you want to use <code class="highlighter-rouge">arm-none-eabi-ld</code> not <code class="highlighter-rouge">ld</code>.</p>
+
+<h3 id="core-utilities">Core utilities</h3>
+
+<p>This section discusses the core utilities that you use very often: <code class="highlighter-rouge">as</code>, <code class="highlighter-rouge">ld</code>, <code class="highlighter-rouge">nm</code>, <code class="highlighter-rouge">size</code>, <code class="highlighter-rouge">strings</code>,
+<code class="highlighter-rouge">strip</code>, <code class="highlighter-rouge">objcopy</code>, <code class="highlighter-rouge">objdump</code>, and <code class="highlighter-rouge">ar</code>.</p>
+
+<h3 id="as"><code class="highlighter-rouge">as</code></h3>
+
+<p>This is the assembler. It takes assembly code (human readable text of machine code) and turns it
+into a binary that a processor can execute. When you invoke <code class="highlighter-rouge">gcc</code> and tell it to generate
+a binary (e.g., an object file), gcc first compiles the C code to assembly then invokes the
+assembler to generate machine code. The output of <code class="highlighter-rouge">as</code> is a file format called ELF, or
+Executable and Linkable Format. Almost all executables you run in Linux, for example, are ELF.
+ELF includes not only machine code (the E part) but also <em>symbols</em>, names that provide
+information on where different variables and functions reside (see <code class="highlighter-rouge">nm</code> and <code class="highlighter-rouge">objdump</code> below).
+When you compile a library,
+for example, the resulting ELF file has not only the library’s code, but also a set of symbols
+that say where the code for each library function starts. That way, when you compile a program
+that invokes the library function, binutils can find where it is and link the two files together
+correctly (see <code class="highlighter-rouge">ld</code> below).</p>
+
+<p>The most common use of <code class="highlighter-rouge">as</code> is as follows:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ as code.s -o code.o
+</code></pre></div></div>
+
+<p>This command instructs the assembler to read assembly code from the input file <code class="highlighter-rouge">code.s</code> and to write the machine code to the output file <code class="highlighter-rouge">code.o</code>. If you do not include <code class="highlighter-rouge">-o code.o</code> then it will default to a output file named to
+<code class="highlighter-rouge">a.out</code>.</p>
+
+<p>Just as the input to <code class="highlighter-rouge">as</code> might not be a executable program, the output of <code class="highlighter-rouge">as</code> might
+not be executable. For example, a library is a set of functions that other programs can
+call, but does not have any entry point (<code class="highlighter-rouge">main()</code> function). It can also be that the
+compiled assembly code references functions that are in another binary file. For example,
+your program that calls a library, when compiled into machine code, does not have the
+actual instructions of those library calls. The tool that takes multiple binary files
+and links them together is <code class="highlighter-rouge">ld</code>, described below.</p>
+
+<h3 id="ld"><code class="highlighter-rouge">ld</code></h3>
+
+<p>The linker. <code class="highlighter-rouge">ld</code> takes object files, libraries, and other binary files as input and links
+them together into another binary file. For example, when you have a library written in
+multiple source files, you typically compile each source file independently into an ELF
+object file, then link all of those files together into a larger ELF object file for the
+library. When you compile a program that uses the library, you compile your program code
+into one or more object files, then link those against the library, producing a final
+executable.</p>
+
+<p>The linker operates by resolving <em>symbols</em>. The name of each of your functions and global variables is a symbol. Symbols come in two forms: a definition that associates a name with its data (e.g. initializing a global variable or the body of a function) and a declaration/use of that name.  There must be exactly one definition for a symbol, but there can be multiple declarations/use of the symbol. For example, when you define a variable <code class="highlighter-rouge">int a = 17;</code>
+in global scope, this creates a symbol for <code class="highlighter-rouge">a</code>, which establishes at what memory address <code class="highlighter-rouge">a</code>
+resides and sets its initial value to 17. Any use of the global <code class="highlighter-rouge">a</code> must be resolved to refer to this one copy of the variable. Similarly with a function named <code class="highlighter-rouge">f()</code>. There will be one definition of <code class="highlighter-rouge">f()</code> (perhaps in a library). Every other place where you call the function <code class="highlighter-rouge">f()</code> it generates an unresolved reference. It is the job of the linker to resolve all such references to use the one shared copy.  When the linker links your program,
+it sees that <code class="highlighter-rouge">f</code> is an unresolved symbol, sees where <code class="highlighter-rouge">f</code> is defined in the library,
+then fixes the binary code in your program so that when it calls <code class="highlighter-rouge">f</code> it jumps to
+where <code class="highlighter-rouge">f</code> exists.</p>
+
+<p>The basic use for <code class="highlighter-rouge">ld</code> is as follows:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ ld code1.o code1.o -o code.bin
+</code></pre></div></div>
+
+<p>This takes two object files, links them together, and outputs the result as <code class="highlighter-rouge">code.bin</code>.</p>
+
+<p>When you invoke GCC without the <code class="highlighter-rouge">-c</code> option, it typically runs <code class="highlighter-rouge">ld</code> as its last step. For
+example,</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ gcc -o test test.c
+</code></pre></div></div>
+
+<p>is mostly equivalent (I’m leaving out a lot of options that are added by default) to:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ gcc -S test.S test.c  # Generate assembly
+$ as -o test.o test.S   # Generate object file
+$ ld -o test test.o 
+</code></pre></div></div>
+
+<p>The most commonly used options for <code class="highlighter-rouge">ld</code> are <code class="highlighter-rouge">-l</code> and <code class="highlighter-rouge">-L</code>. The <code class="highlighter-rouge">-l</code> option tells <code class="highlighter-rouge">ld</code>
+to link a library, which is basically just an object file. But libraries are typically
+stable code that you don’t update often and are used by many programs, so they live
+in separate directories for that purpose (e.g, <code class="highlighter-rouge">/usr/lib</code>). The <code class="highlighter-rouge">-L</code> option tells <code class="highlighter-rouge">ld</code>
+what directories to look for libraries in. So, for example,</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ ld -o test test.o -lgcc -L/usr/lib
+</code></pre></div></div>
+
+<p>tells <code class="highlighter-rouge">ld</code> to link a file name <code class="highlighter-rouge">libgcc.a</code> (or <code class="highlighter-rouge">libgcc.so</code>, but we will not be using
+shared objects in this class, so don’t worry about them) which it should search for
+not only in the local directory but also <code class="highlighter-rouge">/usr/lib</code>. You can pass multiple <code class="highlighter-rouge">-l</code> and
+<code class="highlighter-rouge">-L</code> options. For example, <code class="highlighter-rouge">gcc</code> will typically automatically pass <code class="highlighter-rouge">-lgcc</code> and <code class="highlighter-rouge">-L/usr/lib</code>
+options when it invokes <code class="highlighter-rouge">ld</code>, which are in addition to any other library loads
+or library search path entries you add.</p>
+
+<h3 id="nm"><code class="highlighter-rouge">nm</code></h3>
+
+<p>Displays the symbol table of a binary file. It takes one or more file names as parameters
+and outputs their symbol tables. The output looks like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>00010074 B __bss_end__
+00010070 B __bss_start
+00010070 B __bss_start__
+00010070 T __data_start
+00010074 B __end__
+00010074 B _bss_end__
+00010070 T _edata
+00010074 B _end
+00080000 N _stack
+         U _start
+00010070 B a
+00008040 T f
+00008000 T main
+</code></pre></div></div>
+
+<p>The first column states the address of the symbol. For a function, this is the first instruction
+to jump to when you call the function. For a variable, this is its location in memory. The
+second column states what kind of symbol it is. The types are:</p>
+
+<ol>
+  <li><code class="highlighter-rouge">T</code>: Text. This is a symbol for executable code (e.g., a function).</li>
+  <li><code class="highlighter-rouge">D</code>: Data. This is a symbol for a variable that has an initializer (e.g., <code class="highlighter-rouge">int a = 5;</code>).</li>
+  <li><code class="highlighter-rouge">B</code>: Data. This is a symbol for a variable that doesn’t have an initializer (e.g., <code class="highlighter-rouge">int a;</code>).</li>
+  <li><code class="highlighter-rouge">U</code>: Undefined. This a symbol the objects needs to be linked. It’s defined elsewhere, and
+hopefully the linker will resolve it later.</li>
+  <li><code class="highlighter-rouge">N</code>: Symbol used for debugging.</li>
+  <li><code class="highlighter-rouge">A</code>: Absolute. Later linking will not change this symbol.</li>
+</ol>
+
+<p>So in the above example, the object file defines a function <code class="highlighter-rouge">f</code>, a function <code class="highlighter-rouge">main</code>, and a variable <code class="highlighter-rouge">a</code>.
+The other symbols (generally, symbols that start with <code class="highlighter-rouge">_</code>) are generated by the compiler for
+bookkeeping and linking.</p>
+
+<h3 id="size"><code class="highlighter-rouge">size</code></h3>
+
+<p>Lists the size of sections (and total size) of object files. Can be invoked on multiple 
+files at once simply by listing the desired files,</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ size test.o test2.o
+</code></pre></div></div>
+
+<p>which produces output like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> text	     data     bss      dec     hex	  filename
+   80	       24      32      136 		88 	  test.o
+   72	        0       0       72		48	  test2.o
+</code></pre></div></div>
+
+<p>Under <code class="highlighter-rouge">text</code> you see the size of the actual machine code that makes up your program. Similarly to 
+the symbol types listed under <code class="highlighter-rouge">nm</code> above, the <code class="highlighter-rouge">data</code> section is the size of storing your initialized 
+global variables, and <code class="highlighter-rouge">bss</code> is the size of storing your uninitialized global variables. The <code class="highlighter-rouge">dec</code> and 
+<code class="highlighter-rouge">hex</code> numbers indicate the total size (sum of text, data, &amp; bss) in decimal and hexadecimal, 
+respectively.</p>
+
+<p>The options for the size command are mostly to change the format of the output. For example, to see 
+the section sizes in hexadecimal, use the <code class="highlighter-rouge">-x</code> option (<code class="highlighter-rouge">size -x test.o</code>). You can also specify the 
+file type if it is not automatically recognized. For example if you want to know the size of a raw 
+binary file, you could use</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ size --target=binary test.bin
+</code></pre></div></div>
+
+<h3 id="strings"><code class="highlighter-rouge">strings</code></h3>
+
+<p>Prints text strings embedded in the input file. <code class="highlighter-rouge">strings</code> is useful 
+for searching binary files, which are not readable using a text editor. For example, if you 
+wanted to search an object file for a particular string, you could call strings and pipe the result to 
+grep, like this:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ strings test.o | grep "my string"
+</code></pre></div></div>
+
+<p>By default, <code class="highlighter-rouge">strings</code> looks for strings of at least 4
+printable characters (followed by a NUL character indicating the end of a string).
+To set a minimum string length other than 4, use the <code class="highlighter-rouge">-n</code> option. For example,</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ strings -n 6 test.o
+</code></pre></div></div>
+
+<p>looks for strings of at least 6 characters.</p>
+
+<h3 id="strip"><code class="highlighter-rouge">strip</code></h3>
+
+<p>Removes the symbol table from an object file. The symbol table has information about each symbol by name, including size, type, and address, 
+see <code class="highlighter-rouge">ld</code> above. By stripping out symbol tables and debug information, <code class="highlighter-rouge">strip</code> decreases the size of 
+object files.</p>
+
+<p><code class="highlighter-rouge">strip</code> modifies the input file rather than creating a new, stripped output file. Compare the file 
+before and after you strip it using <code class="highlighter-rouge">nm</code> (above). You will find that the symbol information has been removed. All of the code/data for the symbols remains in the binary, but there is no longer a “legend” that identifies which symbol is where.</p>
+
+<h3 id="objcopy"><code class="highlighter-rouge">objcopy</code></h3>
+
+<p>Transforms binary objects between different formats. For example, you can use objcopy to transform
+an ELF executable (which has symbols and all kinds of other information) into a simple binary. The principal
+options to <code class="highlighter-rouge">objcopy</code> are <code class="highlighter-rouge">-O</code> and <code class="highlighter-rouge">-I</code>, which specify the output and input formats. Example formats are
+elf32-bigarm, ihex, and binary. Sometimes <code class="highlighter-rouge">objcopy</code> can tell what the format is and so doesn’t need to be
+told explicitly (e.g., ELF). In its most basic use, <code class="highlighter-rouge">objcopy</code> just makes a copy of the file. For example,</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ objcopy main main2
+</code></pre></div></div>
+
+<p>creates a simple of main in main2. In contrast,</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ objcopy main -O binary main.bin 
+</code></pre></div></div>
+
+<p>takes main as input (an ELF file), transforms it into a raw binary file and outputs that raw binary as main.bin.</p>
+
+<h3 id="objdump"><code class="highlighter-rouge">objdump</code></h3>
+
+<p>Displays information about object files. To use <code class="highlighter-rouge">objdump</code>, you must specify at least one of the many 
+options, which indicate what type of information you would like to view. There are many different options, 
+check out <code class="highlighter-rouge">man objdump</code> to see what it can show.</p>
+
+<p>A very useful option is the <code class="highlighter-rouge">-d</code> option (<code class="highlighter-rouge">-d</code> is for disassemble), which allows you to view the assembly instructions 
+associated with the executable part of the binary file:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ objdump -d test.o
+</code></pre></div></div>
+
+<h3 id="ar"><code class="highlighter-rouge">ar</code></h3>
+
+<p>Allows you to create, modify, and extract archives. Archives are single files holding 
+collections of other (usually binary) files, similar to a zip or tar file. Archives are named with a <code class="highlighter-rouge">.a</code> extension 
+and are usually used to hold libraries. The linker (see <code class="highlighter-rouge">ld</code> above) is often used to link to functions 
+in these archive library files.</p>
+
+<p><code class="highlighter-rouge">ar</code> has options for you to create an archive, add or remove files from an existing archive, and 
+extract files from an archive. To create an archive from object files, use the <code class="highlighter-rouge">cr</code> or 
+<code class="highlighter-rouge">crs</code> options, followed by your object files. The <code class="highlighter-rouge">c</code> option means it will not warn you that it 
+needs to create the library (since that is 
+what you are trying to do). The <code class="highlighter-rouge">r</code> option says to insert the new files (or replace existing ones).
+If you specify the <code class="highlighter-rouge">s</code> option, the archive maintains an
+index to all symbols defined in files in the archive to allow for quicker linking to the library
+functions.</p>
+
+<p>For example,</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ ar cr libtest.a test.o test2.o
+</code></pre></div></div>
+
+<p>makes the library archive file libtest.a containing test.o and test2.o. Then you can link to this 
+library by specifying <code class="highlighter-rouge">-ltest</code> in the <code class="highlighter-rouge">ld</code> command (see <code class="highlighter-rouge">ld</code> above).</p>
+
+<p>For more options on how to modify archives, see <code class="highlighter-rouge">man ar</code> or <code class="highlighter-rouge">ar --help</code>.</p>
+
+<!-- ## Other utilities -->
+
+
+  </div>
+  <div class="toc-column col-lg-2 col-md-2 col-sm-2 hidden-xs">
+    <div id="toc" class="toc" data-spy="affix" data-offset-top="0"></div>
+  </div> 
+</div>
+
+  <script src="/_assets/tocbot.min.js"></script>
+  <link rel="stylesheet" href="/_assets/tocbot.css">
+
+  <script>
+    tocbot.init({
+      // Where to render the table of contents.
+      tocSelector: '#toc',
+      // Where to grab the headings to build the table of contents.
+      contentSelector: '#main_for_toc',
+      // Which headings to grab inside of the contentSelector element.
+      headingSelector: 'h2, h3, h4',
+    });
+  </script>
+
+
+
+  </div>
+  <div class="footer navbar-default navbar-static-bottom">
+    <p style="font-size: 65%; color:green; text-align:center;">
+      <i>CS107e Winter 2020 &middot; Site generated 2020-04-19 20:35</i>
+  </p>
+</div> 
+</body>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+</html>

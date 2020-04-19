@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/_assets/site.css" rel="stylesheet">
+    <link href="/_assets/favicon.png" rel="icon" type="image/png">
+    <title>CS107E Informational resources</title>
+  </head>
+
+<body>
+  <!-- Include this HTML partial to set up navbar -->
+
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="navbar-header">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+    <!-- hamburger -->
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+
+  <img class="navbar-brand navbar-brand-image" src="/_assets/berry.png" >
+  <a class="navbar-brand" href="/">CS107e Winter 2020</a>
+  </div>
+
+  <div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/">Home</a></li>
+      <li><a href="/assignments">Assignments</a></li>
+      <li><a href="/labs">Labs</a></li>
+      <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            Resources
+          <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/about/">About the course</a></li>
+            <li><a href="/policies/">Policies</a></li>
+            <li><a href="/schedule/">Schedule</a></li>
+            <li><a href="/guides/">Guides</a></li>
+            <li><a href="/project_gallery/">Project gallery</a></li>
+            <li><a href="/demos/">External demos</a></li>
+            <li><a href="/resources/">External resources</a></li>
+          </ul>
+        </li>
+      <li><a href="https://github.com/cs107e/cs107e.github.io">Repository</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="container" style="max-width:55em;">
+    <h1 class="title">Informational resources</h1><hr>
+    
+  <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12" id="main_for_toc">
+    <p>Here are links to various external resources with information about the Raspberry Pi, ARM assembly, C, and more.</p>
+
+<h3 id="raspberry-pi">Raspberry Pi</h3>
+
+<ul>
+  <li><a href="https://github.com/raspberrypi/documentation/blob/master/hardware/raspberrypi/schematics/README.md">Raspberry Pi Board Schematics</a>. In this course, we use the Raspberry Pi A+.</li>
+</ul>
+
+<h3 id="arm-architecture">ARM architecture</h3>
+
+<p>The Raspberry Pi A+ uses a Broadcom BCM2835 chip. 
+Inside the chip is an ARM1176JFZ-S processor 
+which is based on the ARMv6 architecture.</p>
+
+<ul>
+  <li>
+    <p>The peripherals are documented in <a href="/readings/BCM2835-ARM-Peripherals.pdf">Broadcom BCM2835 ARM Peripherals</a>.</p>
+
+    <ul>
+      <li><strong>Important:</strong> <a href="http://elinux.org/BCM2835_datasheet_errata">Errata</a> for the above datasheet. Some of the issues are simple typos but there are places where the text is wrong or backwards, so keep the errata at hand to reconcile those.</li>
+    </ul>
+  </li>
+  <li>
+    <p>The ARM1176JFZ-S processor is documented in the 
+<a href="/readings/arm1176.pdf">Technical Reference Manual</a>.</p>
+  </li>
+  <li>
+    <p>ARM1176JFZ-S processors use the ARMv6 architecture,
+which is documented in the <a href="/readings/armv6.pdf">ARMv6 Architecture Manual</a>. At 1000 pages, the full manual is quite a tome; here is an <a href="/readings/armisa.pdf">excerpt for the instruction set</a>.</p>
+  </li>
+  <li>
+    <p>ARM System-on-Chip Architecture (2nd Edition), Steve Furber. <a href="https://www.amazon.com/dp/0201675196/">https://www.amazon.com/dp/0201675196/</a>
+Steve Furber was the principal design of the first ARM processor.
+The diagrams of the ARM architecture are based on the diagrams
+in Chapter 4: ARM Organization and Implementation.</p>
+  </li>
+  <li>
+    <p>ARM System Developer’s Guide: Designing and Optimizing System Software, Andrew Sloss, Dominic Symes, and Chris Wright, 2004. <a href="https://www.amazon.com/dp/1558608745/">https://www.amazon.com/dp/1558608745/</a> This book is a bit dated, but still provides an excellent overview of low-level ARM programming.</p>
+  </li>
+  <li>
+    <p>Excellent <a href="http://twins.ee.nctu.edu.tw/courses/ip_core_02/handout_pdf/Chapter_2.pdf">slides</a> by Prof. Yen at NCTU on the ARM processor core and instruction sets.</p>
+  </li>
+</ul>
+
+<h3 id="arm-assembly-language">ARM Assembly Language</h3>
+
+<ul>
+  <li>
+    <p>Carl Burch’s
+<a href="http://www.toves.org/books/arm/">Introduction to ARM Assembly Language</a>
+is a highly recommended starting point.</p>
+
+    <p><em>Note: Burch’s document uses the
+<a href="http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0773a/chr1383143764305.html">older ARM syntax</a>
+instead of the GNU syntax we use.</em></p>
+  </li>
+  <li>
+    <p>A <a href="http://www.coranac.com/tonc/text/asm.htm">Whirlwind Tour of ARM Assembly</a> from the TONC Guide to programming the Nintendo Game Boy Advance (which uses am ARM processor).</p>
+  </li>
+  <li>
+    <p>Davespace’s <a href="http://www.davespace.co.uk/arm/introduction-to-arm/index.html">Introduction to ARM Course</a>.</p>
+  </li>
+  <li>
+    <p>Think in Geek article series <a href="http://thinkingeek.com/2013/01/09/arm-assembler-raspberry-pi-chapter-1/">ARM Assembler for the Raspberry Pi</a>.</p>
+  </li>
+</ul>
+
+<h3 id="bare-metal-programming">Bare Metal Programming</h3>
+
+<ul>
+  <li>
+    <p>David Welch’s extensive github repository of <a href="https://github.com/dwelch67/raspberrypi">bare metal programming examples</a>.</p>
+  </li>
+  <li>
+    <p>Steve Halliday’s <a href="http://computersciencevideos.org/Raspberry-Pi/Raspberry-Pi-Setup">videos</a> about programming the raspberry pi.</p>
+  </li>
+  <li>
+    <p>Alex Chadwick’s <a href="http://www.cl.cam.ac.uk/projects/raspberrypi/tutorials/os/">Baking Pi Course</a>.</p>
+  </li>
+  <li>
+    <p>The <a href="http://www.raspberrypi.org/forums/viewforum.php?f=72">Raspberry Pi Bare Metal Forum</a> has lots of information from experienced developers. Venturing into the forum is a great way to learn advanced techniques.</p>
+  </li>
+</ul>
+
+<h3 id="c-programming-language">C Programming Language</h3>
+
+<ul>
+  <li>
+    <p>Nick Parlante’s <a href="http://cslibrary.stanford.edu/101">EssentialC</a></p>
+  </li>
+  <li>
+    <p><em>The C Programming Language, 2nd Ed.</em>, B. Kernighan and D. Ritchie.
+A digital copy of K&amp;R is available to Stanford students via 
+<a href="https://proquest-safaribooksonline-com.stanford.idm.oclc.org/9780133086249">Safari Books Online</a></p>
+  </li>
+  <li>
+    <p><em>The Definitive Guide to GCC, 2nd Ed.</em>, William von Hagen, Apress, 2006
+<a href="http://sensperiodit.files.wordpress.com/2011/04/hagen-the-definitive-guide-to-gcc-2e-apress-2006.pdf">pdf</a></p>
+  </li>
+</ul>
+
+  </div>
+  <div class="toc-column col-lg-2 col-md-2 col-sm-2 hidden-xs">
+    <div id="toc" class="toc" data-spy="affix" data-offset-top="0"></div>
+  </div> 
+</div>
+
+  <script src="/_assets/tocbot.min.js"></script>
+  <link rel="stylesheet" href="/_assets/tocbot.css">
+
+  <script>
+    tocbot.init({
+      // Where to render the table of contents.
+      tocSelector: '#toc',
+      // Where to grab the headings to build the table of contents.
+      contentSelector: '#main_for_toc',
+      // Which headings to grab inside of the contentSelector element.
+      headingSelector: 'h2, h3, h4',
+    });
+  </script>
+
+
+
+  </div>
+  <div class="footer navbar-default navbar-static-bottom">
+    <p style="font-size: 65%; color:green; text-align:center;">
+      <i>CS107e Winter 2020 &middot; Site generated 2020-04-19 20:35</i>
+  </p>
+</div> 
+</body>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+</html>

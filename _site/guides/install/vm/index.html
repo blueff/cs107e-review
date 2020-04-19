@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/_assets/site.css" rel="stylesheet">
+    <link href="/_assets/favicon.png" rel="icon" type="image/png">
+    <title>CS107E Installing Linux VM on Windows</title>
+  </head>
+
+<body>
+  <!-- Include this HTML partial to set up navbar -->
+
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="navbar-header">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+    <!-- hamburger -->
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+
+  <img class="navbar-brand navbar-brand-image" src="/_assets/berry.png" >
+  <a class="navbar-brand" href="/">CS107e Winter 2020</a>
+  </div>
+
+  <div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/">Home</a></li>
+      <li><a href="/assignments">Assignments</a></li>
+      <li><a href="/labs">Labs</a></li>
+      <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            Resources
+          <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/about/">About the course</a></li>
+            <li><a href="/policies/">Policies</a></li>
+            <li><a href="/schedule/">Schedule</a></li>
+            <li><a href="/guides/">Guides</a></li>
+            <li><a href="/project_gallery/">Project gallery</a></li>
+            <li><a href="/demos/">External demos</a></li>
+            <li><a href="/resources/">External resources</a></li>
+          </ul>
+        </li>
+      <li><a href="https://github.com/cs107e/cs107e.github.io">Repository</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="container" style="max-width:55em;">
+    <h1 class="title">Installing Linux VM on Windows</h1><hr>
+    
+  <p><em>Prepared by Philip Levis</em></p>
+
+<p>This installation involves downloading two large files, VMware
+Workstation and a 3.2GB virtual machine, so can take a long
+time. <em>Complete these steps before attending lab.</em></p>
+
+<p>If you have a Windows laptop, the easiest way to get a good development
+environment for CS107E is to run Linux within a virtual machine. You’ll
+use Windows normally, but will have a window in which a full Linux system
+is running.</p>
+
+<p>We’ve prepared a VM with Linux and all of the needed tools installed on it.
+To get it running, you’ll need to do 4 things:</p>
+
+<ol>
+  <li>
+    <p>Install VMware workstation. Go to
+<a href="https://sustainable.stanford.edu/campus-action/energy/sustainability-information-technology/vmware">https://sustainable.stanford.edu/campus-action/energy/sustainability-information-technology/vmware</a> 
+and scroll down to
+“SOFTWARE FOR ACADEMIC/RESEARCH PURPOSES” and follow the
+Software Licensing Store link. Choose VMware and
+click on VMware Workstation 14. This is a personal, not a lab,
+download. Use your own SUNet ID. When you check out, the
+checkout page will give you a download button as well as
+a license key to use. Copy the license number into a text file
+and save it.</p>
+  </li>
+  <li>
+    <p>Install VMware workstation and enter the license key.</p>
+  </li>
+  <li>
+    <p>Download the virtual machine. You can find it at
+<a href="http://www.stanford.edu/~plevis/107E%20Ubuntu%20VM.zip">http://www.stanford.edu/~plevis/107E%20Ubuntu%20VM.zip</a>
+Note that it is 3.2GB in size: I recommend that you plug into
+a wired connection to download it. Don’t put the VM on an external
+hard drive, since USB is much slower than SATA. Since you’re running
+another whole computer which needs to load all of its data out
+of the VM file, this is like trying to run a full computer off of
+a USB drive: slow!</p>
+  </li>
+  <li>
+    <p>Unzip the virtual machine and run it. Open the .zip file
+and copy the directory into “My Documents/Virtual Machines”.</p>
+  </li>
+  <li>
+    <p>Open VMware workstation and open the CS107E Ubuntu VM.
+Click on the green start icon. You may get a warning
+message or two: for SATA, tell it to always check, for
+USB, click OK (when I shut down the VM it had a Raspberry
+Pi plugged in). Your login is “Raspberry Pi Hacker” and
+the password is ‘cs107e’. You can click on the terminal
+icon on the left to open a terminal. There is a subdirectory
+cs107e that has your tools and a little bit of source code
+in it.</p>
+  </li>
+</ol>
+
+
+
+
+
+  </div>
+  <div class="footer navbar-default navbar-static-bottom">
+    <p style="font-size: 65%; color:green; text-align:center;">
+      <i>CS107e Winter 2020 &middot; Site generated 2020-04-19 20:35</i>
+  </p>
+</div> 
+</body>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+</html>

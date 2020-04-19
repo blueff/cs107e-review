@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/_assets/site.css" rel="stylesheet">
+    <link href="/_assets/favicon.png" rel="icon" type="image/png">
+    <title>CS107E Lab 4: Linked and Loaded</title>
+  </head>
+
+<body>
+  <!-- Include this HTML partial to set up navbar -->
+
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="navbar-header">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+    <!-- hamburger -->
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+
+  <img class="navbar-brand navbar-brand-image" src="/_assets/berry.png" >
+  <a class="navbar-brand" href="/">CS107e Winter 2020</a>
+  </div>
+
+  <div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/">Home</a></li>
+      <li><a href="/assignments">Assignments</a></li>
+      <li><a href="/labs">Labs</a></li>
+      <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            Resources
+          <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/about/">About the course</a></li>
+            <li><a href="/policies/">Policies</a></li>
+            <li><a href="/schedule/">Schedule</a></li>
+            <li><a href="/guides/">Guides</a></li>
+            <li><a href="/project_gallery/">Project gallery</a></li>
+            <li><a href="/demos/">External demos</a></li>
+            <li><a href="/resources/">External resources</a></li>
+          </ul>
+        </li>
+      <li><a href="https://github.com/cs107e/cs107e.github.io">Repository</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="container" style="max-width:55em;">
+    <h1 class="title">Lab 4: Linked and Loaded</h1><hr>
+    
+  <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12" id="main_for_toc">
+    
+<p><em>Lab written by Pat Hanrahan, updated by Julie Zelenski</em></p>
+
+<h2 id="goals">Goals</h2>
+
+<p>During this lab you will:</p>
+
+<ul>
+  <li>Experiment with the linker <code class="highlighter-rouge">ld</code>, with the goal of understanding what is in
+ an object (ELF) file by using <code class="highlighter-rouge">nm</code>, and how object files are combined to produce an
+ executable.</li>
+  <li>Understand how executing programs are laid out in memory, including the organization of stack frames.</li>
+  <li>Read and understand the source to the bootloader. It is important to be able
+ to read code produced in the wild.</li>
+  <li>Explore the stack and heap in preparation for assignment 4.</li>
+</ul>
+
+<h2 id="prelab-preparation">Prelab preparation</h2>
+<p>To prepare for lab, do the following:</p>
+
+<ul>
+  <li>Pull the latest version of the <code class="highlighter-rouge">cs107e.github.io</code> courseware repository.</li>
+  <li>Clone the lab repository <code class="highlighter-rouge">https://github.com/cs107e/lab4</code>.</li>
+  <li>If you didn’t complete the gdb stack exercise in last week’s lab (<a href="/labs/lab3/#1b">Lab3 exercise 1b</a>), please do before this week’s lab. This will give you further practice with gdb and introduce you to the commands for tracing function calls and examining stack frames.</li>
+  <li>Having a solid understanding of the memory layout of your program is essential for your next assignment. Review the program in <a href="code/simple/simple.c">simple.c</a>. Study the code alongside this <a href="images/stack_abs.html">diagram of the program’s address space</a> when stopped in the first call to <code class="highlighter-rouge">abs</code>. Having examined this in advance will be helpful when exploring the stack frame layout in exercise 4 below.</li>
+</ul>
+
+<h2 id="lab-exercises">Lab exercises</h2>
+
+<p>Pull up the <a href="checkin">check in questions</a> so you have it open as you go.</p>
+
+<h3 id="1-linking">1. Linking</h3>
+
+<p>In the first exercise, you will repeat some of the live coding demonstrations shown in the lecture on linking and loading.</p>
+
+<p>Let’s first review some terminology. An <em>object file</em> (also called an .o file or a relocatable) is the result of compiling and assembling a single source file. An object file is on its way to becoming a runnable program, but it’s not finished. The linker takes over from there to combine the object file with  additional object files and libraries. The linker is responsible for resolving inter-module references and relocating symbols to their final location. The output of the linker is an <em>executable</em> file, this represents a full program that is ready to run.</p>
+
+<h4 id="symbols-in-object-files">Symbols in object files</h4>
+
+<p>Change to the <code class="highlighter-rouge">code/linking</code> directory of <code class="highlighter-rouge">lab4</code>. Read over the code in the files <code class="highlighter-rouge">start.s</code> and <code class="highlighter-rouge">cstart.c</code> and then build the object files <code class="highlighter-rouge">start.o</code> and <code class="highlighter-rouge">cstart.o</code>:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ make start.o cstart.o
+</code></pre></div></div>
+
+<p>The tool <code class="highlighter-rouge">nm</code> lists the symbols in an object file. Each function, variable, and constant declared at the top-level in the module is a <em>symbol</em>. Try <code class="highlighter-rouge">nm</code> out now:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ arm-none-eabi-nm -n start.o cstart.o
+</code></pre></div></div>
+
+<p>What symbols are listed for <code class="highlighter-rouge">start.o</code>? For <code class="highlighter-rouge">cstart.o</code>? How do the symbols listed correspond to the functions defined in the source files?
+What is the significance of the number shown in the left column for each symbol?
+What do each of the single letters <code class="highlighter-rouge">T</code>, <code class="highlighter-rouge">U</code>, and <code class="highlighter-rouge">t</code> in the second column mean?</p>
+
+<p>Skim the <code class="highlighter-rouge">arm-none-eabi-nm</code> <a href="https://manned.org/arm-none-eabi-nm">man page</a> to learn a little bit about this tool and the variety of symbol types.  Our modules will typically contain text (code) symbols and data symbols (with variants common, uninitialized, read-only). What is the significance of upper versus lowercase for the symbol type? What does the <code class="highlighter-rouge">-n</code> flag do?</p>
+
+<p><em>Make sure you and your partner understand <code class="highlighter-rouge">nm</code>’s
+output before continuing.</em></p>
+
+<p>Let’s look at the symbols in a more complex object file. Review the variable definitions in the source file <code class="highlighter-rouge">linking.c</code>. Build <code class="highlighter-rouge">linking.o</code> and view its symbol list:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ make linking.o
+$ arm-none-eabi-nm -n linking.o
+</code></pre></div></div>
+
+<p>How many symbols are listed for <code class="highlighter-rouge">linking.o</code>? 
+What do the single letter symbols <code class="highlighter-rouge">D</code>, <code class="highlighter-rouge">R</code>, <code class="highlighter-rouge">C</code>, and <code class="highlighter-rouge">b</code> mean in the <code class="highlighter-rouge">nm</code> output?
+Can you match each function/variable definition in <code class="highlighter-rouge">linking.c</code> to its symbol in the <code class="highlighter-rouge">nm</code> output? A few of the variables defined seem to have been completely optimized out, what made that possible? None of the parameters or stack-local variables in <code class="highlighter-rouge">linking.c</code> are listed as symbols, why not?</p>
+
+<p>What type and size of symbol would correspond to an array definition such as  <code class="highlighter-rouge">const int[5]</code>? See for yourself by uncommenting the declaration on line 13 of <code class="highlighter-rouge">linking.c</code>, rebuild and view <code class="highlighter-rouge">arm-none-eabi-nm -S linking.o</code>.</p>
+
+<h4 id="symbols-in-an-executable">Symbols in an executable</h4>
+
+<p>After compiling each individual source file into an object file, the final build step is to link the object files and libraries into a program executable. The three object files we examined above are linked together in <code class="highlighter-rouge">linking.elf</code>.  Use <code class="highlighter-rouge">make linking.elf</code> to perform the link step and then use <code class="highlighter-rouge">nm</code> to look at the symbols in the final executable.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ make linking.elf
+$ arm-none-eabi-nm -n linking.elf
+</code></pre></div></div>
+
+<p>The executable contains the union of the symbols in the three object files. What is the order of the symbols in the executable? How have the symbol addresses changed during the link process?
+Do any undefined symbols remain?
+What happened to the symbols previously marked <code class="highlighter-rouge">C</code>?</p>
+
+<h4 id="resolution-and-relocation">Resolution and relocation</h4>
+
+<p>The Makefile in this project has additional action that creates a <code class="highlighter-rouge">.list</code> file for each build step. These listing files contain the disassembly of the compiled module.  Let’s look into those listings to get a better understanding of how symbols are resolved and relocated by the linker.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cat start.o.list
+
+00000000 &lt;_start&gt;:
+       0:   mov     sp, #134217728  ; 0x8000000
+       4:   mov     fp, #0
+       8:   bl      0 &lt;_cstart&gt;
+
+0000000c &lt;hang&gt;:
+       c:   b       c &lt;hang&gt;
+</code></pre></div></div>
+
+<p>The third instruction is where <code class="highlighter-rouge">_start</code> calls <code class="highlighter-rouge">_cstart</code>. This <em>branch and link</em> instruction <code class="highlighter-rouge">bl</code> has 0 at the target destination address.
+This target is labeled <code class="highlighter-rouge">&lt;_cstart&gt;</code>, but 0 doesn’t seem quite right. In this module, 0 is the address of <code class="highlighter-rouge">_start</code>.  Hmm, most curious…</p>
+
+<p>The listing for <code class="highlighter-rouge">linking.elf</code> begins with the instructions for <code class="highlighter-rouge">_start</code> but this is <em>after</em> linking. What do you notice that is different now?</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cat linking.elf.list
+ 00008000 &lt;_start&gt;:
+     8000:       mov     sp, #134217728  ; 0x8000000
+     8004:       mov     fp, #0
+     8008:       bl      80b8 &lt;_cstart&gt;
+
+ 0000800c &lt;hang&gt;:
+     800c:       b       800c &lt;hang&gt;
+
+ 00008010 &lt;sum&gt;:
+     8010:       mov     ip, sp
+     8014:       push    {fp, ip, lr, pc}
+ ...
+
+ 000080b8 &lt;_cstart&gt;:
+     80b8:       mov     ip, sp
+ ...
+</code></pre></div></div>
+
+<p>First note that after linking, the addresses (in leftmost column) start at <code class="highlighter-rouge">0x8000</code> and increase from there. These addresses indicate the location of each instruction in the final executable. Can you work out how each symbol’s final address relate to its original offset in the object file?  The process of gathering all symbols from the modules and laying out into one combined package at their final locations is called <em>relocation</em>. The linker uses the memory map (<a href="#2.-memory-map">described in exercise 2</a>) to determine how and where to layout the symbols.</p>
+
+<p>In the listing <code class="highlighter-rouge">start.o.list</code>, the destination address for the branch to <code class="highlighter-rouge">_cstart</code> was 0.  In the listing <code class="highlighter-rouge">linking.elf.list</code>, the destination address has been changed to <code class="highlighter-rouge">0x80b8</code>.  Read further down in the listing to see what is at address <code class="highlighter-rouge">0x80b8</code>. Makes sense?</p>
+
+<p>In the listing for <code class="highlighter-rouge">linking.o.list</code> (pre-link), find the instructions for the function <code class="highlighter-rouge">main</code>. It contains three <code class="highlighter-rouge">bl</code> instructions, one is a function call to a function defined in this module (<code class="highlighter-rouge">sum</code>), the other two call functions outside this module (<code class="highlighter-rouge">uart_init</code> and <code class="highlighter-rouge">printf</code>).  The call within module has the function offset as destination address, but the calls to outside the module have destination address 0, used as a placeholder. In the listing <code class="highlighter-rouge">linking.elf.list</code> (post-link), find those same instructions for <code class="highlighter-rouge">main</code> and you will see all destination addresses are now filled in with the final location of the symbol.</p>
+
+<p>The compiler processes only a single module (file) at a time and thus it can only resolve references to symbols that appear within the module currently being compiled. The linker runs in a subsequent pass to perform tasks that require joining across modules. The process of filling in the missing placeholder addresses with the final symbol locations is known as <em>resolution</em>.</p>
+
+<p>The linker is given a list of object files to process and it will combine the files together and arrange symbols into their final locations (relocation) and resolve cross-module references (resolution).</p>
+
+<h4 id="libraries">Libraries</h4>
+
+<p>Next, <code class="highlighter-rouge">cd</code> into <code class="highlighter-rouge">../libmypi</code>.
+This directory contains an example of building a library
+<code class="highlighter-rouge">libmypi.a</code> containing the files <code class="highlighter-rouge">gpio.o</code> and <code class="highlighter-rouge">timer.o</code>.</p>
+
+<p>Read the <code class="highlighter-rouge">Makefile</code>.
+Notice the lines</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>libmypi.a: $(LIBRARY_MODULES)
+	arm-none-eabi-ar crf $@ $^
+</code></pre></div></div>
+
+<p>The <code class="highlighter-rouge">arm-none-eabi-ar</code> program creates an <em>archive</em> from a list of object files.
+The flags <code class="highlighter-rouge">crf</code> mean to create (<code class="highlighter-rouge">c</code>) the archive,
+replace/insert (<code class="highlighter-rouge">r</code>) the files,
+and use the filename (<code class="highlighter-rouge">f</code>) for the name of the archive.</p>
+
+<p>The library can then be passed to the linker using <code class="highlighter-rouge">-lmypi</code>.</p>
+
+<p>The linker treats objects files (<code class="highlighter-rouge">.o</code>) and libraries (<code class="highlighter-rouge">.a</code>) a little bit differently.
+When linking object files, all the files are combined.
+When linking libraries, only files containing definitions of
+undefined symbols are added to the executable.
+This makes it possible to make libraries with lots of useful modules,
+and only link the ones that you actually use in the final executable.</p>
+
+<h3 id="2-memory-map">2. Memory Map</h3>
+
+<p>As part of the relocation process, the linker places all of the symbols into their final location. You supply a <em>memory map</em> to the linker to indicate the layout of the sections. Let’s look into this file to better understand its purpose and function.</p>
+
+<p>Change to the <code class="highlighter-rouge">lab4/code/linking</code> directory and use <code class="highlighter-rouge">nm</code> to see the final locations of all the symbols in the executable.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ arm-none-eabi-nm -n linking.elf
+</code></pre></div></div>
+
+<p>Note how all symbols of a given type (text, data, rodata, etc.) are grouped together into one section.</p>
+
+<p>Now open the file <code class="highlighter-rouge">memmap</code> in your text editor. <code class="highlighter-rouge">memmap</code> is a <em>linker script</em>, which tells the linker how to lay out the sections in the final executable file.</p>
+
+<ul>
+  <li>
+    <p>Do you see how the <code class="highlighter-rouge">memmap</code> linker script specifies how sections from
+individual files are to be combined?</p>
+  </li>
+  <li>
+    <p>One of the purposes of <code class="highlighter-rouge">memmap</code> is to ensure that the symbol <code class="highlighter-rouge">_start</code>
+appears first in the executable file. Why is it critical that this 
+function be first? How does <code class="highlighter-rouge">memmap</code> specify where <code class="highlighter-rouge">start.o</code>
+should be placed?</p>
+  </li>
+  <li>
+    <p>Another purpose of <code class="highlighter-rouge">memmap</code> is to setup block storage of uninitialized
+variables. Look for the symbols <code class="highlighter-rouge">__bss_start__</code> and
+<code class="highlighter-rouge">__bss_end__</code>. Where are those symbols placed? In a C program, uninitialized global
+variables are to be set to 0 at program start. How does <code class="highlighter-rouge">_cstart</code> use the bss start/end symbols to
+zero the unset variables?</p>
+  </li>
+</ul>
+
+<p>Our projects all use this same <code class="highlighter-rouge">memmap</code>, which defines a correct layout for a standard bare-metal C program for the Pi. You are unlikely to need to edit or customize it.  However, if you are curious to know more,
+here is <a href="https://sourceware.org/binutils/docs-2.21/ld/Scripts.html">documentation on linker scripts</a>.</p>
+
+<h3 id="3-bootloader">3. Bootloader</h3>
+<p>The <em>bootloader</em> is the program that runs on the Raspberry Pi that waits to receive a program from your laptop and then executes it. Back in lab 1, you downloaded <code class="highlighter-rouge">bootloader.bin</code> from the firmware folder and copied it to your SD card under the name <code class="highlighter-rouge">kernel.img</code> so it is the program that runs when the Raspberry Pi resets.</p>
+
+<p>So far, we have used the bootloader as a “black box”. Now you are ready to open it up and learn how programs are sent from your laptop and execute on the Pi.</p>
+
+<p>The bootloader we are using is a modified version of one written by 
+David Welch, the person most
+responsible for figuring out how to write bare metal programs on the Raspberry
+Pi. If it wasn’t for <a href="https://github.com/dwelch67/raspberrypi">his great work</a>, we would not be offering this course!</p>
+
+<h4 id="xmodem-file-transfer-protocol">Xmodem file transfer protocol</h4>
+<p>Your laptop and the bootloader communicate over the serial line via the Raspberry Pi’s UART. They use a simple file transfer protocol called XMODEM. In the jargon of XMODEM, your laptop initiates the transfer and acts as the <em>transmitter</em>; the bootloader acts as the <em>receiver</em>.</p>
+
+<p>The transmitter divides the data from the file into chunks of 128 bytes and sends each chunk in its own <em>packet</em>.  The payload data of a packet is introduced by a three-byte header and followed by a single CRC checksum byte; each packet comprises 132 bytes in total. The transmitter and receiver synchronize after each packet to decide whether to move on to the next packet or re-try due to a transmission error.</p>
+
+<p><img src="images/xmodem.svg" alt="xmodem protocol" width="50%" style="float:right;" /></p>
+
+<p>To send a file, the transmitter follows these steps:</p>
+
+<ol>
+  <li>Wait for <code class="highlighter-rouge">NAK</code> from receiver.</li>
+  <li>Send 132-byte packet consisting of:
+    <ul>
+      <li><code class="highlighter-rouge">SOH</code>, control character for <em>start of heading</em> indicates start of a new packet.</li>
+      <li>Sequence number. First packet is numbered 1 and 
+the number increments from there; wraps to 0 after 255.</li>
+      <li>Complement of sequence number.</li>
+      <li>Payload, 128 bytes.</li>
+      <li>Checksum (sum all payload bytes mod 256).</li>
+    </ul>
+  </li>
+  <li>Read response from receiver:
+    <ul>
+      <li>If <code class="highlighter-rouge">NAK</code>, re-transmit same packet.</li>
+      <li>If <code class="highlighter-rouge">ACK</code>, advance to next packet.</li>
+    </ul>
+  </li>
+  <li>Repeat steps 2-3 for each packet.</li>
+  <li>Send <code class="highlighter-rouge">EOT</code> (end of transmission), wait for <code class="highlighter-rouge">ACK</code>.</li>
+</ol>
+
+<p>The receiver performs the inverse of the actions of the transmitter:</p>
+
+<ol>
+  <li>Send <code class="highlighter-rouge">NAK</code> to indicate readiness.</li>
+  <li>Read 132-byte packet consisting of:
+    <ul>
+      <li><code class="highlighter-rouge">SOH</code>, sequence number, complement, payload, checksum</li>
+    </ul>
+  </li>
+  <li>Validate packet fields (start, sequence number, complement, checksum)
+    <ul>
+      <li>If all valid, respond with <code class="highlighter-rouge">ACK</code>, advance to next packet.</li>
+      <li>If not, respond with <code class="highlighter-rouge">NAK</code> and receive same packet again.</li>
+    </ul>
+  </li>
+  <li>Repeat steps 2-3 for each packet.</li>
+  <li>When <code class="highlighter-rouge">EOT</code> received, respond with <code class="highlighter-rouge">ACK</code> to complete the operation.</li>
+</ol>
+
+<h4 id="transmit-rpi-installpy">Transmit: <code class="highlighter-rouge">rpi-install.py</code></h4>
+
+<p><code class="highlighter-rouge">rpi-install.py</code> is a Python script that runs on your laptop and transmits a binary program to the waiting bootloader.</p>
+
+<p>It is written as python script and is compatible with any OS with proper python support. Given the handy python libraries to abstract away the details of the XMODEM protocol-handling, the script doesn’t expose the internals of the send/receive mechanics. In fact, the bulk of the script is goop used to find the CP2102 driver device for different platforms. Read over the script for yourself by browsing <a href="https://github.com/cs107e/cs107e.github.io/tree/master/cs107e/bin/rpi-install.py">rpi-install.py in our courseware repo</a> or using this command in your terminal:</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cat `which rpi-install.py`
+</code></pre></div></div>
+
+<h4 id="receive-bootloaderbin">Receive: <code class="highlighter-rouge">bootloader.bin</code></h4>
+
+<p>The <code class="highlighter-rouge">bootloader.bin</code> you have installed on your SD card is a C program that runs bare-metal on the Raspberry Pi. Change to the directory <code class="highlighter-rouge">lab4/code/bootloader</code>. This directory contains the bootloader source code. The bootloader program waits for your laptop to send it a program binary. Upon receives a program, it loads it into memory, and then branches to the code to begin execution.</p>
+
+<p>First, read the assembly language file <code class="highlighter-rouge">start.s</code>.
+Note the <code class="highlighter-rouge">.space</code> directive between <code class="highlighter-rouge">_start</code> and the label <code class="highlighter-rouge">skip</code>.
+This has the effect of placing the bootloader code
+at location <code class="highlighter-rouge">0x200000</code>.
+This creates a hole in memory
+(between 0x8000 and 0x200000).
+The bootloader loads your program into that hole.
+Why can’t the bootloader code also be placed at 0x8000?</p>
+
+<p>The <code class="highlighter-rouge">bootloader.c</code> file contains the C code to perform the receiver side of the XMODEM protocol. Go over the bootloader code in detail with your labmates. Start by tracing the operation when everything goes as planned without errors, then consider what happens when things go awry.</p>
+
+<p>Here are some questions to frame your discussion:</p>
+
+<ul>
+  <li>Where does the bootloader copy the received program and how does it begin executing it? Which instruction is executed first?</li>
+  <li>How does the bootloader use the green ACT led to signal to the user?</li>
+  <li>In which circumstances does the bootloader respond with a <code class="highlighter-rouge">NAK</code>? When does the bootloader give up altogether on a transmission?</li>
+  <li>How/why does the bootloader use the timer peripheral?</li>
+  <li>How will the bootloader respond if you unplug the USB-serial in the middle of transmission?</li>
+</ul>
+
+<p>With your table group, mark up the paper copy of the bootloader source to add comments documenting its operation. Divide it up, something like:</p>
+<ul>
+  <li>One person documents normal operation and explains how to “read” what bootloader is doing by watching the green LED.</li>
+  <li>Another studies checksum calculation, how errors are detected and how retry/retransmit is accomplished.</li>
+  <li>Another reviews handling for timeout, dropped connection, and when the user cancels the operation using Control-C.</li>
+  <li>Someone brave can read David Welch’s <a href="https://github.com/dwelch67/raspberrypi/blob/master/bootloader03/bootloader03.c">bootloader03.c</a> and try to confirm our version is a faithful rewrite.</li>
+</ul>
+
+<p>Have each person jot down notes and then explain their part to the group. <strong>Collate your group’s notes and marked up source and hand to the CA.</strong></p>
+
+<h3 id="4-stack">4. Stack</h3>
+
+<p>Change to the directory <code class="highlighter-rouge">lab4/code/simple</code>. The <code class="highlighter-rouge">simple.c</code> program reprises a program that was used in lab3 to experiment with gdb. We will use this same program to study the use of stack memory and organization of stack frames.</p>
+
+<p>Run <code class="highlighter-rouge">simple.elf</code> under the gdb simulator. Disassemble the <code class="highlighter-rouge">abs</code> function and read through its assembly instructions.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(gdb) disass abs
+Dump of assembler code for function abs:
+=&gt; 0x00008010 &lt;+0&gt;:     mov r12, sp
+   0x00008014 &lt;+4&gt;:     push {r11, r12, lr, pc}
+   0x00008018 &lt;+8&gt;:     sub r11, r12, #4
+   0x0000801c &lt;+12&gt;:    cmp r0, #0
+   0x00008020 &lt;+16&gt;:    rsblt   r0, r0, #0
+   0x00008024 &lt;+20&gt;:    sub sp, r11, #12
+   0x00008028 &lt;+24&gt;:    ldm sp, {r11, sp, lr}
+   0x0000802c &lt;+28&gt;:    bx  lr
+End of assembler dump.
+</code></pre></div></div>
+
+<p>The first three instructions comprise the function <em>prolog</em> which sets up the
+stack frame. The last three instructions are the function <em>epilog</em> which tears down the stack frame and restores caller-owned registers. The basic structure of the prolog and epilog is common to all functions, with some variation due to differences in local variables or use of caller-owner registers.</p>
+
+<p>Get together with your partner and carefully trace through instructions in the prolog and epilog of <code class="highlighter-rouge">abs</code>. Sketch a diagram of the stack frame that it creates.  Below are some issues to note and questions to discuss as you work through it.</p>
+
+<p><strong>Function prolog</strong>:</p>
+<ul>
+  <li>Register <code class="highlighter-rouge">r11</code> is used as the frame pointer <code class="highlighter-rouge">fp</code>. The disassembly from gdb refers to <code class="highlighter-rouge">r11</code>, while an objdump listing calls it <code class="highlighter-rouge">fp</code>. The two are completely synonymous, so don’t let that trip you up.</li>
+  <li>Which four registers are pushed to the stack to set up the
+APCS frame?</li>
+  <li>Three of the four registers in the APCS frame are caller-owned registers whose values are preserved in the prolog and later restored in the epilog. Which three are they? Which register is the fourth? Why is that register handled differently?  What is even the purpose of pushing that register as part of the APCS frame?</li>
+  <li>What instruction in the prolog anchors <code class="highlighter-rouge">fp</code> to point to the current frame?</li>
+  <li>To what location in the stack does the <code class="highlighter-rouge">fp</code> point?</li>
+  <li>The first instruction of the prolog copies <code class="highlighter-rouge">sp</code> to <code class="highlighter-rouge">r12</code> and then uses <code class="highlighter-rouge">r12</code> in the push that follows. This dance may seems roundabout, but is unavoidable. Do you have an idea why? (Hint: a direct reference to <code class="highlighter-rouge">sp</code> in a push/pop instruction that itself is changing <code class="highlighter-rouge">sp</code> sounds like trouble…)</li>
+</ul>
+
+<p><strong>Function epilog</strong>:</p>
+<ul>
+  <li>To what location in the stack does the <code class="highlighter-rouge">sp</code> point during the body of the function?</li>
+  <li>The first instruction of the epilog changes the <code class="highlighter-rouge">sp</code>. To what location does it pointer after executing that instruction?</li>
+  <li>The <code class="highlighter-rouge">ldm</code> instruction (“load multiple”) reads a sequence of words starting at a base address in memory and stores the words into the named registers. <code class="highlighter-rouge">pop</code> is a specific variant of <code class="highlighter-rouge">ldm</code> that additionally adjusts the base address as a side effect (i.e. changes stack pointer to “remove” those words) . The <code class="highlighter-rouge">ldm</code> instruction used in the epilog of <code class="highlighter-rouge">abs</code> copies three words in memory starting at the stack pointer into the registers <code class="highlighter-rouge">r11</code>, <code class="highlighter-rouge">sp</code>, and <code class="highlighter-rouge">lr</code>.  This effectively restores the registers to the value they had at time of function entry. The instruction does not similarly restore the value of the <code class="highlighter-rouge">pc</code> register. Why not?</li>
+  <li>Which registers/memory values are updated by the <code class="highlighter-rouge">bx</code> instruction?</li>
+</ul>
+
+<p>Here is <a href="images/stack_abs.html">a memory diagram when stopped at line 5 in simple.c</a>. This is in the body of the <code class="highlighter-rouge">abs</code> function, after the prolog and before the epilog.
+Our diagram shows the entire address space of the <code class="highlighter-rouge">simple</code>
+program, including the text, data, and stack segments.  Studying this diagram will be helpful to confirm your understanding of how the stack operates and what is stored where in the address
+space.</p>
+
+<p>The diagram contains a lot of details and can be overwhelming, but if you take the time to closely inspect it, you will gain a more complete understanding of the relationship between the contents of memory, registers, and the executing program.   Go over it with your partner and labmates and ask questions of each other until everyone has a clear picture of how memory is laid out.</p>
+
+<p>Once you understand the prolog/epilog of <code class="highlighter-rouge">abs</code>, use gdb to
+examine the disassembly for <code class="highlighter-rouge">diff</code> and <code class="highlighter-rouge">main</code>. 
+Identify what part of the prolog and
+epilog are common to all three functions and where they differ. What is the reason for those differences?</p>
+
+<p>Lastly, disassemble <code class="highlighter-rouge">make_array</code> to see how the stack is used
+to store local variables.  Sketch a picture of its stack frame as you follow along with the function instructions.</p>
+
+<ul>
+  <li>After the instructions for the standard prolog, what additional instruction makes space for the array local variable?</li>
+  <li>How are the contents for the array initialized (or not)?</li>
+  <li>In the body of the function, the array elements stored on the stack are accessed <code class="highlighter-rouge">fp</code>-relative.  What is the relative offset from the <code class="highlighter-rouge">fp</code> to the base of the array? How can you determine that from reading the assembly instructions?</li>
+  <li>The prolog has an additional instruction to allocate space for the array, but the epilog does not seem to have a corresponding instruction to  deallocate the space. How then is the stack pointer adjusted to remove any local variables on function exit?</li>
+</ul>
+
+<p>Compare your sketch to this <a href="images/stack_makearray.html">stack diagram for make_array</a>. Does your understanding line up?</p>
+
+<h3 id="5-heap">5. Heap</h3>
+
+<p>Change to the directory <code class="highlighter-rouge">lab4/code/heapclient</code> to begin your foray in heap allocation.
+So far we have stored our data either as local variables on the stack or global variables in the data segment. The functions <code class="highlighter-rouge">malloc</code> and <code class="highlighter-rouge">free</code>  offer another option, this one with more precise control of the size and lifetime and greater versatility at runtime.</p>
+
+<p>Study the program <code class="highlighter-rouge">heapclient.c</code>. The <code class="highlighter-rouge">tokenize</code> function is used to 
+dissect a string into a sequence of space-separated tokens. The function calls on the not-yet-implemented function <code class="highlighter-rouge">char *strndup(const char *src, size_t n)</code> to make a copy of each token. The intended behavior of <code class="highlighter-rouge">strndup</code> is to return a new string containing the first <code class="highlighter-rouge">n</code> characters of the <code class="highlighter-rouge">src</code> string.</p>
+
+<p>Talk over with your partner why it would not be correct for <code class="highlighter-rouge">strndup</code> to declare a local array variable in its stack frame to store the new string.  When a function exits, its stack frame is deallocated and the memory is recycled for use by the next function call.  What would be the consequence if <code class="highlighter-rouge">strndup</code> mistakenly returns a pointer to memory contained within its to-be-deallocated stack frame?</p>
+
+<p>Instead <code class="highlighter-rouge">strndup</code> must allocate space from the heap, so that the data can persist after the function exits. Edit <code class="highlighter-rouge">strndup</code> to use a call to <code class="highlighter-rouge">malloc</code> to request the necessary number of bytes. How many total bytes of space are needed to store a string with <code class="highlighter-rouge">n</code> characters?</p>
+
+<p>Now that you have the necessary memory set aside, what function from the <code class="highlighter-rouge">strings</code> module can you call to copy the first <code class="highlighter-rouge">n</code> characters from the <code class="highlighter-rouge">src</code> string to the new memory?</p>
+
+<p>What is the final step you must take to complete the new string? (Hint: how is the end of a string marked?)</p>
+
+<p>Once you have completed your implementation of <code class="highlighter-rouge">strndup</code> to make a proper heap copy of the string, build and run the program to verify your code is correct.</p>
+
+<p>Unlike stack and global memory, which is automatically deallocated on your behalf, you must explicitly free dynamic memory when you are done with it. For the finishing touch, edit <code class="highlighter-rouge">main</code> to add the necessary calls to <code class="highlighter-rouge">free</code> to properly deallocate all of the heap memory it used.</p>
+
+<h2 id="check-in-with-ta">Check in with TA</h2>
+
+<p>At the end of the lab period, call over a TA to <a href="checkin">check in</a> with your progress on the lab.</p>
+
+<p>It’s okay if you don’t completely finish all of the exercises during
+lab time; your sincere participation for the full lab period is sufficient
+for credit.  If you don’t make it through the whole lab, we still highly encourage you to
+go through those parts, so you are well prepared to tackle the assignment.</p>
+
+  </div>
+  <div class="toc-column col-lg-2 col-md-2 col-sm-2 hidden-xs">
+    <div id="toc" class="toc" data-spy="affix" data-offset-top="0"></div>
+  </div> 
+</div>
+
+  <script src="/_assets/tocbot.min.js"></script>
+  <link rel="stylesheet" href="/_assets/tocbot.css">
+
+  <script>
+    tocbot.init({
+      // Where to render the table of contents.
+      tocSelector: '#toc',
+      // Where to grab the headings to build the table of contents.
+      contentSelector: '#main_for_toc',
+      // Which headings to grab inside of the contentSelector element.
+      headingSelector: 'h2, h3, h4',
+    });
+  </script>
+
+
+
+  </div>
+  <div class="footer navbar-default navbar-static-bottom">
+    <p style="font-size: 65%; color:green; text-align:center;">
+      <i>CS107e Winter 2020 &middot; Site generated 2020-04-19 20:35</i>
+  </p>
+</div> 
+</body>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+</html>

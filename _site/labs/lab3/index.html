@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/_assets/site.css" rel="stylesheet">
+    <link href="/_assets/favicon.png" rel="icon" type="image/png">
+    <title>CS107E Lab 3: Debugging and Testing</title>
+  </head>
+
+<body>
+  <!-- Include this HTML partial to set up navbar -->
+
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="navbar-header">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+    <!-- hamburger -->
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+
+  <img class="navbar-brand navbar-brand-image" src="/_assets/berry.png" >
+  <a class="navbar-brand" href="/">CS107e Winter 2020</a>
+  </div>
+
+  <div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/">Home</a></li>
+      <li><a href="/assignments">Assignments</a></li>
+      <li><a href="/labs">Labs</a></li>
+      <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            Resources
+          <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/about/">About the course</a></li>
+            <li><a href="/policies/">Policies</a></li>
+            <li><a href="/schedule/">Schedule</a></li>
+            <li><a href="/guides/">Guides</a></li>
+            <li><a href="/project_gallery/">Project gallery</a></li>
+            <li><a href="/demos/">External demos</a></li>
+            <li><a href="/resources/">External resources</a></li>
+          </ul>
+        </li>
+      <li><a href="https://github.com/cs107e/cs107e.github.io">Repository</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="container" style="max-width:55em;">
+    <h1 class="title">Lab 3: Debugging and Testing</h1><hr>
+    
+  <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12" id="main_for_toc">
+    
+<p><em>Lab written by Pat Hanrahan, updated by Julie Zelenski</em></p>
+
+<h2 id="goals">Goals</h2>
+
+<p>During this lab you will:</p>
+
+<ul>
+  <li>Learn how to use <code class="highlighter-rouge">arm-none-eabi-gdb</code> in simulation mode. 
+Simulation mode is also a good way to learn more about how the ARM processor executes instructions.</li>
+  <li>Use gdb to trace through function call/return and examine registers and memory.</li>
+  <li>Learn how to use <code class="highlighter-rouge">screen</code> with the USB-serial adapter. Also understand how the UART peripheral works on the Raspberry Pi.</li>
+  <li>Implement a few simple C-string operations and use a combination of
+unit testing and gdb simulation to debug your work.</li>
+</ul>
+
+<h2 id="prelab-preparation">Prelab preparation</h2>
+<p>To prepare for lab, do the following:</p>
+
+<ol>
+  <li>Read our <a href="/guides/gdb">guide to using gdb in simulation mode</a>.</li>
+  <li>Review this <a href="stack/">recap of stack frames</a>.</li>
+  <li>Pull the latest version of the <code class="highlighter-rouge">cs107e.github.io</code> courseware repository.</li>
+  <li>Clone the lab repository <code class="highlighter-rouge">https://github.com/cs107e/lab3</code>.</li>
+</ol>
+
+<h2 id="lab-exercises">Lab exercises</h2>
+<p>Start by filling your Creativity Spot on the <a href="https://piazza.com/class/k2fwoyb4dmni1?cid=82">CS107 Wall of Fame</a>. Now get some snack and find a buddy. Show off your clock breadboards to each other. Pull up the <a href="checkin">check in questions</a>. You’re ready to go!</p>
+
+<h3 id="1-debugging-with-gdb">1. Debugging with gdb</h3>
+
+<p>The goal of the first exercise 
+is to practice using <code class="highlighter-rouge">gdb</code> in ARM simulation mode.
+The debugger allows you to observe and manipulate a running program. Using this tool will teach you more about how ARM instructions are executed and allow you to debug your programs.</p>
+
+<h4 id="1a-use-gdb-in-simulation-mode">1a) Use <code class="highlighter-rouge">gdb</code> in simulation mode</h4>
+
+<p>We will demonstrate <code class="highlighter-rouge">gdb</code> on a simple example program. 
+Change to the directory <code class="highlighter-rouge">lab3/code/simple</code> directory and review the program in <code class="highlighter-rouge">simple.c</code>.</p>
+
+<p>Build the program using <code class="highlighter-rouge">make</code>. Note that is the ELF 
+file that we use in conjunction with the gdb simulator, 
+not the raw binary file that we have been running on the actual Pi.</p>
+
+<p>Run gdb on <code class="highlighter-rouge">simple.elf</code>.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ arm-none-eabi-gdb simple.elf
+GNU gdb (GDB) 7.8.1
+Copyright (C) 2014 Free Software Foundation, Inc.
+       ... blah blah blah ...
++++ CS107E local .gdbinit successfully loaded +++
+(gdb) 
+</code></pre></div></div>
+
+<p>When started, gdb displays several lines of output, unfortunately that chatter can obscure warnings or errors buried in there that may require attention.</p>
+
+<p>On Mac, you may get warnings about missing Python gdb modules; these warnings can be ignored.</p>
+
+<p>On WSL, you may get a warning about “gdbinit auto-loading declined”; this situation requires action on your part to resolve. Follow these steps:</p>
+<ul>
+  <li>Use <code class="highlighter-rouge">quit</code> to exit gdb.</li>
+  <li>
+    <p>Open the text file <code class="highlighter-rouge">~/.gdbinit</code> in your editor. Append the line below verbatim:</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  set auto-load safe-path /
+</code></pre></div>    </div>
+  </li>
+  <li>Save the file and exit your editor.</li>
+  <li>Run gdb again. The previous warning should be gone and instead you see the message “CS107E local .gdbinit successfully loaded” in its place.</li>
+  <li>You will only need to make this edit once, gdb is now configured for all time.</li>
+</ul>
+
+<p>Within <code class="highlighter-rouge">gdb</code>, connect to the simulator and load the program:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(gdb) target sim
+Connected to the simulator.
+(gdb) load
+Loading section .text, size 0x188 vma 0x8000
+Start address 0x8000
+Transfer rate: 3136 bits in &lt;1 sec.
+</code></pre></div></div>
+
+<p>Set a <em>breakpoint</em> on the <code class="highlighter-rouge">main</code> function and start executing the program:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(gdb) break main
+Breakpoint 1 at 0x80e4: file simple.c, line 35.
+(gdb) run
+Starting program: .../lab3/code/simple/simple.elf 
+Breakpoint 1, main () at simple.c:35
+</code></pre></div></div>
+
+<p>The debugger stops the program when it reaches the breakpoint. The <code class="highlighter-rouge">next</code> command executes
+the next line of C source.
+The command <code class="highlighter-rouge">print d</code> shows the value of <code class="highlighter-rouge">d</code>
+after the call completes.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Breakpoint 1, main () at simple.c:35
+35 {
+(gb) next
+38      int d = diff(x, y);
+(gdb) next
+39      int f = factorial(7);
+(gdb) print d
+$1 = 74
+</code></pre></div></div>
+
+<p>Note that when <code class="highlighter-rouge">gdb</code> shows your program stopped at a line, 
+it’s stopped  <em>before</em> that line has executed. At the end of the sequence shown above, the program is stopped before calling 
+<code class="highlighter-rouge">factorial</code>. If you attempt to print <code class="highlighter-rouge">f</code>
+before executing its declaration statement, the debugger
+will report that the variable is not (yet) accessible.</p>
+
+<p>Sometimes you want to step <strong>into</strong> the code of the function being called.
+To do this, use <code class="highlighter-rouge">step</code> instead of <code class="highlighter-rouge">next</code>. Put another
+way, <code class="highlighter-rouge">next</code> executes the entire next line in the function
+you’re in, while <code class="highlighter-rouge">step</code> executes the next line of code, 
+which may be in a different function.</p>
+
+<p>Use <code class="highlighter-rouge">run</code> to restart the program
+and then use <code class="highlighter-rouge">step</code> you hit the breakpoint.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(gdb) run
+The program being debugged has been started already.
+Start it from the beginning? (y or n) y
+
+Breakpoint 1, main () at simple.c:35
+35	{
+(gdb) step
+38      int d = diff(x, y);
+(gdb) step
+diff (a=a@entry=33, b=b@entry=107) at simple.c:31
+31      return abs(a - b);
+</code></pre></div></div>
+
+<p>Execution has stepped into <code class="highlighter-rouge">diff</code> and is stopped at the first line of the function.  Another <code class="highlighter-rouge">step</code> from here will step into the call to the <code class="highlighter-rouge">abs</code> function.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(gdb) step
+abs (v=v@entry=-74) at simple.c:9
+9   }
+</code></pre></div></div>
+
+<p>When using stepping through code, gdb displays the single next line of code to be executed. To see more context, use the <code class="highlighter-rouge">list</code> command</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(gdb) list
+4   int abs(int v)
+5   {
+6       int result = v &lt; 0 ? -v : v;
+7       return result;
+8   }
+9 
+10  int factorial(int n)
+11  {
+12      if (n &lt;= 1)
+13          return 1;
+</code></pre></div></div>
+
+<p>Use <code class="highlighter-rouge">continue</code> to resume executing the program. While the program is executing, type <code class="highlighter-rouge">Control-c</code> to interrupt the running program and return control to gdb. Use the <code class="highlighter-rouge">backtrace</code> command to see where the program was executing when it was interrupted (ok to ignore the Python exception about frames on Mac):</p>
+
+<pre><code class="language-^C">Program received signal SIGINT, Interrupt.
+0x0000800c in hang ()
+(gdb) backtrace
+#0  0x0000800c in hang ()
+#1  0x0000800c in _start ()
+Backtrace stopped: previous frame identical to this frame (corrupt stack?)
+</code></pre>
+
+<p>The above information tells you that the program is stopped in <code class="highlighter-rouge">hang</code> which is called from <code class="highlighter-rouge">_start</code>. Review the code in <code class="highlighter-rouge">start.s</code> and <code class="highlighter-rouge">cstart.c</code> to remind yourself of what happens in a C program before and after <code class="highlighter-rouge">main()</code>. If currently in <code class="highlighter-rouge">hang</code>, the program has finished and is in the final “holding pattern”. This is the normal behavior for a C program that has successfully run to completion. Learn to recognize how this situation is presented in the debugger. You hope to be seeing a lot of successful program completion!</p>
+
+<p>When debugging a function, a common workflow is to</p>
+
+<ol>
+  <li><code class="highlighter-rouge">break</code> on the function in question. <code class="highlighter-rouge">run</code> until you hit the breakpoint.</li>
+  <li>Use <code class="highlighter-rouge">next</code> to step through each line of its code, inspecting variables to see where
+the problem occurs.</li>
+  <li>If the next line of code is a call to a subroutine and you suspect the problem could be inside that call, use <code class="highlighter-rouge">step</code> to drop down into it.  If you <code class="highlighter-rouge">next</code> through a call and realize that you wish you had used <code class="highlighter-rouge">step</code> instead, use <code class="highlighter-rouge">run</code> to start over from the beginning and get another chance.</li>
+  <li>Recursively apply rules 2-3 until you find the bug.</li>
+</ol>
+
+<p><a name="1b"></a></p>
+<h4 id="1b-use-gdb-to-trace-function-calls">1b) Use <code class="highlighter-rouge">gdb</code> to trace function calls</h4>
+<p>If you didn’t get a chance to do the pre-lab reading, review this recap on <a href="stack/">stack frames</a> now.</p>
+
+<p>There are gdb commands that allow you to drop down to the assembly instructions and view the contents of registers and memory.  Let’s try them out!</p>
+
+<p>Use <code class="highlighter-rouge">delete</code> to delete any existing breakpoints and set a breakpoint at the <code class="highlighter-rouge">diff</code> function:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(gdb) delete
+Delete all breakpoints? (y or n) y
+(gdb) break diff
+Breakpoint 2 at 0x80c4: file simple.c, line 30.
+(gdb) run
+Breakpoint 2, diff (a=a@entry=33, b=b@entry=107) at simple.c:30
+</code></pre></div></div>
+
+<p>We asked for a breakpoint on the function <code class="highlighter-rouge">diff</code> and gdb converted our request to <code class="highlighter-rouge">0x80c4</code> which corresponds to the address of the first instruction of <code class="highlighter-rouge">diff</code>. A breakpoint set at <em>0xAddr</em> will stop the program just before executing the
+instruction at <em>0xAddr</em>.</p>
+
+<p>The command <code class="highlighter-rouge">disassemble</code> with no arguments lists the ARM instructions in the context where the program is currently executing. The instruction marked <code class="highlighter-rouge">=&gt;</code>is the next one to be executed.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(gdb) disassemble
+Dump of assembler code for function diff:
+=&gt; 0x000080c4 &lt;+0&gt;:     mov r12, sp
+   0x000080c8 &lt;+4&gt;:     push {r11, r12, lr, pc}
+   0x000080cc &lt;+8&gt;:     sub r11, r12, #4
+   0x000080d0 &lt;+12&gt;:    rsb r0, r1, r0
+   0x000080d4 &lt;+16&gt;:    bl  0x8010 &lt;abs&gt;
+   0x000080d8 &lt;+20&gt;:    sub sp, r11, #12
+   0x000080dc &lt;+24&gt;:    ldm sp, {r11, sp, lr}
+   0x000080e0 &lt;+28&gt;:    bx  lr
+</code></pre></div></div>
+<p>Note that the first instruction of <code class="highlighter-rouge">diff</code> is at
+address <code class="highlighter-rouge">0x80c4</code>, as we expected.</p>
+
+<p>Use the command <code class="highlighter-rouge">info reg</code> to display all of the current registers.</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(gdb) info reg
+r0             0x21 33
+r1             0x6b 107
+r2             0x8180   33152
+r3             0x8180   33152
+r4             0x0  0
+r5             0x4a 74
+r6             0x0  0
+r7             0x0  0
+r8             0x0  0
+r9             0x0  0
+r10            0x0  0
+r11            0x7ffffec    134217708
+r12            0x7fffff0    134217712
+sp             0x7ffffd8    0x7ffffd8
+lr             0x80fc   33020
+pc             0x80c4   0x80c4 &lt;diff&gt;
+cpsr           0x60000013   1610612755
+</code></pre></div></div>
+<p>What value is currently in <code class="highlighter-rouge">r0</code>? Why does <code class="highlighter-rouge">r0</code> contain that value? (Consider: at what point in the program execution are we stopped right now? What was the last use of <code class="highlighter-rouge">r0</code>?)</p>
+
+<p>You can access a single
+register by using the syntax $regname, e.g. <code class="highlighter-rouge">$r0</code>.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(gdb) print $r0
+$2 = 33
+</code></pre></div></div>
+
+<p>Print the <code class="highlighter-rouge">$lr</code> register to see the value currently stored.  What is that value? Disassemble that address, what code does it show you?</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(gdb) print/x $lr
+$5 = 0x80fc
+(gdb) disassemble $lr
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">gdb</code> has a very useful feature to auto-display the current value of an expression every time you single-step.
+This is done with the <code class="highlighter-rouge">display</code> command.
+The command <code class="highlighter-rouge">display/4wx $sp</code> will auto-display a sequence of 4 words (w) in hex (x) beginning at the memory location pointed by the current <code class="highlighter-rouge">sp</code>. gdb will re-display that expression again after each gdb command.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(gdb) display/4wx $sp
+1: x/4xw $sp
+0x7ffffd8:  0x00000000  0x00000000  0x07fffffc  0x07fffff0
+(gdb) step
+0x7ffffc8:  0x07ffffec  0x07ffffd8  0x000080fc  0x000080d0
+</code></pre></div></div>
+
+<p>The values printed each time are the four values topmost on the stack. As you being executing in <code class="highlighter-rouge">diff</code>, a <code class="highlighter-rouge">push</code> instruction placed these four values onto the stack. Examine the disassembly for <code class="highlighter-rouge">diff</code> to see which four registers are pushed. These registers correspond to the APCS “full frame”.</p>
+
+<p>Because you used the <code class="highlighter-rouge">display</code> command, gdb will reevaluate and print that
+same expression after each gdb command. In this way, you can monitor the
+top of the stack as you step through the program. This is quite handy and
+much faster than manually reissuing a <code class="highlighter-rouge">print</code> command after each <code class="highlighter-rouge">next</code> or <code class="highlighter-rouge">step</code>.</p>
+
+<p>Use <code class="highlighter-rouge">step</code> to proceed from here and watch the auto-display’ed stack contents to see what is happening to the values on the stop of the stack as you go in and out of the various function calls:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(gdb) step
+(gdb) [RETURN]
+(gdb) [RETURN]
+(gdb) [RETURN]
+</code></pre></div></div>
+
+<p>Hitting just [RETURN], causes <code class="highlighter-rouge">gdb</code> to repeat the last command (in this
+case <code class="highlighter-rouge">step</code>).</p>
+
+<p>Note how the stack changes as you step through the function.
+Which instructions change the value of the register <code class="highlighter-rouge">sp</code>? Which instructions change the contents of the memory pointed to by <code class="highlighter-rouge">sp</code>?</p>
+
+<p>Use <code class="highlighter-rouge">delete</code> to delete all breakpoints. Set a breakpoint on
+the <code class="highlighter-rouge">abs</code> function and re-run the program until you hit this
+breakpoint.  Use the gdb <code class="highlighter-rouge">backtrace</code> to show the sequence of function
+calls leading to here (as before, pay no mind to the python exception).</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(gdb) backtrace
+Python Exception &lt;type 'exceptions.ImportError'&gt; No module named frames: 
+#0  abs (v=v@entry=-74) at simple.c:6
+#1  0x000080d8 in diff (a=a@entry=33, b=b@entry=107) at simple.c:31
+#2  0x000080fc in main () at simple.c:38
+</code></pre></div></div>
+
+<p>The backtrace shows that the function <code class="highlighter-rouge">abs</code> has been called by <code class="highlighter-rouge">diff</code>
+from line 31, which in turn was called by <code class="highlighter-rouge">main</code> from line 38.  The
+numbers on the left refer to the <em>frame</em>.  The innermost frame is
+numbered 0, and corresponds to the currently executing function, in this case, <code class="highlighter-rouge">abs</code>. Frames for caller functions have higher numbers. The <code class="highlighter-rouge">info frame</code> command prints a summary of the current stack frame:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(gdb) info frame
+Stack level 0, frame at 0x7ffffc8:
+pc = 0x8010 in abs (simple.c:6); saved pc = 0x80d8
+called by frame at 0x7ffffd8
+source language c.
+Arglist at 0x7ffffc8, args: v=v@entry=-74
+Locals at 0x7ffffc8, Previous frame's sp is 0x7ffffc8
+</code></pre></div></div>
+
+<p>The <code class="highlighter-rouge">info locals</code> and <code class="highlighter-rouge">info args</code> commands give more information about the stack frame’s arguments and local variables:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(gdb) info args
+v = -74
+(gdb) info locals
+result = &lt;optimized out&gt;
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">info locals</code> reports that <code class="highlighter-rouge">result</code> is optimized out! This means that
+the compiler decided that it did not need to use the stack to store its value.  Where,
+is the value of <code class="highlighter-rouge">result</code> being tracked? Hint: <code class="highlighter-rouge">disassemble abs</code> and look at the
+assembly instructions to figure it out. Knowing assembly is useful.</p>
+
+<p><code class="highlighter-rouge">gdb</code> also lets you inspect state of other frames on the call stack.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(gdb) up
+#1  0x000080d8 in diff (a=a@entry=33, b=b@entry=107) at simple.c:31
+</code></pre></div></div>
+
+<p>This moves “up” the call stack, to the calling function. In this</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(gdb) info args
+a = 33
+b = 107
+(gdb) info locals
+No locals.
+</code></pre></div></div>
+
+<p>Now let’s go back “down” to the stack frame for <code class="highlighter-rouge">abs</code>.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(gdb) down
+#0  abs (v=v@entry=-74) at simple.c:6
+</code></pre></div></div>
+
+<p>Disassemble the code for <code class="highlighter-rouge">abs</code> and trace its operation instruction
+by instruction.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(gdb) disass abs
+Dump of assembler code for function abs:
+=&gt; 0x00008010 &lt;+0&gt;:     mov r12, sp
+   0x00008014 &lt;+4&gt;:     push {r11, r12, lr, pc}
+   0x00008018 &lt;+8&gt;:     sub r11, r12, #4
+   0x0000801c &lt;+12&gt;:    cmp r0, #0
+   0x00008020 &lt;+16&gt;:    rsblt   r0, r0, #0
+   0x00008024 &lt;+20&gt;:    sub sp, r11, #12
+   0x00008028 &lt;+24&gt;:    ldm sp, {r11, sp, lr}
+   0x0000802c &lt;+28&gt;:    bx  lr
+End of assembler dump.
+</code></pre></div></div>
+
+<p>The <code class="highlighter-rouge">abs</code> function contains eight instructions in total. The first three instructions are the function <em>prolog</em> which set up the
+stack frame and the last three instructions are the <em>epilog</em> to tear down the frame and return at function exit. That two middle instructions are function body. Identify those instructions in the above sequence. Work out how they do the job of the <code class="highlighter-rouge">abs</code> function. Where does it
+read the value of <code class="highlighter-rouge">v</code> from?  Where does it write the return value?</p>
+
+<p>The final instruction of <code class="highlighter-rouge">abs</code> is branch exchange that returns control
+to the caller. Who is the caller of <code class="highlighter-rouge">abs</code>? What is the address of the 
+instruction in the caller that will be executed when <code class="highlighter-rouge">abs</code> returns?</p>
+
+<p>The goal of all this mucking about in gdb is to solidify your understanding the mechanics of function calls and the runtime stack. If you haver further questions, ask your partner, table mates, or the staff to get them resolved now.</p>
+
+<p>The <code class="highlighter-rouge">simple.c</code> program contains a few other functions that you can use to further your understanding of the stack.</p>
+
+<p>The <code class="highlighter-rouge">factorial</code> function operates recursively. Set a breakpoint on the
+base case <code class="highlighter-rouge">break 14</code> and run until the breakpoint is hit. Use the
+<code class="highlighter-rouge">backtrace</code> command to get the lay of the land. Try moving <code class="highlighter-rouge">up</code> and
+<code class="highlighter-rouge">down</code> and use <code class="highlighter-rouge">info frame</code> and <code class="highlighter-rouge">info args</code> to explore the stack
+frames.</p>
+
+<p>The function <code class="highlighter-rouge">make_array</code> demonstrates how the stack is used
+for storage of local variables. A local variable of size 32 bits or fewer (i.e. simple int) is likely stored in a register without the overhead of  writing to stack memory. Larger data
+structures, such as arrays and structs, that do not fit in a register must be stored on the
+stack. Set a breakpoint on the <code class="highlighter-rouge">make_array</code> function. Use <code class="highlighter-rouge">info locals</code> to see the array contents at the start of the function. Are
+the array elements initialized to any particular value?  Step through
+the loop a few times and use <code class="highlighter-rouge">info locals</code> to see how the array is
+updated.</p>
+
+<p>Now introduced to <code class="highlighter-rouge">gdb</code>, you’ll want incorporate it into your development process and to practice until you become comfortable and fluent.  Gdb can help you learn more about how your C code translates to generated assembly and being able to observe and manipulate your program while it is executing will be an invaluable aid when tracking down bugs.</p>
+
+<p>In software development, only a small fraction of your time goes into writing the code, the rest is taken up in testing and debugging. These are important skills to hone and adept use of <code class="highlighter-rouge">gdb</code> can streamline your efforts by a significant factor. Developing your debugging superpowers will pay off many times over!</p>
+
+<p>At this point, you should be able to answer the first <a href="checkin">check in question</a>.</p>
+
+<h3 id="2-serial-communication">2. Serial communication</h3>
+<h4 id="2a-loopback-test">2a) Loopback test</h4>
+
+<p>Your laptop communicates over a serial interface when sending a program to the bootloader. To understand what is going on, let’s do a simple <em>loop back</em> test with your USB-serial adapter.</p>
+
+<p>Insert the USB-serial adapter into a USB port on your laptop and identify the <code class="highlighter-rouge">tty</code> (teletype) device assigned to the port. A simple way is to have <code class="highlighter-rouge">rpi-install.py</code> find it for you; the path will be of the form <code class="highlighter-rouge">/dev/your-tty-device-here</code>.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ rpi-install.py
+Found serial port: /dev/ttyS3
+</code></pre></div></div>
+
+<p>Disconnect the two jumpers between the RX and TX of the USB-serial adapter and the GPIO pins on the Pi.</p>
+
+<p>Use a single jumper to connect TX to RX on the USB-serial adapter as shown below.</p>
+
+<p><img src="images/loopback.jpg" alt="loop back" /></p>
+
+<p>In loop back mode,
+the signals sent out on the TX pin are wired straight to the RX pin. Reading from the RX pin will read the characters sent over TX.</p>
+
+<p><code class="highlighter-rouge">screen</code> is a program used to communicate over a tty device. Open <code class="highlighter-rouge">screen</code> on your USB-serial tty device and establish a connection 
+at the baud rate of 115200.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ screen /dev/your-tty-device-here 115200
+</code></pre></div></div>
+
+<!-- This partial will open warning/danger callout box  -->
+
+<div style="background-color:#ffcccc; color:#993333; border-left: 5px solid #993333;margin: 5px 25px; padding: 5px;">
+
+  <p>On WSL, if screen fails due to a permissions error, first execute as superuser. The command <code class="highlighter-rouge">sudo screen -ls</code> should respond “No sockets found”. After doing that once, you can then use screen normally.</p>
+</div>
+
+<p>When screen opens, it clears your terminal and positions the cursor
+in the upper left corner.
+Type some characters.  What happens?
+What happens if you type return on your keyboard?</p>
+
+<p>To close the connection, type <code class="highlighter-rouge">Control-a</code> followed by <code class="highlighter-rouge">k</code>.
+You should see the following message.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Really kill this window? [y/n]
+</code></pre></div></div>
+
+<p>Type <code class="highlighter-rouge">y</code> to exit screen and return to the shell.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[screen is terminating]
+</code></pre></div></div>
+
+<h4 id="2b-echo-test">2b) Echo test</h4>
+
+<p>Re-connect the TX/RX jumpers between the USB-serial and the Raspberry Pi. Remember the RX of the USB-serial connects to the TX of the Pi, and vice versa (the connections are <strong>not</strong> TX-TX and RX-RX).</p>
+
+<p>Change to the directory <code class="highlighter-rouge">lab3/code/echo</code> and build the program.</p>
+
+<p>The <code class="highlighter-rouge">rpi-install.py</code> that we use to send a program to the Pi can be invoked with an optional flag to open a communication channel with the running program.  The flag <code class="highlighter-rouge">-s</code> uses <code class="highlighter-rouge">screen</code> to create a 2-way channel that allows your laptop to send and receive data with the Pi. The flag <code class="highlighter-rouge">-p</code> creates a 1-way channel that prints data received from the Pi. Try the -s flag now:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ rpi-install.py -s echo.bin
+</code></pre></div></div>
+
+<p>After loading the program on the Pi, your terminal should automatically open <code class="highlighter-rouge">screen</code>. As you type, your characters should be echoed back to your
+terminal.</p>
+
+<p>While you continue typing, have your partner gently unplug the jumper from the RX pin on your USB-serial and then re-connect it. What changes? Why does that happen?</p>
+
+<p>Use <code class="highlighter-rouge">Control-a</code> <code class="highlighter-rouge">k</code> to exit screen.</p>
+
+<h4 id="2c-uartprintf-test">2c) UART/printf test</h4>
+
+<p>Change to the directory <code class="highlighter-rouge">lab3/code/uart-printf</code>.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ cd lab3/code/uart
+$ ls
+Makefile  cstart.c  hello.c   memmap    start.s
+</code></pre></div></div>
+
+<p>Review the code in <code class="highlighter-rouge">hello.c</code>. This program uses the <code class="highlighter-rouge">uart_putstring</code> function
+to send characters using the TX pin on the Raspberry Pi.</p>
+
+<p>The Makefile already includes the <code class="highlighter-rouge">-p</code> flag when invoking <code class="highlighter-rouge">rpi-install.py</code>, so <code class="highlighter-rouge">make install</code> is one-stop shopping to rebuild the program, send to the Pi, and print the received output.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>% make install
+Found serial port: /dev/cu.SLAB_USBtoUART
+Sending `hello.bin` (1128 bytes): .........
+Successfully sent!
+hello, laptop
+hello, laptop
+hello, laptop
+hello, laptop
+hello, laptop
+
+rpi-install.py: received EOT from Pi. Detaching.
+</code></pre></div></div>
+
+<p>This program sends an EOT (end of transmission) character that tells your laptop to close the communication channel. You can also type <code class="highlighter-rouge">Control-c</code> on your laptop to manually close.</p>
+
+<p>The function <code class="highlighter-rouge">uart_putstring</code> outputs a constant string, but what is really useful is the ability to output formatted strings, e.g. <code class="highlighter-rouge">printf</code>. For example, the call <code class="highlighter-rouge">printf("Today is %s %d\n", monthname, daynum)</code> 
+inserts the month string and day number into the output. To learn more about how to use printf, check out the standard library <a href="http://www.tutorialspoint.com/c_standard_library/c_function_printf.htm">printf documentation</a>.</p>
+
+<p>In Assignment 3, you will implement your own version of <code class="highlighter-rouge">printf</code>.  With a working <code class="highlighter-rouge">printf</code>, you will be able to report your program state and super-charge your debugging. What a big improvement over trying to communicate everything via blinking LEDs!</p>
+
+<p>Open <code class="highlighter-rouge">hello.c</code> in your text editor and edit the <code class="highlighter-rouge">main</code> function to try out <code class="highlighter-rouge">printf</code>:</p>
+
+<ol>
+  <li>
+    <p>Add a call to <code class="highlighter-rouge">printf</code> inside the loop body that prints the value of <code class="highlighter-rouge">i</code> on each loop iteration.</p>
+  </li>
+  <li>
+    <p>Outside the loop, use <code class="highlighter-rouge">printf</code> to print the value in the <code class="highlighter-rouge">*FSEL2</code> in hex format.</p>
+  </li>
+  <li>
+    <p>Use <code class="highlighter-rouge">gpio_set_output</code> to make pins 20 and 21 output pins.</p>
+  </li>
+  <li>
+    <p>Print the value of <code class="highlighter-rouge">*FSEL2</code> again.</p>
+  </li>
+</ol>
+
+<p>Reset your Pi, and run <code class="highlighter-rouge">make install</code> again to see your program’s output. How does the hex value stored in <code class="highlighter-rouge">FSEL2</code> change after changing the pin functions?</p>
+
+<h3 id="3-c-strings">3. C-strings</h3>
+
+<p>For this exercise, you will work with C-string functions and get further practice with unit-testing and debugging.
+Change to the <code class="highlighter-rouge">lab3/code/strings</code> directory and open the <code class="highlighter-rouge">cstrings.c</code>
+file in your editor.</p>
+
+<p>The first string operation to look at is <code class="highlighter-rouge">strlen</code>. This function returns the count of characters in a C-string. How is it possible to determine where a C-string ends? Is the null terminator included in the count?</p>
+
+<p>Review the given (correct) code for <code class="highlighter-rouge">strlen</code> in <code class="highlighter-rouge">cstrings.c</code>.  It uses array subscripting on a variable declared as a pointer. Why is this legal?  What does it mean to access the nth array element of a pointer variable?</p>
+
+<p>The code for <code class="highlighter-rouge">strlen</code> is simple enough that you might feel confident calling it correct “by inspection”, but let’s use our unit testing strategy to truly confirm the behavior of the executing function.</p>
+
+<p>Read through the test cases in the <code class="highlighter-rouge">test_strlen</code>.
+Compile the program and run it on the Pi. You should get the green light of success for passing all the tests. It is a correctly-implemented <code class="highlighter-rouge">strlen</code> function, as advertised.</p>
+
+<p>Now, let’s move on the <code class="highlighter-rouge">strcpy</code> operation. This function copies the characters from one string to another:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>char *strcpy(char *dst, const char *src);
+</code></pre></div></div>
+
+<p>Spoiled programmers who work on hosted systems receive <code class="highlighter-rouge">strcpy</code> as part
+of the standard library, but we must implement it ourselves for the Pi.</p>
+
+<p>Functions in the standard library each have a man page that documents the function’s use and behavior. Bring up the man page for <code class="highlighter-rouge">strcpy</code>.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ man strcpy
+</code></pre></div></div>
+
+<p>Try implementing <code class="highlighter-rouge">strcpy</code> yourself. Does <code class="highlighter-rouge">strcpy</code> copy the null terminator or only the non-null characters?  If you’re not sure, read the man page to confirm the expected behavior.</p>
+
+<p>When you are ready to test your <code class="highlighter-rouge">strcpy</code>, review the test cases in the <code class="highlighter-rouge">test_strcpy</code> function. Uncomment the call to <code class="highlighter-rouge">test_strcpy</code> in <code class="highlighter-rouge">main()</code>. Use <code class="highlighter-rouge">make install</code> to rebuild the program and run it on the Pi.</p>
+
+<p>If you get the red flash of doom, dig in to find out what’s gone wrong
+and work to resolve the issue. Don’t move on until all
+tests pass and you earn your green light merit badge.</p>
+
+<h3 id="4-gdb-and-testing">4. Gdb and testing</h3>
+
+<p>You can also test a program by running within gdb in simulation mode. Let’s try that now on the cstrings program from the previous exercise.</p>
+
+<h4 id="4a-debug-strlen">4a) Debug strlen</h4>
+
+<p>Edit <code class="highlighter-rouge">strlen</code> to intentionally plant a bug, such as changing the function to always return <code class="highlighter-rouge">7</code>. This will cause test failures in <code class="highlighter-rouge">test_strlen</code>. Use <code class="highlighter-rouge">make install</code> to build the program and run on the Pi and you get the flashing red LED that indicates a failed assert.</p>
+
+<p>Let’s learn how that failed assert is presented under the debugger. Get the buggy program under gdb and run it. There is no flashing red light; the simulator is not talking to your Pi nor its peripherals. Your Pi doesn’t even need to be connected!</p>
+
+<p>What do you see in gdb? Not much; the program appears to be stuck. Type <code class="highlighter-rouge">Control-c</code> to interrupt the program and use <code class="highlighter-rouge">backtrace</code> to see where the program is stopped.</p>
+
+<pre><code class="language-^C">Program received signal SIGINT, Interrupt.
+timer_get_ticks () at timer.c:10
+10  timer.c: No such file or directory.
+(gdb) backtrace
+#0  timer_get_ticks () at timer.c:10
+#1  0x000084b0 in timer_delay_us (usecs=usecs@entry=200000) at timer.c:17
+#2  0x000084f8 in timer_delay_ms (msecs=msecs@entry=200) at timer.c:22
+#3  0x0000841c in pi_abort () at pi.c:40
+#4  0x00008078 in test_strlen () at cstrings.c:30
+#5  0x0000822c in main () at cstrings.c:80
+</code></pre>
+
+<p>A-ha! When an assert fails, it calls <code class="highlighter-rouge">pi_abort</code> to flash the red light. The above backtrace tells you that the program is waiting in the delay loop within <code class="highlighter-rouge">pi_abort</code>.  Given the simulator does not emulate the timer or GPIO peripherals, <code class="highlighter-rouge">pi_abort</code> behaves as a no-action infinite loop. By looking further into the backtrace, we learn that the failed assertion occurred on line 30 of the <code class="highlighter-rouge">cstrings.c</code> file. Use <code class="highlighter-rouge">list</code> to see that code now:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(gdb) list cstrings.c:30
+25 
+26 void test_strlen(void)
+27 {
+28     char *fruit = "watermelon";
+29 
+30     assert(strlen("green") == 5);
+31     assert(strlen("") ==  0);
+32     assert(strlen(fruit) == 2 + strlen(fruit + 2));
+33 }
+34 
+</code></pre></div></div>
+
+<p>This allows us to pinpoint exactly which assert failed (rather than have to comment-in-and-out tests one by one to find it). Hooray for gdb!</p>
+
+<p>Restore <code class="highlighter-rouge">strlen</code> to its correct implementation, rebuild and run again under the debugger. All tests should pass. As expected, there is no green light from the simulator, but once again the program appears stuck. Type <code class="highlighter-rouge">Control-c</code> to interrupt the program and use <code class="highlighter-rouge">backtrace</code> to see what’s going on. What evidence confirms that the program successfully ran to completion?</p>
+
+<!-- This partial will open warning/danger callout box  -->
+
+<div style="background-color:#ffffcc; color:#996633; border-left: 5px solid #996633;margin: 5px 25px; padding: 5px;">
+
+  <p><strong>Tip</strong>: Any time your program is executing, typing <code class="highlighter-rouge">Control-c</code> will interrupt the program and return control to the debugger. <code class="highlighter-rouge">backtrace</code> will show where the program was executing when it was interrupted.</p>
+
+  <p>Learn to recognize these two common situations:</p>
+  <ul>
+    <li>a successful run to completion that is waiting in <code class="highlighter-rouge">hang</code></li>
+    <li>a failed assert in <code class="highlighter-rouge">pi_abort</code> attempting to flash a non-existent red LED</li>
+  </ul>
+</div>
+
+<h4 id="4b-debug-bogus_strlen_calls">4b) Debug bogus_strlen_calls</h4>
+
+<p>Both <code class="highlighter-rouge">strlen</code> and <code class="highlighter-rouge">strcpy</code> have been shown to work correctly for valid calls. We are now going to do a little exploration into what happens 
+for calls that are not so kosher.</p>
+
+<p>Review the code in the aptly-named <code class="highlighter-rouge">bogus_strlen_calls</code> function. 
+Get together with your tablemates and look at the three “bogus” calls.
+For each consider <strong>why</strong> it is invalid: what is improper about the C-string that is being passed as the argument?</p>
+
+<p>The standard C-string library functions are generally not robust against bad calls, especially those that ask a function to read or write invalid memory.  The reason for this is not for performance or
+due to laziness – it’s actually not possible for <code class="highlighter-rouge">strlen</code> to verify that its argument is a valid C-string. A <code class="highlighter-rouge">char*</code> is
+not necessarily a pointer to a string – it could be just a pointer
+to a single character. Furthermore the address might not have a char pointee  at all – it could be an int stored there or the address might be completely invalid or contents uninitialized. The C language does not have a reliable means to determine the validity of a pointer and reject the bad ones.</p>
+
+<p>Uncomment the call to <code class="highlighter-rouge">stress_test_strlen</code> in <code class="highlighter-rouge">main()</code>. Rebuild the program and run it under gdb. Single step through the call to
+<code class="highlighter-rouge">bogus_strlen_calls</code> and print the value returned from each of the
+bad calls. Is the result what you anticipated?  What did you learn from this about the
+observed consequences of reading uninitialized or invalid memory?</p>
+
+<h4 id="4c-debug-sketchy_strcpy_call">4c) Debug sketchy_strcpy_call</h4>
+
+<p>Next, review the code for the <code class="highlighter-rouge">sketchy_strcpy_call</code> function, which attempts to copy a string to an improper destination.
+We previously saw that <code class="highlighter-rouge">strlen</code> was able carry on and silently
+blunder through <strong>reading</strong> from an improper memory location. What is
+going to happen when <code class="highlighter-rouge">strcpy</code> starts <strong>writing</strong> to one?  With your
+partner, draw a diagram on paper of what happens to the stack memory
+during this call to <code class="highlighter-rouge">strcpy</code>.</p>
+
+<p>Edit <code class="highlighter-rouge">main()</code> to comment out the call to  <code class="highlighter-rouge">stress_test_strlen</code> and uncomment the call <code class="highlighter-rouge">stress_test_strcpy</code>. Rebuild and run under <code class="highlighter-rouge">gdb</code>. Which of the test cases succeeds? Which fails? How is the failure reported?</p>
+
+<p>This code exhibits a classic <strong>buffer overflow</strong> bug where writing
+too much data to a too-small stack buffer overwrites adjacent data
+in the stack frame. What is the critical data stored in the stack that has
+been destroyed here? At what point in the execution does the
+overwritten data result in a bad consequence?</p>
+
+<h4 id="4d-differences-under-simulation">4d) Differences under simulation</h4>
+<p>It is important to be aware of the discrepancies you may observe when comparing the behavior of a program running on the Pi versus running under the gdb simulator. Read the section titled <a href="/guides/gdb/#differences-due-to-simulation">Differences due to simulation</a> in our gdb guide to be introduced to some of the issues you may run into.</p>
+
+<p>Change to the directory <code class="highlighter-rouge">lab3/code/simulator</code> directory and review the program in the <code class="highlighter-rouge">buggy.c</code> file  Trace through the operation of the program. What do you predict will be printed as output?</p>
+
+<p>Build the program using <code class="highlighter-rouge">make</code>. You should get warnings from the compiler about the use of uninitialized variables.</p>
+
+<p>Use <code class="highlighter-rouge">make install</code> to run the program on the Raspberry Pi. Does the output printed by the program match what you predicted earlier?  Use <code class="highlighter-rouge">make install</code> to run the program again. Is the output printed the same as the previous run?</p>
+
+<p>Now use gdb on the <code class="highlighter-rouge">buggy.elf</code> program.  Run the program under gdb. When running under the simulator, the program does have the same output that you observed when running on the Pi. Why is it different?</p>
+
+<p>Type <code class="highlighter-rouge">Control-c</code> to stop the program. Without exiting gdb, use <code class="highlighter-rouge">run</code> to run the program for a second time. How does this output compare to the previous run? Run a few more times in gdb until you understand the pattern. What have you learned about how the simulator handles the state of memory between runs? How does this compare to what happens to the state of memory when you reset the actual Pi and re-run the program?</p>
+
+<h2 id="check-in-with-ta">Check in with TA</h2>
+
+<p>Review the <a href="checkin">check-in questions</a> to test your understanding of the
+topics from the lab and call over the TA to check-in on your progress before leaving lab.</p>
+
+  </div>
+  <div class="toc-column col-lg-2 col-md-2 col-sm-2 hidden-xs">
+    <div id="toc" class="toc" data-spy="affix" data-offset-top="0"></div>
+  </div> 
+</div>
+
+  <script src="/_assets/tocbot.min.js"></script>
+  <link rel="stylesheet" href="/_assets/tocbot.css">
+
+  <script>
+    tocbot.init({
+      // Where to render the table of contents.
+      tocSelector: '#toc',
+      // Where to grab the headings to build the table of contents.
+      contentSelector: '#main_for_toc',
+      // Which headings to grab inside of the contentSelector element.
+      headingSelector: 'h2, h3, h4',
+    });
+  </script>
+
+
+
+  </div>
+  <div class="footer navbar-default navbar-static-bottom">
+    <p style="font-size: 65%; color:green; text-align:center;">
+      <i>CS107e Winter 2020 &middot; Site generated 2020-04-19 20:35</i>
+  </p>
+</div> 
+</body>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+</html>

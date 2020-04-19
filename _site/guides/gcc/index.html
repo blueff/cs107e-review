@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/_assets/site.css" rel="stylesheet">
+    <link href="/_assets/favicon.png" rel="icon" type="image/png">
+    <title>CS107E Guide to Bare Metal Programming with GCC</title>
+  </head>
+
+<body>
+  <!-- Include this HTML partial to set up navbar -->
+
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="navbar-header">
+  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+    <!-- hamburger -->
+    <span class="sr-only">Toggle navigation</span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+    <span class="icon-bar"></span>
+  </button>
+
+  <img class="navbar-brand navbar-brand-image" src="/_assets/berry.png" >
+  <a class="navbar-brand" href="/">CS107e Winter 2020</a>
+  </div>
+
+  <div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="/">Home</a></li>
+      <li><a href="/assignments">Assignments</a></li>
+      <li><a href="/labs">Labs</a></li>
+      <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            Resources
+          <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/about/">About the course</a></li>
+            <li><a href="/policies/">Policies</a></li>
+            <li><a href="/schedule/">Schedule</a></li>
+            <li><a href="/guides/">Guides</a></li>
+            <li><a href="/project_gallery/">Project gallery</a></li>
+            <li><a href="/demos/">External demos</a></li>
+            <li><a href="/resources/">External resources</a></li>
+          </ul>
+        </li>
+      <li><a href="https://github.com/cs107e/cs107e.github.io">Repository</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="container" style="max-width:55em;">
+    <h1 class="title">Guide to Bare Metal Programming with GCC</h1><hr>
+    
+  <p><em>Written by Pat Hanrahan and Julie Zelenski</em></p>
+
+<p>This guide gives a brief overview of what is unique about compiling C programs to execute in a bare-metal environment.</p>
+
+<h3 id="hosted-versus-non-hosted-standalone-environments">Hosted versus non-hosted (standalone) environments</h3>
+<p>A typical program is compiled for a <em>hosted</em> system where it has access to
+the standard libraries and facilities provided by the operating system layer. 
+In hosted mode, the program runs at the pleasure of the host operating system.
+In contrast, a bare metal program is non-hosted; it does not stand on top of an 
+operating system or library; it runs entirely standalone. The program has the freedom 
+to do whatever it wants, without any pesky interference from a overbearing OS, but 
+cannot count on any facilities other than what it provides for itself.</p>
+
+<p>By default, <code class="highlighter-rouge">gcc</code> compiles assuming a hosted environment, since this is the common case. 
+To properly compile a bare metal program, we need to set the appropriate compiler and 
+linker options to ensure the program is configured to run standalone.</p>
+
+<h3 id="compiler-option--ffreestanding">Compiler option <code class="highlighter-rouge">-ffreestanding</code></h3>
+<p>This <code class="highlighter-rouge">gcc</code> option directs the compiler to limit this program to only those features available in the freestanding environment.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ arm-none-eabi-gcc -ffreestanding -c blink.c
+</code></pre></div></div>
+
+<p>In freestanding mode, the only available standard header files are:
+<code class="highlighter-rouge">&lt;float.h&gt;</code>, <code class="highlighter-rouge">&lt;iso646.h&gt;</code>, <code class="highlighter-rouge">&lt;limits.h&gt;</code>, <code class="highlighter-rouge">&lt;stdarg.h&gt;</code>, 
+<code class="highlighter-rouge">&lt;stdbool.h&gt;</code>, <code class="highlighter-rouge">&lt;stddef.h&gt;</code>, and <code class="highlighter-rouge">&lt;stdint.h&gt;</code> (C99 standard 4.6).
+These headers define the types appropriate for the machine being used, as well 
+as useful constants such as the minimum and maximum values for different types. 
+The other standard header files (<code class="highlighter-rouge">&lt;stdio.h&gt;</code>, <code class="highlighter-rouge">&lt;string.h&gt;</code> and so on) are not to be used.</p>
+
+<p>In hosted mode, the <code class="highlighter-rouge">main</code> function must adhere to a rigid specification.
+ Execution begins at the function named <code class="highlighter-rouge">main</code> and its signature must typically match:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>int main(int argv, char *argv[], char *env[])   // main in hosted env
+</code></pre></div></div>
+
+<p>The compiler will issue warnings if you define <code class="highlighter-rouge">main</code> differently for a hosted program.</p>
+
+<p>Freestanding mode removes the special semantics for the <code class="highlighter-rouge">main</code> function. In the standalone 
+world, <code class="highlighter-rouge">main</code> can have any type signature and it is configurable whether it is <code class="highlighter-rouge">main</code> or 
+some other function that starts the program. A typical main signature for 
+a freestanding program is simply:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>void main(void)                                // main in bare metal env
+</code></pre></div></div>
+
+<p>The <code class="highlighter-rouge">-ffreestanding</code> option also directs the compiler to not assume that standard functions 
+have their usual definitions. This will prevent the compiler from making optimizations 
+based on assumptions about the behaviors of the standard libraries. For example, 
+in a hosted environment,<code class="highlighter-rouge">gcc</code> is assured that the available library meets the 
+specification of the language standard. It can transform <code class="highlighter-rouge">printf("hi\n")</code> into <code class="highlighter-rouge">puts("hi")</code> 
+because it <em>knows</em> from the definition of the standard IO library that these two 
+functions behave equivalently in this case. In freestanding mode, you could define your own <code class="highlighter-rouge">puts</code> 
+function and your version of <code class="highlighter-rouge">puts</code> could act completely differently than the standard
+ <code class="highlighter-rouge">puts</code> function, making such a substitution invalid. Thus when <code class="highlighter-rouge">-ffreestanding</code> is used, 
+ <code class="highlighter-rouge">gcc</code> does not assume a standard library environment and will not make such optimizations.</p>
+
+<p>It maybe a bit surprising to learn that even when compiling in freestanding mode,
+gcc can emit a call to <code class="highlighter-rouge">memcpy</code> or <code class="highlighter-rouge">memset</code>. It uses these routines to
+block-copy a large-ish chunk of data, such as when initializing an array 
+or struct or passing a struct in or out of a function. In some situations, you can rearrange your code to avoid the need for block memory transfer, e.g. assign struct fields individually rather copy the entire struct. Where unavoidable, you must supply your own implementation of <code class="highlighter-rouge">memcpy</code>.</p>
+
+<h3 id="linker-options-for-default-libraries-and-start-files">Linker options for default libraries and start files</h3>
+<p>The linker option <code class="highlighter-rouge">-nostdlib</code> is used to link a program intended to run standalone. <code class="highlighter-rouge">-nostdlib</code> implies
+the individual options <code class="highlighter-rouge">-nodefaultlibs</code> and <code class="highlighter-rouge">-nostartfiles</code>. Below we discuss 
+the two options separately, but the most typical use is just <code class="highlighter-rouge">nostdlib</code> for one-stop shopping.</p>
+
+<p>When linking a hosted program, standard system libraries such as <code class="highlighter-rouge">libc</code> are 
+linked by default, giving the program access to all standard 
+functions (<code class="highlighter-rouge">printf</code>, <code class="highlighter-rouge">strlen</code> and friends).  The linker option <code class="highlighter-rouge">-nodefaultlibs</code>
+disables linking with those default libraries; the only libraries linked are
+exactly those that you explicitly name to the linker using the <code class="highlighter-rouge">-l</code> flag.</p>
+
+<p><code class="highlighter-rouge">libgcc.a</code> is a standard library (linked by default, excluded by <code class="highlighter-rouge">-nodefaultlibs</code>) 
+that provides internal subroutines to overcome shortcomings of particular machines. 
+ For example, the ARM processor does not include a division instruction.  The ARM 
+ version of <code class="highlighter-rouge">libgcc.a</code> includes a division function and the compiler emits 
+calls to that function where needed. A program that attempts to use division and is linked <code class="highlighter-rouge">-nodefaultlibs</code> will fail to link. The linker error will be something
+akin to</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>undefined reference to __aeabi_idivmod
+</code></pre></div></div>
+
+<p>You can resolve this reference by linking with <code class="highlighter-rouge">libgcc.a</code> (<code class="highlighter-rouge">-lgcc</code>).</p>
+
+<p>Note that <code class="highlighter-rouge">libgcc</code> does <strong>not</strong> supply <code class="highlighter-rouge">memcpy</code> and related functions. 
+Buried deep in https://gcc.gnu.org/onlinedocs/gcc/Standards.html, there is a small
+callout that notes this:</p>
+
+<blockquote>
+  <p>Most of the compiler support routines used by GCC are present in libgcc, 
+but there are a few exceptions. GCC requires the freestanding environment
+ provide <code class="highlighter-rouge">memcpy</code>, <code class="highlighter-rouge">memmove</code>, <code class="highlighter-rouge">memset</code> and <code class="highlighter-rouge">memcmp</code>.</p>
+</blockquote>
+
+<p>If your program requires one of these routines, you will need to supply it yourself.</p>
+
+<p>Normally, when a program begins to run, the standard start function is called.
+ This function sets up the machine to run the program.
+A common task performed by start is to initialize default values for 
+any variables in your program and call the <code class="highlighter-rouge">main</code> function.</p>
+
+<p>The option <code class="highlighter-rouge">-nostartfiles</code>
+instructs the linker to not use the standard system startup functions nor 
+link the code containing those functions.</p>
+
+<p>If you don’t link to a start function, program variables may not be properly initialized. 
+You may need to provide your own start function when running in standalone mode.</p>
+
+
+
+
+
+  </div>
+  <div class="footer navbar-default navbar-static-bottom">
+    <p style="font-size: 65%; color:green; text-align:center;">
+      <i>CS107e Winter 2020 &middot; Site generated 2020-04-19 20:35</i>
+  </p>
+</div> 
+</body>
+
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+</html>
