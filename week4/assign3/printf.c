@@ -4,21 +4,21 @@
 #include "printf.h"
 #include "strings.h"
 
-#define MAX(x, y) ((x) <= (y) ? y: x)
+#define MAX(x, y) ((x) <= (y) ? y : x)
 
-void panic() {
+void
+panic() {
   while(1) {
   }
 }
 
-int number_to_base(
-  char *buf,
-  size_t bufsize,
-  unsigned int val,
-  int base,
-  int min_width,
-  int negative
-) {
+int
+number_to_base(char *buf,
+               size_t bufsize,
+               unsigned int val,
+               int base,
+               int min_width,
+               int negative) {
   int result = 0;
   char output[MAX(sizeof(int), min_width)];
   int cursor = 0;
@@ -63,36 +63,28 @@ int number_to_base(
   return result;
 }
 
-int unsigned_to_base(
-  char *buf,
-  size_t bufsize,
-  unsigned int val,
-  int base,
-  int min_width
-) {
-  return number_to_base(
-    buf, bufsize,
-    val, base, min_width,
-    0
-  );
+int
+unsigned_to_base(char *buf,
+                 size_t bufsize,
+                 unsigned int val,
+                 int base,
+                 int min_width) {
+  return number_to_base(buf, bufsize, val, base, min_width, 0);
 }
 
-int signed_to_base(
-  char *buf,
-  size_t bufsize,
-  int val,
-  int base,
-  int min_width
-) {
-  return number_to_base(
-    buf, bufsize,
-    val < 0 ? -val : val, base, min_width,
-    val < 0 ? 1 : 0
-  );
+int
+signed_to_base(char *buf, size_t bufsize, int val, int base, int min_width) {
+  return number_to_base(buf,
+                        bufsize,
+                        val < 0 ? -val : val,
+                        base,
+                        min_width,
+                        val < 0 ? 1 : 0);
 }
 
 // return how many bytes actually are written
-size_t memncpy(char *dst, char *src, size_t dst_size_plus_one, size_t src_size) {
+size_t
+memncpy(char *dst, char *src, size_t dst_size_plus_one, size_t src_size) {
   if(src_size + 1 <= dst_size_plus_one) {
     memcpy(dst, src, src_size);
     return src_size;
@@ -111,12 +103,8 @@ is_number_char(char c) {
   return c >= '0' && c <= '9';
 }
 
-int snprintf(
-  char *buf,
-  size_t bufsize,
-  const char *format,
-  ...
-) {
+int
+snprintf(char *buf, size_t bufsize, const char *format, ...) {
   va_list ap;
   va_start(ap, format);
   return vsnprintf(buf, bufsize, format, ap);
@@ -124,12 +112,8 @@ int snprintf(
 
 // for invaid format conversions
 // will copy it as is
-int vsnprintf(
-  char *buf,
-  size_t bufsize,
-  const char *format,
-  va_list ap
-) {
+int
+vsnprintf(char *buf, size_t bufsize, const char *format, va_list ap) {
   int result = 0;
   size_t written = 0;
   char *start = (char *)format;
@@ -223,7 +207,11 @@ int vsnprintf(
           c = signed_to_base(buf + written, capacity, value, 10, width);
         } else {
           unsigned int value = va_arg(ap, unsigned int);
-          c = unsigned_to_base(buf + written, capacity, value, cur == 'x' ? 16 : 2, width);
+          c = unsigned_to_base(buf + written,
+                               capacity,
+                               value,
+                               cur == 'x' ? 16 : 2,
+                               width);
         }
 
         result += c;
@@ -237,8 +225,9 @@ int vsnprintf(
     }
 
     // %p
-    // outputs an address as a width-8 hexadecimal string prefixed with 0x, e.g. 0x20200004
-    else if (cur == 'p') {
+    // outputs an address as a width-8 hexadecimal string prefixed with 0x, e.g.
+    // 0x20200004
+    else if(cur == 'p') {
       size_t capacity = bufsize - written;
 
       result += 2;
@@ -286,13 +275,12 @@ int vsnprintf(
   return result;
 }
 
-#define GDB_DEBUG 0
-
 #if GDB_DEBUG
-char __stdout[1024*1024] = {};
+char __stdout[1024 * 1024] = {};
 #endif
 
-int printf(const char *format, ...) {
+int
+printf(const char *format, ...) {
   char buf[1024];
   va_list ap;
   va_start(ap, format);

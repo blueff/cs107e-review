@@ -8,7 +8,7 @@ main(void) {
   uint32_t *p = (uint32_t *)addr;
   uint32_t value;
 
-  char buf[1024*1024];
+  char buf[1024 * 1024];
 
   for(int i = 0; i < 100; i++) {
     value = *p++;

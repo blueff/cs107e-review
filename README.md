@@ -401,7 +401,7 @@ NOTE: If you encounter this error: _undefined reference to `__aeabi_idivmod`_, t
 
 ## Week 4: Communication and the Serial Protocol
 
-`code/serial` demonstrate how to implement a seril communication by ourselves. Basically, write bit, wait some time, write bit again.
+`serial-code/serial` demonstrate how to implement a seril communication by ourselves. Basically, write bit, wait some time, write bit again.
 
 ### Lab 3: Debugging and Testing
 
@@ -515,11 +515,9 @@ Disassembly of section .data:
    0:   e3a0d302        mov     sp, #134217728  ; 0x8000000
 ```
 
-To make the debug less painful which requires constantly rebooting the Pi and loading the code to see the output, we can patch the `printf` function and see the output in GDB.
+To make the debug less painful which requires constantly rebooting the Pi and loading the code to see the output, we can use macro to conditionally compile the `printf` function and see the output in GDB.
 
 ```c
-#define GDB_DEBUG 1
-
 #if GDB_DEBUG
 char __stdout[1024*1024] = {};
 #endif
@@ -540,11 +538,13 @@ int printf(const char *format, ...) {
 }
 ```
 
-Run the code in GDB and check the result with following command:
+Run the code in GDB and see the result with following command:
 
 ```
 (gdb) printf "%s", __stdout
 ```
+
+Check [Makefile](./week4/assign3/Makefile) to see the details.
 
 **Remember to write the test! Every time you want to implement some function, write the test first!**
 
