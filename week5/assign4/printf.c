@@ -276,7 +276,8 @@ vsnprintf(char *buf, size_t bufsize, const char *format, va_list ap) {
 }
 
 #if GDB_DEBUG
-char __stdout[10 * 1024 * 1024] = {};
+char __stdout[1024 * 1024] = {};
+unsigned int __stdout_written = 0;
 #endif
 
 int
@@ -287,7 +288,19 @@ printf(const char *format, ...) {
   int result = vsnprintf(buf, sizeof(buf), format, ap);
 
 #if GDB_DEBUG
-  strlcat(__stdout, buf, sizeof(__stdout));
+  unsigned int byte_to_copy = 0;
+
+  if(result <= sizeof(buf) - 1) {
+    byte_to_copy = result + 1;
+  } else {
+    byte_to_copy = sizeof(buf);
+  }
+
+  if(__stdout_written + byte_to_copy <= sizeof(__stdout)) {
+    memcpy(__stdout + __stdout_written, buf, byte_to_copy);
+    __stdout_written += byte_to_copy - 1;
+  }
+
 #else
   uart_putstring(buf);
 #endif

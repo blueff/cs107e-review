@@ -852,10 +852,30 @@ Check the final code [malloc.c](./week5/assign4/malloc.c) and [test_backtrace_ma
 
 NOTE: Take care to keep the payload aligned on the 8-byte boundary, which means the pointer returned by `malloc` should always be divisible by 8.
 
+Add four bytes to our header as the leading red zone and four bytes to payload as the trailing red zone.
+
+Whenever we are freeing a block, check the red zones. If they have incorrect content, then we know something bad is happening!
+
+We can call `memory_report` in our `_cstart` function so that every program now has a neat memory report.
+
 ## ARM Tips
 
-- Disassemble object file: `arm-none-eabi-objdump -D input.o`.
-- Disassemble binary file: `arm-none-eabi-objdump -b binary -D -marm input.bin`.
+Disassemble object file: `arm-none-eabi-objdump -D input.o`.
+
+Disassemble binary file: `arm-none-eabi-objdump -b binary -D -marm input.bin`.
+
+Disassemble one single instruction, e.g. `0xe3a0d302`
+
+```bash
+$ perl -e 'print pack "H*", "e3a0d302"' > a.out && arm-none-eabi-objdump -D -b binary -marm -EB
+a.out:     file format binary
+
+
+Disassembly of section .data:
+
+00000000 <.data>:
+   0:   e3a0d302        mov     sp, #134217728  ; 0x8000000
+```
 
 ## GCC Tips
 

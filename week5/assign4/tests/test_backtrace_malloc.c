@@ -166,56 +166,140 @@ test_free_adjacent(void) {
 }
 
 void
-test_realloc(void) {
-  print_title("Test Realloc");
+test_realloc_1(void) {
+  print_title("Test Realloc 1");
+  printf("realloc with a smaller size but not enough for a new block\n\n");
 
-  {
-    void *p1 = malloc(20);
-    heap_dump("After p1=malloc(20)");
+  void *p1 = malloc(20);
+  heap_dump("After p1=malloc(20)");
 
-    realloc(p1, 10);
-    heap_dump("After realloc(p1, 10)");
+  realloc(p1, 10);
+  heap_dump("After realloc(p1, 10)");
+}
+
+void
+test_realloc_2(void) {
+  print_title("Test Realloc 2");
+  printf("realloc with a smaller size enough for a new block\n\n");
+
+  void *p1 = malloc(100);
+  heap_dump("After p1=malloc(100)");
+
+  realloc(p1, 10);
+  heap_dump("After realloc(p1, 10)");
+}
+
+void
+test_realloc_3(void) {
+  print_title("Test Realloc 3");
+  printf("realloc with a bigger size using adjacent free block\n\n");
+
+  void *p1 = malloc(20);
+  void *p2 = malloc(20);
+  heap_dump("After p1=malloc(20), p2=malloc(20)");
+
+  free(p2);
+  heap_dump("After free(p2)");
+
+  realloc(p1, 30);
+  heap_dump("After relocation(p1, 30)");
+}
+
+void
+test_realloc_4(void) {
+  print_title("Test Realloc 4");
+  printf("realloc with a bigger size which requires new malloc\n\n");
+
+  void *p1 = malloc(20);
+  heap_dump("After p1=malloc(20)");
+
+  realloc(p1, 40);
+  heap_dump("After realloc(p1, 40)");
+}
+
+void
+test_mini_valgrind(void) {
+  void *p1 = malloc(10);
+
+  // intentionally over write
+  uint8_t *p = (uint8_t *)p1;
+  for(int i = 0; i < 20; i++) {
+    *p++ = 1;
   }
 
-  {
-    void *p2 = malloc(20);
-    void *p3 = malloc(20);
-    heap_dump("After p2=malloc(20), p3=malloc(20)");
+  free(p1);
+}
 
-    free(p3);
-    heap_dump("After free(p3)");
+void
+test_memory_report_1(void) {
+  void *p1 = malloc(10);
+  void *p2 = malloc(20);
+  void *p3 = malloc(30);
+  free(p3);
 
-    realloc(p2, 30);
-    heap_dump("After relocation(p2, 30)");
-  }
+  memory_report();
+}
+void
+test_memory_report_2(void) {
+  void *p1 = malloc(40);
+  void *p2 = malloc(50);
+  void *p3 = malloc(60);
+  free(p3);
+  free(p2);
 
-  {
-    void *p4 = malloc(20);
-    heap_dump("After p4=malloc(20)");
+  memory_report();
+}
+void
+test_memory_report_3(void) {
+  void *p1 = malloc(70);
+  void *p2 = malloc(80);
+  void *p3 = malloc(90);
+  free(p3);
+  free(p2);
+  free(p1);
 
-    realloc(p4, 40);
-    heap_dump("After realloc(p4, 40)");
-  }
+  memory_report();
 }
 
 void
 main(void) {
-  test_name_of();
+  // test_name_of();
 
-  test_backtrace_simple();
+  // test_backtrace_simple();
 
-  test_backtrace_complex();
+  // test_backtrace_complex();
 
-  test_heap_dump();
+  // test_heap_dump();
+  // _reset_heap();
+
+  // test_malloc_recycle();
+  // _reset_heap();
+
+  // test_free_adjacent();
+  // _reset_heap();
+
+  // test_realloc_1();
+  // _reset_heap();
+
+  // test_realloc_2();
+  // _reset_heap();
+
+  // test_realloc_3();
+  // _reset_heap();
+
+  // test_realloc_4();
+  // _reset_heap();
+
+  // test_mini_valgrind();
+  // _reset_heap();
+
+  test_memory_report_1();
   _reset_heap();
 
-  test_malloc_recycle();
+  test_memory_report_2();
   _reset_heap();
 
-  test_free_adjacent();
-  _reset_heap();
-
-  test_realloc();
+  test_memory_report_3();
   _reset_heap();
 
 #if !GDB_DEBUG
