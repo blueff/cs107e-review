@@ -74,6 +74,7 @@ $ http-server -p 4000 _site
     - [Malloc Module](#malloc-module)
     - [Extension: Mini-Valgrind](#extension-mini-valgrind)
   - [C Mastery](#c-mastery)
+- [Week 6: Keyboards and the PS/2 Protocol](#week-6-keyboards-and-the-ps2-protocol)
 - [ARM Tips](#arm-tips)
 - [GCC Tips](#gcc-tips)
   - [`-mpoke-function-name`](#-mpoke-function-name)
@@ -907,7 +908,55 @@ readability in the code itself
 - Don’t let bugs get you down, natural part of the work, relish the challenge you will learn something new!
 - Wellness important! ergonomics, healthy sleep/fuel, maintain perspective
 
+## Week 6: Keyboards and the PS/2 Protocol
 
+PS/2 is the original serial protocol for keyboards and mouse (replaced by USB now).
+
+It has a 6-pin mini-DIN connector.
+
+```
+       ++
+   +-+ || +-+
+   |5| || |6|
+   +-+ ++ +-+
++-+          +-+
+|3|          |4|
++-+          +-+
+   +-+    +-+
+   |1|    |2|
+   +-+    +-+
+```
+
+- Pin 1: Keyboard Data
+- ~Pin 2: Unused~
+- Pin 3: Ground
+- Pin 4: +5 Volts
+- Pin 5: Clock
+- ~PIn 6: Unused~
+
+Keyboard scancodes:
+
+![](./assets/scancode.png)
+
+Make (press) and Break (release) codes:
+
+| Key | Action | Scan Code |
+| :-: | :-: | :-: |
+| A | Make (down) | `0x1C` |
+| A | Break (up) | `0xF0 0x1C` |
+| Shift L | Make (down) | `0x12` |
+| Shift L | Break (up) | `0xF0 0x12` |
+
+We can see that **when we release some key, keyboard sends `0xF0` plus the scancode of the key**.
+
+PS/2 is a **synchronous** protocol, which means that the keyboard sends clock.
+
+- Data changes when clock lines is high
+- Host reads data when clock is low
+
+Payload: 1 start bit + 8 data bits (lsb-first) + 1 parity bit + 1 stop bit = 11 total bits.
+
+Parity = XOR of all of the data bits
 
 ## ARM Tips
 
