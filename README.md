@@ -75,6 +75,9 @@ $ http-server -p 4000 _site
     - [Extension: Mini-Valgrind](#extension-mini-valgrind)
   - [C Mastery](#c-mastery)
 - [Week 6: Keyboards and the PS/2 Protocol](#week-6-keyboards-and-the-ps2-protocol)
+  - [Lab 5: Keyboard Surfin'](#lab-5-keyboard-surfin)
+  - [Assignment 5: Keyboard and Simple Shell](#assignment-5-keyboard-and-simple-shell)
+  - [Graphics and the framebuffer](#graphics-and-the-framebuffer)
 - [ARM Tips](#arm-tips)
 - [GCC Tips](#gcc-tips)
   - [`-mpoke-function-name`](#-mpoke-function-name)
@@ -912,6 +915,8 @@ readability in the code itself
 
 PS/2 is the original serial protocol for keyboards and mouse (replaced by USB now).
 
+[The PS/2 Mouse/Keyboard Protocol](https://web.archive.org/web/20180302005138/http://computer-engineering.org/ps2protocol/).
+
 It has a 6-pin mini-DIN connector.
 
 ```
@@ -957,6 +962,60 @@ PS/2 is a **synchronous** protocol, which means that the keyboard sends clock.
 Payload: 1 start bit + 8 data bits (lsb-first) + 1 parity bit + 1 stop bit = 11 total bits.
 
 Parity = XOR of all of the data bits
+
+MIDI: Musical Instrument Digital Interface
+
+### Lab 5: Keyboard Surfin'
+
+### Assignment 5: Keyboard and Simple Shell
+
+### Graphics and the framebuffer
+
+CPU and GPU use [mailbox](https://github.com/raspberrypi/firmware/wiki/Mailboxes) to communicate.
+
+CPU sends `fb_config_t` structure to GPU and get framebuffer address back.
+
+| Field | CPU | GPU | Description |
+| :-: | :-: | :-: | :-: |
+| width | write | read | Width of physical screen |
+| height | write | read | Height of physical screen |
+| virtual width | write | read | Width of framebuffer |
+| virtual height | write | read | Height of framebuffer |
+| pitch | read | **write** | Number of bytes in a scanline |
+| depth | write | read | Bits per pixel |
+| x_offset | write | read | X offset of screen in framebuffer |
+| y_offset | write | read | Y ofset of screen in framebuffer |
+| pointer | read | **write** | Pointer to framebuffer |
+| size | read | **write** | Size of framebuffer in bytes |
+
+NOTE: **The byte sequence of pixel is BGRA in framebuffer**.
+
+```c
+uint32_t fb[WIDTH * HEIGHT];
+fb[0] = 0xBBGGRRAA; // y=0, x=0
+fb[1] = 0xBBGGRRAA; // y=0, x=1
+```
+
+Framebuffer overview:
+
+- GPU continuously refreshes the display by sending the pixels in the framebuffer out the HDMI port
+- The size of the image sent to the monitor is called the physical size
+-The size of the framebuffer image in memory is called the virtual size
+- The CPU and GPU share the memory, and hence the framebuffer
+- The CPU and GPU exchange messages using a mailbox
+
+NOTE: The default resolution in Pi GPU is not 1920x1080. If you have a 1920x1080 screen, in order to change the GPU resolution, create a file named `config.txt` with content:
+
+```text
+hdmi_group=2
+hdmi_mode=82
+```
+
+And put the file inside the root of sd card.
+
+Now we have graphics! Check the code [gradient.c](./week6/gradient/gradient.c).
+
+![](./assets/fb-gradient.jpeg)
 
 ## ARM Tips
 
