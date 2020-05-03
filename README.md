@@ -78,6 +78,12 @@ $ http-server -p 4000 _site
   - [Lab 5: Keyboard Surfin'](#lab-5-keyboard-surfin)
   - [Assignment 5: Keyboard and Simple Shell](#assignment-5-keyboard-and-simple-shell)
   - [Graphics and the framebuffer](#graphics-and-the-framebuffer)
+- [Week 7](#week-7)
+  - [Lab 6: Drawing into the Framebuffer](#lab-6-drawing-into-the-framebuffer)
+    - [Study fb and mailbox code](#study-fb-and-mailbox-code)
+    - [Multidimensional pointers](#multidimensional-pointers)
+    - [Fonts](#fonts)
+    - [Check-in](#check-in)
 - [ARM Tips](#arm-tips)
 - [GCC Tips](#gcc-tips)
   - [`-mpoke-function-name`](#-mpoke-function-name)
@@ -992,15 +998,15 @@ NOTE: **The byte sequence of pixel is BGRA in framebuffer**.
 
 ```c
 uint32_t fb[WIDTH * HEIGHT];
-fb[0] = 0xBBGGRRAA; // y=0, x=0
-fb[1] = 0xBBGGRRAA; // y=0, x=1
+fb[0] = 0xAARRGGBB; // y=0, x=0
+fb[1] = 0xAAGGRRBB; // y=0, x=1
 ```
 
 Framebuffer overview:
 
 - GPU continuously refreshes the display by sending the pixels in the framebuffer out the HDMI port
 - The size of the image sent to the monitor is called the physical size
--The size of the framebuffer image in memory is called the virtual size
+- The size of the framebuffer image in memory is called the virtual size
 - The CPU and GPU share the memory, and hence the framebuffer
 - The CPU and GPU exchange messages using a mailbox
 
@@ -1016,6 +1022,135 @@ And put the file inside the root of sd card.
 Now we have graphics! Check the code [gradient.c](./week6/gradient/gradient.c).
 
 ![](./assets/fb-gradient.jpeg)
+
+## Week 7
+
+### Lab 6: Drawing into the Framebuffer
+
+#### Study fb and mailbox code
+
+**Q:** What is the difference between physical size and virtual size? What is the difference between width and pitch?
+
+**A:** The size of the image sent to the monitor is called the physical size and the size of the framebuffer image in memory is called the virtual size.
+
+**Q:** What typecast could you apply to the framebuffer address to access the pixel data as a one-dimensional array of 8-bit bytes? As a two-dimensional array of 32-bit pixels? (Be sure to take into account the difference between width and pitch!)
+
+**A:**
+
+```c
+// as one-dimensional array of 8-bit bytes
+unsigned char *arr = fb.framebuffer;
+
+// as two-dimensional array of 32-bit pixels
+int row_len = fb.pitch / fb.bit_depth;
+unsigned int (*arr)[row_len] = fb.framebuffer;
+```
+
+**Q:** Why does the code need each of the checks for whether the mailbox is EMPTY or FULL? What might go wrong if these checks weren’t there?
+
+**A:** Because the CPU and CPU are asynchronous, they need to wait for each other by checking the mailbox status. We may read wrong data or corruput the data if there is no such check.
+
+**Q:** Why can we add the `addr` and `channel` in `mailbox_write`? Could we also `|` them together? Which bit positions are used for the `addr` and which are used for the `channel`?
+
+**A:** `addr` is 16-byte aligned which means the lower 4 bits are always zero and `channel` is less than 16 so they can be added together.
+
+We can also get same result by `|` them.
+
+Top 28 bits are used for `addr` and lower 4 bits are used for `channel`.
+
+**Q:** Do `fb`, `mailbox`, and the `framebuffer` live in GPU or CPU memory? Which of these data structures can we choose where to allocate, and which are given to us?
+
+**A:** `fb` apparently lives in CPU memory. `mailbox` address is `0x2000B880` and it's a peripheral register. I have printed `framebuffer` address and it's `0x4eace000`. It's way bigger than 512MB so I don't what memory it lives in???
+
+We can only choose where to allocate `fb`.
+
+**Q:** What happens to the loop that waits until not full/empty? What would be the observed behavior of executing the code that doesn’t use `volatile` ?
+
+**A:** The loop will not read the value in the memory every time. It reads once and stores the value and uses that value for computing the loop condition.
+
+It will loop forever if the first time loop condition checking is failed.
+
+#### Multidimensional pointers
+
+**Q:** What is the difference between the following two declarations? Think about what operations are valid on `a` versus `b`.
+
+```c
+char *a  = "Hello, world\n";
+char b[] = "Hello, world\n";
+```
+
+**A:** `a` is a pointer to a char which lives in the read only memory. `b` is an array of char which lives in the stack.
+
+We can't modify the data pointed by `a` but we can modify the data in `b`.
+
+**Q:** What is the difference between the following two declarations?
+
+```c
+int *p[2];
+int (*c)[2];
+```
+
+**A:** `p` is an array of two int pointers. `c` is a pointer pointing to an array of two int elements.
+
+#### Fonts
+
+**Q:** why does pixel_data have size `95 * 14 * 16 / 8`?
+
+**A:** We have 95 characters, each character has 14 * 16 pixels, each pixel uses one bit. So we have `95 * 14 * 16` bits and that is `95 * 14 * 16 /8` bytes.
+
+**Q:** Trace the operation of `font_get_char` for ASCII character `&` (hex 0x26)? At what location in pixel_data does it look to find the appropriate bits?
+
+**A:** Bit index of first row: `0 * 1330 + 5*14 = 70`. Related byte indexes are 8, 9, 10. Bit value is `00001100000000`.
+
+Bit index of second row: `1 * 1330 + 5*14 = 1400`. Related byte indexes are 175, 176. Bit value is `00001100000000`.
+
+Bit index of third row: `2 * 1330 + 5*14 = 2730`. Related byte indexes are 341, 342. Bit value is `00110011000000`.
+
+...
+
+Following is the complete bit value for `&`, space means zero.
+
+```text
+    11
+    11
+  11  11
+  11  11
+  11  11
+  11  11
+    11
+    11
+  11  11  11
+  11  11  11
+  11    11
+  11    11
+    1111  11
+    1111  11
+```
+
+#### Check-in
+
+**Q:** How does your checkerboard look? Show a TA your crisp looking squares!
+
+**A:**
+
+![](./assets/fb-chessboard.jpeg)
+
+**Q:** What happens if `mailbox_t mailbox` is not tagged as volatile?
+
+**A:** The statuc checking while loop will run forever.
+
+**Q:** Why is it valid to use `|` to combine the `addr` and `channel` in `mailbox_write`?
+
+**A:** The lower four bits of `addr` is always zero and `channel` only occupies four bits at maximum.
+
+**Q:** Show off your memory map diagram! Where does the stack sit, relative to the framebuffer? Where do the GPIO registers sit relative to the mailbox?
+
+**A:** To be completed.
+
+**Q:** What is the difference between the following two lines of code?
+**Q:** Why does pixel_data have size 95 * 14 * 16 / 8?
+
+**A:** Duplicated questions. Check my answers above.
 
 ## ARM Tips
 
