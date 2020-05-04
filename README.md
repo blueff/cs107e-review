@@ -76,6 +76,7 @@ $ http-server -p 4000 _site
   - [C Mastery](#c-mastery)
 - [Week 6: Keyboards and the PS/2 Protocol](#week-6-keyboards-and-the-ps2-protocol)
   - [Lab 5: Keyboard Surfin'](#lab-5-keyboard-surfin)
+    - [Check-in questions](#check-in-questions)
   - [Assignment 5: Keyboard and Simple Shell](#assignment-5-keyboard-and-simple-shell)
   - [Graphics and the framebuffer](#graphics-and-the-framebuffer)
 - [Week 7](#week-7)
@@ -957,6 +958,8 @@ Make (press) and Break (release) codes:
 | A | Break (up) | `0xF0 0x1C` |
 | Shift L | Make (down) | `0x12` |
 | Shift L | Break (up) | `0xF0 0x12` |
+| Alt R | Make (down) | `0xE0 0x69` |
+| Alt R | Break (up) | `0xE0 0xF0 0x69` |
 
 We can see that **when we release some key, keyboard sends `0xF0` plus the scancode of the key**.
 
@@ -973,6 +976,22 @@ MIDI: Musical Instrument Digital Interface
 
 ### Lab 5: Keyboard Surfin'
 
+the USB protocol is **complicated**. It’s approximately 2,000 lines of code to interface with a USB keyboard. OMG.
+
+If you press a key and hold it down, the keyboard enters auto-repeat or typematic mode where it repeatedly generates key press actions until you release the key.
+
+The code of this lab is fairly easy. Check [keyboard.c](./week6/lab5/my_keyboard/keyboard.c).
+
+#### Check-in questions
+
+**Q:** Back in lab1, we estimated how many instructions the Pi was executing (\~20 million/second). Today you measured the timing of PS/2 clock cycle. Calculate how many instructions the Pi can execute in that time. Now consider a call to printf. Make a ballpark estimate of how many instructions must execute to process and output a single char, now multiply by length of the format string for rough total count. If your keyboard driver makes a call to printf in between reading bits that overruns your budget, what will be the consequence?
+
+**A:** We will miss scancode.
+
+**Q:** What sequence of codes is sent when typing capital `A`?
+
+**A:** `0x59(right shift) 0x1C` or `0x12(left shift) 0x1c`.
+
 ### Assignment 5: Keyboard and Simple Shell
 
 ### Graphics and the framebuffer
@@ -980,6 +999,10 @@ MIDI: Musical Instrument Digital Interface
 CPU and GPU use [mailbox](https://github.com/raspberrypi/firmware/wiki/Mailboxes) to communicate.
 
 CPU sends `fb_config_t` structure to GPU and get framebuffer address back.
+
+**Q:** In a PS/2 scancode, does the least significant or most significant data bit arrive first?
+
+**A:** Least significant bit arrives first.
 
 | Field | CPU | GPU | Description |
 | :-: | :-: | :-: | :-: |
