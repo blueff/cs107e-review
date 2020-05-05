@@ -79,6 +79,8 @@ $ http-server -p 4000 _site
     - [Check-in questions](#check-in-questions)
   - [Assignment 5: Keyboard and Simple Shell](#assignment-5-keyboard-and-simple-shell)
     - [Keyboard driver](#keyboard-driver)
+    - [Simple shell](#simple-shell)
+    - [Extension: editing and history](#extension-editing-and-history)
   - [Graphics and the framebuffer](#graphics-and-the-framebuffer)
 - [Week 7](#week-7)
   - [Lab 6: Drawing into the Framebuffer](#lab-6-drawing-into-the-framebuffer)
@@ -1017,6 +1019,22 @@ At the end, our keyboard driver need to handle this two siturations.
 Our keyboard driver does not produce modified characters based on state of Alt or Control, only for Shift and Caps Lock.
 
 If Shift and Caps Lock applied together, Shift “wins”. Caps Lock and Shift together do not invert letters to lowercase. (Why design it this way???)
+
+#### Simple shell
+
+Thanks for all the previous efforts we made. Now Implementing a shell is a very eask task.
+
+Check the code [shell.c](./week6/assign6/shell.c).
+
+#### Extension: editing and history
+
+**Command-line editing:**
+
+- Left and right arrow keys
+- `ctrl-a` and `ctrl-e` to move the cursor to the first and last
+- `ctr-u` to delete the entire line
+
+To support `ctrl-*` keys, we need to modify our `keyboard.c` so that it can produce character representing these keys. Currently, it can't recognize any ctrl keys.
 
 ### Graphics and the framebuffer
 

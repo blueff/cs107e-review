@@ -81,15 +81,15 @@ main(void) {
   uart_init();
   keyboard_init(KEYBOARD_CLOCK, KEYBOARD_DATA);
 
-  // test_keyboard_scancodes();
+  test_keyboard_scancodes();
 
-  // timer_delay_ms(100);
-  // test_keyboard_sequences();
+  timer_delay_ms(100);
+  test_keyboard_sequences();
 
-  // timer_delay_ms(100);
-  // test_keyboard_events();
+  timer_delay_ms(100);
+  test_keyboard_events();
 
-  // timer_delay_ms(100);
+  timer_delay_ms(100);
   test_keyboard_chars();
 
   uart_putchar(EOT);
