@@ -78,6 +78,7 @@ $ http-server -p 4000 _site
   - [Lab 5: Keyboard Surfin'](#lab-5-keyboard-surfin)
     - [Check-in questions](#check-in-questions)
   - [Assignment 5: Keyboard and Simple Shell](#assignment-5-keyboard-and-simple-shell)
+    - [Keyboard driver](#keyboard-driver)
   - [Graphics and the framebuffer](#graphics-and-the-framebuffer)
 - [Week 7](#week-7)
   - [Lab 6: Drawing into the Framebuffer](#lab-6-drawing-into-the-framebuffer)
@@ -993,6 +994,29 @@ The code of this lab is fairly easy. Check [keyboard.c](./week6/lab5/my_keyboard
 **A:** `0x59(right shift) 0x1C` or `0x12(left shift) 0x1c`.
 
 ### Assignment 5: Keyboard and Simple Shell
+
+#### Keyboard driver
+
+The keyboard module is well designed. We have 4 functions to handle 4 different level tasks:
+
+- `keyboard_read_scancode`: the lowest level function to read raw scancode.
+- `keyboard_read_sequence`: combine 1, 2 or 3 scancodes to a sequence. A sequence consists of what the action is (press or release) and what the scancode of the key is. In curent design, it doesn't track whether the key is normal or extended. That is, we can't tell the difference of left alt `0x11` and right alt (`0xE0 0x11`).
+- `keyboard_read_event`: compared to a sequence, a key event contains modifiers status.
+- `keyboard_read_next`: maybe `keyboard_read_char` is a better name? This function returns an ASCII character of current key press.
+
+At the end, our keyboard driver need to handle this two siturations.
+
+- Typing an ordinary key produces an ASCII character. The ordinary keys are:
+  - All letters, digits, and punctuation keys
+  - Whitespace keys (Space, Tab, Return)
+- Typing a special key produces its designated value. These values are greater than 0x90 to distinguish from ASCII values. The special keys are:
+  - Escape
+  - Function keys F1-F12
+  - Backspace key (sometimes marked with ← or ⌫)
+
+Our keyboard driver does not produce modified characters based on state of Alt or Control, only for Shift and Caps Lock.
+
+If Shift and Caps Lock applied together, Shift “wins”. Caps Lock and Shift together do not invert letters to lowercase. (Why design it this way???)
 
 ### Graphics and the framebuffer
 
