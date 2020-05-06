@@ -1036,6 +1036,12 @@ Check the code [shell.c](./week6/assign6/shell.c).
 
 To support `ctrl-*` keys, we need to modify our `keyboard.c` so that it can produce character representing these keys. Currently, it can't recognize any ctrl keys.
 
+**Command history:**
+
+- Change the prompt to include the command number of the current line.
+- Implement `history` command.
+- Support key up and key down to browse histories.
+
 ### Graphics and the framebuffer
 
 CPU and GPU use [mailbox](https://github.com/raspberrypi/firmware/wiki/Mailboxes) to communicate.

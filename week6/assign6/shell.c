@@ -6,6 +6,8 @@
 #include <uart.h>
 #include <pi.h>
 
+int cmd_history(int argc, const char *argv[]);
+
 #define LINE_MAX 80
 #define ArrayCount(arr) (sizeof(arr) / sizeof(arr[0]))
 
@@ -23,7 +25,50 @@ static command_t commands[] = {
   {"poke",
    "<address> <value> stores `value` into the memory at `address`",
    cmd_poke},
+  {"history", "show latest 10 commands with its number", cmd_history},
 };
+
+// size includes null byte
+// src must be a valid string
+// return how many characters (exclude null byte) copied
+static int
+strcpy(char *dst, size_t dst_size, char *src) {
+  if(dst_size == 0)
+    return 0;
+
+  int result = 0;
+
+  char *pd = dst;
+  char *ps = src;
+
+  while(*ps != 0 && (ps - src) < dst_size - 1) {
+    result++;
+    *pd++ = *ps++;
+  }
+
+  *pd = 0;
+  return result;
+}
+
+static int command_no = 1;
+typedef struct {
+  int no;
+  char buf[LINE_MAX];
+} history_item;
+static history_item histories[10];
+static int history_index = 0;
+static int history_browsing_index = -1;
+
+static void
+add_history_item(int no, char *buf) {
+  if(history_index == ArrayCount(histories)) {
+    history_index = 0;
+  }
+
+  history_item *item = histories + history_index++;
+  item->no = no;
+  strcpy(item->buf, LINE_MAX, buf);
+}
 
 static command_t *
 find_command(char *name) {
@@ -45,6 +90,18 @@ move_cursor_left(int n) {
 static void
 move_cursor_right(int n) {
   for(int i = 0; i < n; i++) { shell_printf("%c[C", 0x1b); }
+}
+
+int
+cmd_history(int argc, const char *argv[]) {
+  for(int i = 0; i < ArrayCount(histories); i++) {
+    int idx = (history_index + i) % ArrayCount(histories);
+    history_item *item = histories + idx;
+    if(item->no != 0) {
+      shell_printf("%d %s\n", item->no, item->buf);
+    }
+  }
+  return 0;
 }
 
 int
@@ -150,13 +207,100 @@ shell_bell(void) {
   shell_printf("%c", '\a');
 }
 
+static void
+clear_line(size_t written, size_t cursor) {
+  if(cursor != written) {
+    move_cursor_right(written - cursor);
+  }
+  move_cursor_left(written);
+  for(int i = 0; i < written; i++) { shell_printf(" "); }
+  move_cursor_left(written);
+}
+
+// Set line content to `content`
+static void
+set_line(char buf[], char *content, size_t *written, size_t *cursor) {
+  clear_line(*written, *cursor);
+  *written = strcpy(buf, LINE_MAX, content);
+  for(int i = 0; i < *written; i++) { shell_printf("%c", buf[i]); }
+  *cursor = *written;
+}
+
 void
 shell_readline(char buf[], size_t bufsize) {
   size_t written = 0;
-  int cursor = 0;
+  size_t cursor = 0;
 
   while(1) {
     unsigned char next = keyboard_read_next();
+
+    // Only allow key up/down if current input is empty
+    if(next == PS2_KEY_ARROW_UP) {
+      if(written > 0) {
+        if(history_browsing_index == -1) {
+          shell_bell();
+          continue;
+        }
+
+        if(strcmp(buf, histories[history_browsing_index].buf) != 0) {
+          shell_bell();
+          continue;
+        }
+      }
+
+      if(history_browsing_index == history_index) {
+        shell_bell();
+        continue;
+      }
+
+      if(history_browsing_index == -1) {
+        history_browsing_index = history_index - 1;
+      } else {
+        history_browsing_index -= 1;
+      }
+      if(history_browsing_index < 0) {
+        history_browsing_index += ArrayCount(histories);
+      }
+
+      history_item *item = histories + history_browsing_index;
+
+      if(item->no != 0) {
+        set_line(buf, item->buf, &written, &cursor);
+      } else {
+        shell_bell();
+        history_browsing_index += 1;
+        history_browsing_index = history_browsing_index % ArrayCount(histories);
+      }
+
+      continue;
+    }
+
+    if(next == PS2_KEY_ARROW_DOWN) {
+      if(history_browsing_index == -1) {
+        shell_bell();
+        continue;
+      }
+
+      if(written > 0) {
+        if(strcmp(histories[history_browsing_index].buf, buf) != 0) {
+          shell_bell();
+          continue;
+        }
+      }
+
+      history_browsing_index += 1;
+      history_browsing_index = history_browsing_index % ArrayCount(histories);
+
+      if(history_browsing_index == history_index) {
+        history_browsing_index = -1;
+        set_line(buf, "", &written, &cursor);
+      } else {
+        history_item *item = histories + history_browsing_index;
+        set_line(buf, item->buf, &written, &cursor);
+      }
+
+      continue;
+    }
 
     if(next == PS2_KEY_ARROW_LEFT && cursor > 0) {
       move_cursor_left(1);
@@ -268,6 +412,18 @@ isspace(char c) {
   return c == ' ' || c == '\t' || c == '\n';
 }
 
+static inline int
+is_empty_string(char *str) {
+  while(*str != 0) {
+    if(!isspace(*str))
+      return 0;
+
+    str++;
+  }
+
+  return 1;
+}
+
 static int
 tokenize(const char *line, const char *array[], int max) {
   int ntokens = 0;
@@ -312,11 +468,21 @@ void
 shell_run(void) {
   shell_printf(
     "Welcome to the CS107E shell. Remember to type on your PS/2 keyboard!\n");
-  while(1) {
-    char line[LINE_MAX];
+  char line[LINE_MAX];
 
-    shell_printf("Pi> ");
+  while(1) {
+    shell_printf("[%d] Pi> ", command_no);
+
     shell_readline(line, sizeof(line));
+
+    if(!is_empty_string(line)) {
+      command_no++;
+      add_history_item(command_no, line);
+    }
+
     shell_evaluate(line);
+
+    // Reset history browseing index
+    history_browsing_index = -1;
   }
 }
