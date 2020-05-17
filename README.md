@@ -995,6 +995,10 @@ The code of this lab is fairly easy. Check [keyboard.c](./week6/lab5/my_keyboard
 
 **A:** `0x59(right shift) 0x1C` or `0x12(left shift) 0x1c`.
 
+**Q:** In a PS/2 scancode, does the least significant or most significant data bit arrive first?
+
+**A:** Least significant bit arrives first.
+
 ### Assignment 5: Keyboard and Simple Shell
 
 #### Keyboard driver
@@ -1042,15 +1046,19 @@ To support `ctrl-*` keys, we need to modify our `keyboard.c` so that it can prod
 - Implement `history` command.
 - Support key up and key down to browse histories.
 
+Implementing history browsing with key up and key down is a little bit tricky, we have to consider all kinds of edge cases.
+
+Consider this case: we have three history items and we press key up to browse the latest one. Then we type something, what should happen when we press key up again?
+
+In bash or zsh or other mature shells, they filter histories using the current content. It's the reasonable thing to do but I don't plan to implement this feature in this assignment. We just ring the bell and do nothing.
+
+Check the final code [shell.c](./week6/assign6/shell.c).
+
 ### Graphics and the framebuffer
 
 CPU and GPU use [mailbox](https://github.com/raspberrypi/firmware/wiki/Mailboxes) to communicate.
 
-CPU sends `fb_config_t` structure to GPU and get framebuffer address back.
-
-**Q:** In a PS/2 scancode, does the least significant or most significant data bit arrive first?
-
-**A:** Least significant bit arrives first.
+CPU sends `fb_config_t` structure to GPU and gets framebuffer address back.
 
 | Field | CPU | GPU | Description |
 | :-: | :-: | :-: | :-: |

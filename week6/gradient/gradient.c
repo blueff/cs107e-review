@@ -18,13 +18,13 @@ typedef struct {
 
 static volatile fb_config_t fb __attribute__((aligned(16)));
 
-// 1280/1024 640/512
 static const int WIDTH = 1920;
 static const int HEIGHT = 1080;
 static const int DEPTH = 32;
 
 int
-fb_init(void) {
+fb_init(void)
+{
   // write these values to the GPU
   fb.width = WIDTH;
   fb.height = HEIGHT;
@@ -48,20 +48,23 @@ fb_init(void) {
 }
 
 void
-draw_gradient() {
+draw_gradient()
+{
   int pitch = fb.pitch / 4;
   unsigned int *buf = (unsigned int *)fb.framebuffer;
 
   for(int y = 0; y < fb.virtual_height; y++) {
     for(int x = 0; x < fb.virtual_width; x++) {
-      unsigned int color = (y << 24) | (x << 16) | 0x00ff;
+      int r = x % 256;
+      unsigned int color = (r << 16) | 0x00ff;
       buf[y * pitch + x] = color;
     }
   }
 }
 
 void
-main(void) {
+main(void)
+{
   gpio_init();
   uart_init();
 
@@ -69,8 +72,8 @@ main(void) {
 
   printf("requested physical size = (%d, %d)\n", fb.width, fb.height);
   printf("requested virtual size = (%d, %d)\n",
-         fb.virtual_width,
-         fb.virtual_height);
+    fb.virtual_width,
+    fb.virtual_height);
   printf("requested depth (bits) = %d\n", fb.bit_depth);
 
   printf("result/error (should be 0) = %x\n", err);
@@ -79,11 +82,11 @@ main(void) {
   printf("depth (bits) = %d\n", fb.bit_depth);
   printf("framebuffer address = %p\n", fb.framebuffer);
   printf("framebuffer total bytes = %d (height*width*depth=%d)\n",
-         fb.total_bytes,
-         fb.virtual_height * fb.virtual_width * 4);
+    fb.total_bytes,
+    fb.virtual_height * fb.virtual_width * 4);
   printf("pitch (number of bytes in a scanline)= %d (width*depth=%d)\n",
-         fb.pitch,
-         fb.virtual_width * 4);
+    fb.pitch,
+    fb.virtual_width * 4);
 
   if(err == 0) {
     draw_gradient();

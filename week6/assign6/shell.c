@@ -14,25 +14,26 @@ int cmd_history(int argc, const char *argv[]);
 static formatted_fn_t shell_printf;
 
 static command_t commands[] = {
-  {"help", "<cmd> prints a list of commands or description of cmd", cmd_help},
-  {"echo", "<...> echos the user input to the screen", cmd_echo},
-  {"reboot",
-   "reboot the Raspberry Pi back to the bootloader using `pi_reboot",
-   cmd_reboot},
-  {"peek",
-   "<address> prints the contents (4 bytes) of memory at address",
-   cmd_peek},
-  {"poke",
-   "<address> <value> stores `value` into the memory at `address`",
-   cmd_poke},
-  {"history", "show latest 10 commands with its number", cmd_history},
+  { "help", "<cmd> prints a list of commands or description of cmd", cmd_help },
+  { "echo", "<...> echos the user input to the screen", cmd_echo },
+  { "reboot",
+    "reboot the Raspberry Pi back to the bootloader using `pi_reboot",
+    cmd_reboot },
+  { "peek",
+    "<address> prints the contents (4 bytes) of memory at address",
+    cmd_peek },
+  { "poke",
+    "<address> <value> stores `value` into the memory at `address`",
+    cmd_poke },
+  { "history", "show latest 10 commands with its number", cmd_history },
 };
 
 // size includes null byte
 // src must be a valid string
 // return how many characters (exclude null byte) copied
 static int
-strcpy(char *dst, size_t dst_size, char *src) {
+strcpy(char *dst, size_t dst_size, char *src)
+{
   if(dst_size == 0)
     return 0;
 
@@ -60,7 +61,8 @@ static int history_index = 0;
 static int history_browsing_index = -1;
 
 static void
-add_history_item(int no, char *buf) {
+add_history_item(int no, char *buf)
+{
   if(history_index == ArrayCount(histories)) {
     history_index = 0;
   }
@@ -71,7 +73,8 @@ add_history_item(int no, char *buf) {
 }
 
 static command_t *
-find_command(char *name) {
+find_command(char *name)
+{
   for(int i = 0; i < ArrayCount(commands); i++) {
     if(strcmp(name, commands[i].name) == 0) {
       return commands + i;
@@ -82,18 +85,25 @@ find_command(char *name) {
 }
 
 static void
-move_cursor_left(int n) {
-  for(int i = 0; i < n; i++) { shell_printf("%c", '\b'); }
+move_cursor_left(int n)
+{
+  for(int i = 0; i < n; i++) {
+    shell_printf("%c", '\b');
+  }
 }
 
 // ASCII escape sequence
 static void
-move_cursor_right(int n) {
-  for(int i = 0; i < n; i++) { shell_printf("%c[C", 0x1b); }
+move_cursor_right(int n)
+{
+  for(int i = 0; i < n; i++) {
+    shell_printf("%c[C", 0x1b);
+  }
 }
 
 int
-cmd_history(int argc, const char *argv[]) {
+cmd_history(int argc, const char *argv[])
+{
   for(int i = 0; i < ArrayCount(histories); i++) {
     int idx = (history_index + i) % ArrayCount(histories);
     history_item *item = histories + idx;
@@ -105,14 +115,17 @@ cmd_history(int argc, const char *argv[]) {
 }
 
 int
-cmd_echo(int argc, const char *argv[]) {
-  for(int i = 1; i < argc; i++) shell_printf("%s ", argv[i]);
+cmd_echo(int argc, const char *argv[])
+{
+  for(int i = 1; i < argc; i++)
+    shell_printf("%s ", argv[i]);
   shell_printf("\n");
   return 0;
 }
 
 int
-cmd_help(int argc, const char *argv[]) {
+cmd_help(int argc, const char *argv[])
+{
   int result = 0;
 
   if(argc == 1) {
@@ -134,14 +147,16 @@ cmd_help(int argc, const char *argv[]) {
 }
 
 int
-cmd_reboot(int argc, const char *argv[]) {
+cmd_reboot(int argc, const char *argv[])
+{
   shell_printf("%c", EOT);
   pi_reboot();
   return 0;
 }
 
 int
-cmd_peek(int argc, const char *argv[]) {
+cmd_peek(int argc, const char *argv[])
+{
   if(argc < 2) {
     shell_printf("error: peek expects 1 argument [address]\n");
     return 1;
@@ -166,7 +181,8 @@ cmd_peek(int argc, const char *argv[]) {
 }
 
 int
-cmd_poke(int argc, const char *argv[]) {
+cmd_poke(int argc, const char *argv[])
+{
   if(argc < 3) {
     shell_printf("error: poke expects 2 arguments [address] [value]\n");
     return 1;
@@ -198,36 +214,45 @@ cmd_poke(int argc, const char *argv[]) {
 }
 
 void
-shell_init(formatted_fn_t print_fn) {
+shell_init(formatted_fn_t print_fn)
+{
   shell_printf = print_fn;
 }
 
 void
-shell_bell(void) {
+shell_bell(void)
+{
   shell_printf("%c", '\a');
 }
 
 static void
-clear_line(size_t written, size_t cursor) {
+clear_line(size_t written, size_t cursor)
+{
   if(cursor != written) {
     move_cursor_right(written - cursor);
   }
   move_cursor_left(written);
-  for(int i = 0; i < written; i++) { shell_printf(" "); }
+  for(int i = 0; i < written; i++) {
+    shell_printf(" ");
+  }
   move_cursor_left(written);
 }
 
 // Set line content to `content`
 static void
-set_line(char buf[], char *content, size_t *written, size_t *cursor) {
+set_line(char buf[], char *content, size_t *written, size_t *cursor)
+{
   clear_line(*written, *cursor);
   *written = strcpy(buf, LINE_MAX, content);
-  for(int i = 0; i < *written; i++) { shell_printf("%c", buf[i]); }
+  for(int i = 0; i < *written; i++) {
+    shell_printf("%c", buf[i]);
+  }
   *cursor = *written;
 }
 
 void
-shell_readline(char buf[], size_t bufsize) {
+shell_readline(char buf[], size_t bufsize)
+{
   size_t written = 0;
   size_t cursor = 0;
 
@@ -235,6 +260,7 @@ shell_readline(char buf[], size_t bufsize) {
     unsigned char next = keyboard_read_next();
 
     // Only allow key up/down if current input is empty
+    // or current input is the same content as the history item
     if(next == PS2_KEY_ARROW_UP) {
       if(written > 0) {
         if(history_browsing_index == -1) {
@@ -331,7 +357,9 @@ shell_readline(char buf[], size_t bufsize) {
     // ctrl-u
     if(next == 0x15) {
       move_cursor_left(cursor);
-      for(int i = 0; i < written; i++) { shell_printf(" "); }
+      for(int i = 0; i < written; i++) {
+        shell_printf(" ");
+      }
       move_cursor_left(written);
       written = 0;
       cursor = 0;
@@ -364,7 +392,9 @@ shell_readline(char buf[], size_t bufsize) {
           shell_printf(" ");
           move_cursor_left(count + 1);
 
-          for(int i = cursor - 1; i < written - 1; i++) { buf[i] = buf[i + 1]; }
+          for(int i = cursor - 1; i < written - 1; i++) {
+            buf[i] = buf[i + 1];
+          }
           cursor--;
           written--;
         }
@@ -385,10 +415,14 @@ shell_readline(char buf[], size_t bufsize) {
     } else {
       shell_printf("%c", next);
       int count = written - cursor;
-      for(int i = 0; i < count; i++) { shell_printf("%c", buf[cursor + i]); }
+      for(int i = 0; i < count; i++) {
+        shell_printf("%c", buf[cursor + i]);
+      }
       move_cursor_left(count);
 
-      for(int i = written; i > cursor; i--) { buf[i] = buf[i - 1]; }
+      for(int i = written; i > cursor; i--) {
+        buf[i] = buf[i - 1];
+      }
       buf[cursor] = next;
     }
     written++;
@@ -400,7 +434,8 @@ shell_readline(char buf[], size_t bufsize) {
 }
 
 static char *
-strndup(char *src, size_t n) {
+strndup(char *src, size_t n)
+{
   char *buf = malloc(n + 1);
   memcpy(buf, src, n);
   buf[n] = 0;
@@ -408,12 +443,14 @@ strndup(char *src, size_t n) {
 }
 
 static inline int
-isspace(char c) {
+isspace(char c)
+{
   return c == ' ' || c == '\t' || c == '\n';
 }
 
 static inline int
-is_empty_string(char *str) {
+is_empty_string(char *str)
+{
   while(*str != 0) {
     if(!isspace(*str))
       return 0;
@@ -425,16 +462,19 @@ is_empty_string(char *str) {
 }
 
 static int
-tokenize(const char *line, const char *array[], int max) {
+tokenize(const char *line, const char *array[], int max)
+{
   int ntokens = 0;
   char *cur = (char *)line;
 
   while(ntokens < max) {
-    while(isspace(*cur)) cur++;
+    while(isspace(*cur))
+      cur++;
     if(*cur == 0)
       break;
     char *start = cur;
-    while(*cur != 0 && !isspace(*cur)) cur++;
+    while(*cur != 0 && !isspace(*cur))
+      cur++;
     array[ntokens++] = strndup(start, cur - start);
   }
 
@@ -442,7 +482,8 @@ tokenize(const char *line, const char *array[], int max) {
 }
 
 int
-shell_evaluate(const char *line) {
+shell_evaluate(const char *line)
+{
   // number of tokens must < LINE_MAX
   const char *tokens[LINE_MAX] = {};
   int argc = tokenize(line, tokens, LINE_MAX);
@@ -459,13 +500,16 @@ shell_evaluate(const char *line) {
 
   int result = cmd->fn(argc, tokens);
 
-  for(int i = 0; i < argc; i++) { free((char *)tokens[i]); }
+  for(int i = 0; i < argc; i++) {
+    free((char *)tokens[i]);
+  }
 
   return result;
 }
 
 void
-shell_run(void) {
+shell_run(void)
+{
   shell_printf(
     "Welcome to the CS107E shell. Remember to type on your PS/2 keyboard!\n");
   char line[LINE_MAX];
@@ -476,13 +520,13 @@ shell_run(void) {
     shell_readline(line, sizeof(line));
 
     if(!is_empty_string(line)) {
-      command_no++;
       add_history_item(command_no, line);
+      command_no++;
     }
 
     shell_evaluate(line);
 
-    // Reset history browseing index
+    // Reset history browsing index
     history_browsing_index = -1;
   }
 }
