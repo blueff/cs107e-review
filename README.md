@@ -1350,9 +1350,64 @@ For working with our shell, console need also handle following keys:
 - `\a`: ring the bell
 - `Esc[C`: move the cursor right
 
-**Focus on the data structure**. Thank about what your data structure is and how you are gonna implement all the features with this data structure?
+**Focus on the data structure**. Think about what your data structure is and how you are gonna implement all the features with this data structure?
+
+I use this data structure:
+
+```c
+// A simple 2-element vector
+typedef union {
+  struct {
+    int x;
+    int y;
+  };
+  struct {
+    int width;
+    int height;
+  };
+} v2;
+
+typedef struct {
+  // Our console may not occupy the whole screen
+  // This is the left and top padding in pixels
+  v2 padding;
+
+  // Console dimensions in characters
+  // e.g. 40x20
+  v2 dim;
+
+  // Console size in pixels
+  // size.width = font_width * dim.width
+  // size.height = font_height * dim.height
+  v2 size;
+
+  // Cursor position in character space
+  // e.g. (0, 0) means our cursor is at the row 0 and column 0
+  // of the console.
+  // Based on the `first_row_index`, row 0 can be any row on the screen
+  v2 cursor;
+
+  // Last character position of current line
+  // Because we can move the cursor, we need to track
+  // where the last character is
+  // e.g. (0, 10) means we are currently at row 0 and
+  // we have entered 10 characters
+  v2 end;
+
+  // It's a 2D array representing all characters on our console
+  // char content[dim.height][dim.width + 1],
+  // extra one character for \0
+  void *content;
+
+  // Determine which row in our `content` is the first row on the screen
+  // We use this index to implement scrolling feature
+  int first_row_index;
+}
+```
 
 `shell` uses **characters** to control our `console`. The job of `console` is to display characters and the cursor.
+
+Check the final code [console.c](./week7/assign6/console.c).
 
 ## ARM Tips
 

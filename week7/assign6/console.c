@@ -32,19 +32,18 @@ static struct {
 
   v2 end;
 
-  // nrows * (ncols + 1) size
-  // Reserve extra byte for '\0'
-  // char content[][]
+  // char content[dim.height][dim.width + 1],
+  // extra byte for '\0'
   void *content;
 
   // For scrolling, which row to read
-  int read_index;
+  int first_row_index;
 } console_buffer;
 
 static int
-circular_add_index(int idx, int all)
+circular_add(int v, int total)
 {
-  return (idx + 1) % all;
+  return (v + 1) % total;
 }
 
 static char *
@@ -101,7 +100,7 @@ draw_console(void)
 
   // Draw console
   for(int dy = 0; dy < console_buffer.dim.height; dy++) {
-    int y = (dy + console_buffer.read_index) % console_buffer.dim.height;
+    int y = (dy + console_buffer.first_row_index) % console_buffer.dim.height;
 
     // Draw cursor
     if(cursor.y == y) {
@@ -124,9 +123,9 @@ draw_console(void)
 static void
 scroll_down()
 {
-  int original_read_index = console_buffer.read_index;
-  console_buffer.read_index
-    = circular_add_index(original_read_index, console_buffer.dim.height);
+  int original_read_index = console_buffer.first_row_index;
+  console_buffer.first_row_index
+    = circular_add(original_read_index, console_buffer.dim.height);
   char *line = get_line(original_read_index);
   line[0] = 0;
 }
@@ -139,7 +138,7 @@ move_cursor_left()
 
   if(cursor.x < 0) {
     // We dont' support 'scroll up'
-    assert(cursor.y != console_buffer.read_index);
+    assert(cursor.y != console_buffer.first_row_index);
 
     cursor.y -= 1;
     if(cursor.y < 0) {
@@ -157,10 +156,10 @@ move_cursor_right()
   cursor.x += 1;
 
   if(cursor.x == console_buffer.dim.width) {
-    cursor.y = circular_add_index(cursor.y, console_buffer.dim.height);
+    cursor.y = circular_add(cursor.y, console_buffer.dim.height);
     cursor.x = 0;
 
-    if(cursor.y == console_buffer.read_index) {
+    if(cursor.y == console_buffer.first_row_index) {
       scroll_down();
     }
   }
@@ -177,7 +176,7 @@ move_end_right()
   line[end.x] = 0;
 
   if(end.x == console_buffer.dim.width) {
-    // Don't have to modify `read_index`
+    // Don't have to modify `first_row_index`
     // `move_cursor_right` will handle that
     end.y = (end.y + 1) % console_buffer.dim.height;
     end.x = 0;
@@ -193,7 +192,7 @@ put_newline(void)
   cursor.y = (cursor.y + 1) % console_buffer.dim.height;
   cursor.x = 0;
 
-  if(cursor.y == console_buffer.read_index) {
+  if(cursor.y == console_buffer.first_row_index) {
     scroll_down();
   }
 
@@ -261,7 +260,7 @@ clear_console(void)
 {
   console_buffer.cursor = (v2){ .x = 0, .y = 0 };
   console_buffer.end = (v2){ .x = 0, .y = 0 };
-  console_buffer.read_index = 0;
+  console_buffer.first_row_index = 0;
   char *line = get_line(0);
   line[0] = 0;
 }
