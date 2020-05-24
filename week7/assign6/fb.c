@@ -1,4 +1,21 @@
 #include <fb.h>
+#include <mailbox.h>
+
+typedef struct {
+  unsigned int width;
+  unsigned int height;
+  unsigned int virtual_width;
+  unsigned int virtual_height;
+  unsigned int pitch;
+  unsigned int bit_depth;
+  unsigned int x_offset;
+  unsigned int y_offset;
+  void *framebuffer;
+  unsigned int total_bytes;
+} fb_config_t;
+
+static volatile fb_config_t fb __attribute__((aligned(16)));
+static fb_mode_t fb_mode;
 
 void
 fb_init(unsigned int width,
@@ -6,39 +23,65 @@ fb_init(unsigned int width,
   unsigned int depth_in_bytes,
   fb_mode_t mode)
 {
+  fb.width = width;
+  fb.height = height;
+  fb_mode = mode;
+
+  if(mode == FB_SINGLEBUFFER) {
+    fb.virtual_height = height;
+    fb.virtual_width = width;
+  } else {
+    fb.virtual_height = height * 2;
+    fb.virtual_width = width;
+  }
+
+  fb.bit_depth = depth_in_bytes * 8;
+
+  mailbox_write(MAILBOX_FRAMEBUFFER, (unsigned)&fb);
+  mailbox_read(MAILBOX_FRAMEBUFFER);
+
+  // TODO: what should we do if err returned by mailbox_read != 0?
 }
 
 unsigned int
 fb_get_width(void)
 {
-  return 0;
+  return fb.width;
 }
 
 unsigned int
 fb_get_height(void)
 {
-  return 0;
+  return fb.height;
 }
 
 unsigned int
 fb_get_depth(void)
 {
-  return 0;
+  return fb.bit_depth / 8;
 }
 
 unsigned int
 fb_get_pitch(void)
 {
-  return 0;
+  return fb.pitch;
 }
 
 void *
 fb_get_draw_buffer(void)
 {
-  return 0;
+  if(fb_mode == FB_SINGLEBUFFER) {
+    return fb.framebuffer;
+  }
+
+  unsigned int length = fb.height * fb.pitch;
+  return fb.y_offset == 0 ? (char *)fb.framebuffer + length : fb.framebuffer;
 }
 
 void
 fb_swap_buffer(void)
 {
+  fb.y_offset = fb.y_offset == 0 ? fb.height : 0;
+  mailbox_write(MAILBOX_FRAMEBUFFER, (unsigned)&fb);
+  mailbox_read(MAILBOX_FRAMEBUFFER);
 }

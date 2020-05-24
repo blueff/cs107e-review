@@ -90,7 +90,11 @@ $ http-server -p 4000 _site
     - [Fonts](#fonts)
     - [Check-in](#check-in)
   - [Assignment 6: Graphics Library and Console](#assignment-6-graphics-library-and-console)
-  - [Prepare starter files](#prepare-starter-files-2)
+    - [Prepare starter files](#prepare-starter-files-2)
+    - [Framebuffer](#framebuffer)
+    - [Graphics primitives](#graphics-primitives)
+    - [Fonts and text-drawing](#fonts-and-text-drawing)
+    - [Console](#console)
 - [ARM Tips](#arm-tips)
 - [GCC Tips](#gcc-tips)
   - [`-mpoke-function-name`](#-mpoke-function-name)
@@ -1061,7 +1065,7 @@ If Shift and Caps Lock applied together, Shift “wins”. Caps Lock and Shift t
 
 Thanks for all the previous efforts we made. Now Implementing a shell is a very eask task.
 
-Check the code [shell.c](./week6/assign6/shell.c).
+Check the code [shell.c](./week6/assign5/shell.c).
 
 #### Extension: editing and history
 
@@ -1072,6 +1076,8 @@ Check the code [shell.c](./week6/assign6/shell.c).
 - `ctr-u` to delete the entire line
 
 To support `ctrl-*` keys, we need to modify our `keyboard.c` so that it can produce character representing these keys. Currently, it can't recognize any ctrl keys.
+
+We can use `\b` to move the cursor left, but for moving the cursor right, I use `Esc[C` based on the [ASCII Escape Sequences](http://ascii-table.com/ansi-escape-sequences.php).
 
 **Command history:**
 
@@ -1085,7 +1091,7 @@ Consider this case: we have three history items and we press key up to browse th
 
 In bash or zsh or other mature shells, they filter histories using the current content. It's the reasonable thing to do but I don't plan to implement this feature in this assignment. We just ring the bell and do nothing.
 
-Check the final code [shell.c](./week6/assign6/shell.c).
+Check the final code [shell.c](./week6/assign5/shell.c).
 
 ### Graphics and the framebuffer
 
@@ -1154,7 +1160,7 @@ Now we have graphics! Check the code [gradient.c](./week6/gradient/gradient.c).
 unsigned char *arr = fb.framebuffer;
 
 // as two-dimensional array of 32-bit pixels
-int row_len = fb.pitch / fb.bit_depth;
+int row_len = fb.pitch / (fb.bit_depth / 8);
 unsigned int (*arr)[row_len] = fb.framebuffer;
 ```
 
@@ -1266,7 +1272,7 @@ Following is the complete bit value for `&`, space means zero.
 
 ### Assignment 6: Graphics Library and Console
 
-### Prepare starter files
+#### Prepare starter files
 
 Copy `memmap`, `keyboard.c`, `shell.c`, `start.s` and `cstart.c` from assignment 5.
 
@@ -1298,6 +1304,55 @@ Create `tests/test_gl_console.c` with an empty main function.
 Create `console.c`, `fb.c` and `gl.c` with stub functions based on their header files.
 
 Finally create `Makefile` to compile our app and test.
+
+#### Framebuffer
+
+NOTE:
+
+> After each call to `mailbox_write`, follow up with a call to `mailbox_read` to acknowledge the GPU’s response. If you forget this, the mailbox queue eventually fills up and the system will hang.
+
+> To implement `fb_swap_buffer` you change which half of the virtual framebuffer is frontmost (displayed) by changing the Y offset from 0 to the physical height (or vice versa). To make this change, set the `y_offset` in the fb struct and write to the mailbox to inform the GPU to update.
+
+This indicates that the frame buffer address won't change once we get it.
+
+#### Graphics primitives
+
+NOTE:
+
+> Take care to compute the location of a pixel’s data in the framebuffer based on **pitch**, not width, because the GPU may have made each row a little wider than requested for reasons of alignment.
+
+These functions are fairly easy, just pay very attention to always check the array bounds.
+
+Let's draw a mandelbrot set:
+
+![](./assets/mandelbrot_set.jpeg)
+
+#### Fonts and text-drawing
+
+Make sure that we clip all text drawing to the bounds of the framebuffer.
+
+#### Console
+
+There are four special characters that require unique processing:
+
+- `\b`: backspace (move cursor backwards one position)
+- `\r`: carriage return (move cursor to first column in current row)
+- `\n`: newline (move cursor down to first column of next row)
+- `\f`: form feed (clear contents and move cursor to home position in upper left)
+
+The console should also handle the operations for:
+
+- Horizontal wrapping
+- Vertical scrolling
+
+For working with our shell, console need also handle following keys:
+
+- `\a`: ring the bell
+- `Esc[C`: move the cursor right
+
+**Focus on the data structure**. Thank about what your data structure is and how you are gonna implement all the features with this data structure?
+
+`shell` uses **characters** to control our `console`. The job of `console` is to display characters and the cursor.
 
 ## ARM Tips
 
