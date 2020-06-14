@@ -96,7 +96,12 @@ $ http-server -p 4000 _site
     - [Fonts and text-drawing](#fonts-and-text-drawing)
     - [Console](#console)
     - [Extension: Line and triangle drawing](#extension-line-and-triangle-drawing)
+  - [Interrupts](#interrupts)
+- [Raspberry Pi Tips](#raspberry-pi-tips)
 - [ARM Tips](#arm-tips)
+  - [Disassemble object file](#disassemble-object-file)
+  - [Disassemble binary file](#disassemble-binary-file)
+  - [Disassemble one single instruction](#disassemble-one-single-instruction)
 - [GCC Tips](#gcc-tips)
   - [`-mpoke-function-name`](#-mpoke-function-name)
   - [Inline Assembly](#inline-assembly)
@@ -1439,13 +1444,82 @@ Now we can use our two methods to draw a beautiful hexagram:
 
 ![](./assets/hexagram.jpeg)
 
+### Interrupts
+
+Interrupts cause processor to pause what it’s doing and instead
+execute interrupt code, return to original code when done.
+
+Two types of events:
+
+- External events (peripherals, timer)
+- Internal events (bad memory access, software trigger)
+
+Interrupts are essential and powerful, but getting them
+right requires using everything we've learned: Architecture, assembly, linking, memory, C, peripherals, …
+
+NOTE: In `code/button-blocking` and `code/button-interrupt`, we can see that it didn't configure pull state for the button. That's because GPIO pins all have default pull state applied on power-on.
+
+For GPIO pin 21, the default pull state is pull-up. So we the other side of the button should be connected to a 3.3v power pin, like pin 1.
+
+Interrupt mechanics is somewhat analogous to function call:
+
+- Suspend currently executing code, save state
+- Jump to handler code, process interrupt
+- When finished, restore state and resume
+
+Hardware support for interrupts:
+
+- Processor executing in a particular "mode"
+  - `supervisor`, `interrupt`, `user`, `abort`, ..
+  - Reset starts in `supervisor` mode (that's us!)
+  - Processor switches mode in response to interrupt
+- `CPSR` register tracks current mode, processor state
+  - Special instructions copy val to regular register to read/write
+- Banked registers
+  - unique sp and lr per-mode (sometimes others, too)
+- Interrupt vector
+  - fixed location in memory jumped to on interrupt
+
+ARM processor modes:
+
+- `User`: unprivileged
+- `IRQ`: interrupt
+- `FIQ`: fast interrupt
+- `Supervisor`: privileged, entered on reset (this is us)
+- `Abort`: memory access violation
+- `Undefined`: undefined instruction
+- `System`: privileged mode that shares user regs
+
+ARM interrupt table has just one instruction per interrupt type. Use that instruction to **vector** to code elsewhere.
+
+When an external event triggers a hardware interrupt, processor responses:
+
+- Complete current instruction
+- Change processor mode, save return address (PC+8) into LR of new mode, save CPSR into SPSR (Tricky! Needs to happen "simultaneously"…)
+- Further interrupts disabled until exit this mode
+- Force pc address 0x18 (index 6 in vector table, IRQ)
+- Software takes over
+
+## Raspberry Pi Tips
+
+NOTE: These are all for *raspberry pi A+ v1.1*.
+
+- On Raspberry Pi, all GPIO banks are supplied from 3.3V. **Connection of a GPIO to a voltage higher than 3.3V will likely destroy the GPIO block within the SoC**.
+- All GPIO pins revert to general-purpose inputs on power-on reset. The default pull states are also applied.
+
 ## ARM Tips
 
-Disassemble object file: `arm-none-eabi-objdump -D input.o`.
+### Disassemble object file
 
-Disassemble binary file: `arm-none-eabi-objdump -b binary -D -marm input.bin`.
+`arm-none-eabi-objdump -D input.o`.
 
-Disassemble one single instruction, e.g. `0xe3a0d302`
+### Disassemble binary file
+
+`arm-none-eabi-objdump -b binary -D -marm input.bin`.
+
+### Disassemble one single instruction
+
+e.g. `0xe3a0d302`
 
 ```bash
 $ perl -e 'print pack "H*", "e3a0d302"' > a.out && arm-none-eabi-objdump -D -b binary -marm -EB
