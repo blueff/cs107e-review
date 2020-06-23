@@ -104,6 +104,8 @@ $ http-server -p 4000 _site
     - [Write an interrupt handler](#write-an-interrupt-handler)
     - [Use a ring buffer queue](#use-a-ring-buffer-queue)
     - [Need for speed](#need-for-speed)
+  - [Assignment 7: System Monitor with Interrupts](#assignment-7-system-monitor-with-interrupts)
+    - [Prepare Starter Files](#prepare-starter-files-3)
 - [Raspberry Pi Tips](#raspberry-pi-tips)
 - [ARM Tips](#arm-tips)
   - [Disassemble object file](#disassemble-object-file)
@@ -852,7 +854,7 @@ $ arm-none-eabi-ar -xv libpi.a gpio.o timer.o uart.o strings.o
 
 `printf.h`, `printf_internal.h`, `printf.c`, `cstart.c` and `start.s` are copied from assignment 3.
 
-`Makefile` is handwritten from scratch.
+`Makefile` is written from scratch.
 
 Now we are ready to tackle the challenges 🥊.
 
@@ -1703,6 +1705,16 @@ Maybe some bulk storage operation????
 2c8: bne 2c0 <redraw6+0x24>
 ...
 ```
+
+### Assignment 7: System Monitor with Interrupts
+
+#### Prepare Starter Files
+
+Copy `start.s`, `cstart.c` and `memmap` from previous lab.
+
+Copy `timer.c`, `gpio.c`, `strings.c`, `printf.c`, `printf_internal.h`, `malloc.c`, `backtrace.c`, `keyboard.c`, `shell.c`, `fb.c`, `gl.c`, and `console.c` from previous labs.
+
+`tests/test_keyboard_interrupts.c` and `Makefile` are written from scratch.
 
 ## Raspberry Pi Tips
 
