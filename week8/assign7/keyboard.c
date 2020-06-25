@@ -3,8 +3,39 @@
 #include <keyboard.h>
 #include <ps2.h>
 #include <timer.h>
+#include <uart.h>
+#include <interrupts.h>
+#include <ringbuffer.h>
 
 static unsigned int CLK, DATA;
+static rb_t *rb;
+static int enable_interrupts = 0;
+
+static bool
+clock_edge(unsigned int pc)
+{
+  static int n;
+  static char scancode;
+
+  if(gpio_check_and_clear_event(CLK)) {
+    int bit = gpio_read(DATA);
+    n++;
+
+    if(n >= 2 && n <= 9) {
+      scancode |= bit << (n - 2);
+    }
+
+    if(n == 11) {
+      rb_enqueue(rb, scancode);
+      scancode = 0;
+      n = 0;
+    }
+
+    return true;
+  }
+
+  return false;
+}
 
 static int
 set_bit_count(int value)
@@ -60,6 +91,13 @@ read_bit(void)
 unsigned char
 keyboard_read_scancode(void)
 {
+  if(enable_interrupts) {
+    int result;
+    while(!rb_dequeue(rb, &result)) {}
+
+    return (char)result;
+  }
+
   unsigned char result = 0;
 
   while(1) {
@@ -106,6 +144,7 @@ keyboard_read_sequence(void)
   key_action_t action;
 
   unsigned char keycode = keyboard_read_scancode();
+
   if(keycode == PS2_CODE_EXTENDED) {
     keycode = keyboard_read_scancode();
   }
@@ -252,4 +291,13 @@ keyboard_read_next(void)
   }
 
   return result;
+}
+
+void
+keyboard_use_interrupts(void)
+{
+  gpio_enable_event_detection(CLK, GPIO_DETECT_FALLING_EDGE);
+  interrupts_attach_handler(clock_edge, INTERRUPTS_GPIO3);
+  rb = rb_new();
+  enable_interrupts = 1;
 }

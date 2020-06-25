@@ -5,11 +5,17 @@ MY_MODULES = timer.o gpio.o strings.o printf.o malloc.o backtrace.o keyboard.o s
 
 .PRECIOUS: %.o
 
-test.bin := tests/test_keyboard_interrupts.bin
+test.bin = tests/test_keyboard_interrupts.bin
+app.bin = apps/console_shell.bin
+
+app: $(app.bin)
+
+install: $(app.bin)
+	rpi-install.py -p $<
 
 test: $(test.bin)
 
-install: $(test.bin)
+test.install: $(test.bin)
 	rpi-install.py -p $<
 
 %.bin: %.elf
