@@ -106,6 +106,9 @@ $ http-server -p 4000 _site
     - [Need for speed](#need-for-speed)
   - [Assignment 7: System Monitor with Interrupts](#assignment-7-system-monitor-with-interrupts)
     - [Prepare Starter Files](#prepare-starter-files-3)
+    - [Basic Part](#basic-part)
+    - [Need for speed?](#need-for-speed-1)
+    - [Extension: Profiler](#extension-profiler)
 - [Raspberry Pi Tips](#raspberry-pi-tips)
 - [ARM Tips](#arm-tips)
   - [Disassemble object file](#disassemble-object-file)
@@ -1715,6 +1718,44 @@ Copy `start.s`, `cstart.c` and `memmap` from previous lab.
 Copy `timer.c`, `gpio.c`, `strings.c`, `printf.c`, `printf_internal.h`, `malloc.c`, `backtrace.c`, `keyboard.c`, `shell.c`, `fb.c`, `gl.c`, and `console.c` from previous labs.
 
 `tests/test_keyboard_interrupts.c` and `Makefile` are written from scratch.
+
+#### Basic Part
+
+Based on what we have learned, implementing the interrupt-driven keyboard driver is fairly easy.
+
+- Init interrupts
+- Enable gpio event detection
+- Attach interrupt handler
+- Use ring buffer to communicate between normal code and interrupt code
+- Global enable interrupts
+
+#### Need for speed?
+
+Previously I implemented the `console` module with double buffering [console_doublebuffer.c](./week8/assign7/console_doublebuffer.c). Whevever the console receives a character, it will update the inner state, and then we draw the whole screen based on the inner state.
+
+Although the model is very straight forward and easy understanding, we can see the deficiency: it needs to redraw the whole screen for every character.
+
+So in this section, I reimplemented it using single buffer. The console is like a state machine, it does things based on received characters.
+
+- normal character: draw character, move the cursor, draw the cursor
+- new line `\n`: move curosr to the next line, handle scrolling
+- backspace `\b`: move cursor to left
+- carriage return `\r`: move cursor to the first column of the row
+- formfeed `\f`: clear the whole screen and draw cursor at (0, 0)
+- ...
+
+And we can define as many special characters as we want, as long as we write code in console to handle them.
+
+This refactoring gives a big performance boost, now the console feels very sleek.
+
+There are some other methods we can use to improve performance:
+
+- Cache `font_get_char` for reuse.
+- Adjust `y_offset` of frame buffer to implement scroll down
+
+Check the final code [console.c](./week8/assign7/console.c).
+
+#### Extension: Profiler
 
 ## Raspberry Pi Tips
 

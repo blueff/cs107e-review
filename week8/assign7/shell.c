@@ -340,6 +340,12 @@ shell_readline(char buf[], size_t bufsize)
       continue;
     }
 
+    // ctrl-l
+    if(next == 0x0c) {
+      shell_printf("\f[%d] Pi> ", command_no);
+      continue;
+    }
+
     // ctrl-a
     if(next == 0x01) {
       move_cursor_left(cursor);

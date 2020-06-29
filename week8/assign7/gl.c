@@ -2,6 +2,7 @@
 #include <font.h>
 #include <malloc.h>
 #include <math.h>
+#include <assert.h>
 
 #define Minimum(a, b) ((a) < (b) ? (a) : (b))
 #define Minimum3(a, b, c) ((a) < (b) ? Minimum(a, c) : Minimum(b, c))
@@ -9,8 +10,13 @@
 #define Maximum3(a, b, c) ((a) > (b) ? Maximum(a, c) : Maximum(b, c))
 #define Abs(a) ((a) < 0 ? -(a) : (a))
 
-static void *font_buffer;
 static gl_mode_t gl_mode;
+
+typedef struct {
+  void *buf;
+  int not_exist;
+} char_data;
+static char_data char_data_cache[128];
 
 void
 gl_init(unsigned int width, unsigned int height, gl_mode_t mode)
@@ -103,6 +109,30 @@ gl_clear(color_t c)
   gl_draw_rect(0, 0, gl_get_width(), gl_get_height(), c);
 }
 
+// Return nil if no font data found
+static void *
+get_char(char c)
+{
+  assert(c >= 0 && c < 0xff);
+  char_data *d = char_data_cache + c;
+
+  if(d->not_exist)
+    return NULL;
+
+  if(d->buf)
+    return d->buf;
+
+  int length = font_get_width() * font_get_height();
+  d->buf = malloc(length);
+
+  if(!font_get_char(c, d->buf, length)) {
+    d->not_exist = 1;
+    return NULL;
+  }
+
+  return d->buf;
+}
+
 void
 gl_draw_char(int start_x, int start_y, int ch, color_t c)
 {
@@ -112,11 +142,9 @@ gl_draw_char(int start_x, int start_y, int ch, color_t c)
   int buffer_width = gl_get_width();
   int buffer_height = gl_get_height();
 
-  if(font_buffer == NULL) {
-    font_buffer = malloc(font_width * font_height);
-  }
+  void *font_buffer = get_char(ch);
 
-  if(!font_get_char(ch, font_buffer, font_width * font_height))
+  if(font_buffer == NULL)
     return;
 
   // Cast to a 2D array

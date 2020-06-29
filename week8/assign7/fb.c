@@ -1,4 +1,4 @@
-#include <fb.h>
+#include "fb.h"
 #include <mailbox.h>
 
 typedef struct {
@@ -27,12 +27,21 @@ fb_init(unsigned int width,
   fb.height = height;
   fb_mode = mode;
 
-  if(mode == FB_SINGLEBUFFER) {
-    fb.virtual_height = height;
-    fb.virtual_width = width;
-  } else {
-    fb.virtual_height = height * 2;
-    fb.virtual_width = width;
+  switch(mode) {
+    case FB_SINGLEBUFFER: {
+      fb.virtual_height = height;
+      fb.virtual_width = width;
+    } break;
+
+    case FB_DOUBLEBUFFER: {
+      fb.virtual_height = height * 2;
+      fb.virtual_width = width;
+    } break;
+
+    case FB_FORCONSOLE: {
+      fb.virtual_height = height * 2;
+      fb.virtual_width = width;
+    } break;
   }
 
   fb.bit_depth = depth_in_bytes * 8;
@@ -70,18 +79,37 @@ fb_get_pitch(void)
 void *
 fb_get_draw_buffer(void)
 {
-  if(fb_mode == FB_SINGLEBUFFER) {
-    return fb.framebuffer;
+  switch(fb_mode) {
+    case FB_SINGLEBUFFER: {
+      return fb.framebuffer;
+    } break;
+
+    case FB_DOUBLEBUFFER: {
+      unsigned int length = fb.height * fb.pitch;
+      return fb.y_offset == 0 ? (char *)fb.framebuffer + length
+                              : fb.framebuffer;
+    } break;
+
+    case FB_FORCONSOLE: {
+      return (char *)fb.framebuffer + fb.y_offset * fb.pitch;
+    } break;
   }
 
-  unsigned int length = fb.height * fb.pitch;
-  return fb.y_offset == 0 ? (char *)fb.framebuffer + length : fb.framebuffer;
+  return 0;
 }
 
 void
 fb_swap_buffer(void)
 {
   fb.y_offset = fb.y_offset == 0 ? fb.height : 0;
+  mailbox_write(MAILBOX_FRAMEBUFFER, (unsigned)&fb);
+  mailbox_read(MAILBOX_FRAMEBUFFER);
+}
+
+void
+fb_set_y_offset(int y_offset)
+{
+  fb.y_offset = y_offset;
   mailbox_write(MAILBOX_FRAMEBUFFER, (unsigned)&fb);
   mailbox_read(MAILBOX_FRAMEBUFFER);
 }

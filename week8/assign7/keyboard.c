@@ -259,18 +259,21 @@ keyboard_read_next(void)
       || event.key.ch == PS2_KEY_CTRL || event.key.ch == PS2_KEY_CAPS_LOCK)
       continue;
 
-    // Ctrl-a, Ctrl-e, Ctrl-u
+    // Ctrl-a, Ctrl-e, Ctrl-u, Ctrl-l
     // Only has control modifier
     if(event.modifiers == KEYBOARD_MOD_CTRL) {
       switch(event.key.ch) {
-      case 'a':
-        return 0x01;
+        case 'a':
+          return 0x01;
 
-      case 'e':
-        return 0x05;
+        case 'e':
+          return 0x05;
 
-      case 'u':
-        return 0x15;
+        case 'u':
+          return 0x15;
+
+        case 'l':
+          return 0x0c;
       }
     }
 

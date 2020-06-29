@@ -4,8 +4,8 @@
 #include <interrupts.h>
 #include <shell.h>
 
-#define NUM_ROWS 20
-#define NUM_COLS 40
+#define NUM_ROWS 40
+#define NUM_COLS 80
 
 void
 main(void)
