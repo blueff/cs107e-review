@@ -4,13 +4,11 @@
   </h1>
 </div>
 
-My study notes of the awesome course CS107E (Winter 2019).
+My study notes of the awesome course [CS107E](http://cs107e.github.io/) (Winter 2019).
 
-I have bundled all the material inside `_site` and `_resource` dirs because the course is keep going and keep chaning.
+Since the course is keeping going and keeping changing, the notes here may not correspond with the latest course material.
 
-If you want to follow along the notes, you should use the bundled version.
-
-Click to check [the latest course](http://cs107e.github.io/).
+To follow along the notes, you can use the bundled course version [winter 2019](https://cjting.me/cs107e/).
 
 ## Setup
 
@@ -18,8 +16,8 @@ Click to check [the latest course](http://cs107e.github.io/).
 $ git clone https://github.com/cj1128/cs107e-review
 $ cd cs107e-review
 $ source ./setup.sh
-$ # Use something to serve _site. Here I use http-server.
-$ http-server -p 4000 _site
+$ # `doc` contains all materials of CS107E winter 2019
+$ http-server -p 4000 doc
 # Open browser at localhost:4000 and enjoy!
 ```
 
