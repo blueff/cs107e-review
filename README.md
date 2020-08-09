@@ -112,6 +112,7 @@ $ http-server -p 4000 doc
   - [Disassemble object file](#disassemble-object-file)
   - [Disassemble binary file](#disassemble-binary-file)
   - [Disassemble one single instruction](#disassemble-one-single-instruction)
+- [???](#)
 - [GCC Tips](#gcc-tips)
   - [`-mpoke-function-name`](#-mpoke-function-name)
   - [Inline Assembly](#inline-assembly)
@@ -473,9 +474,9 @@ $ arm-none-eabi-gdb simple.elf
 
 **Check-in question**
 
-**Q:** Explain how the lr register is used as part of making a function call. Which instruction writes to the lr register? Which instruction reads from it? What commands could you use in gdb to observe the changes to the lr register during execution of a function call?
+**Q:** Explain how the `lr` register is used as part of making a function call. Which instruction writes to the `lr` register? Which instruction reads from it? What commands could you use in gdb to observe the changes to the `lr` register during execution of a function call?
 
-**A:** When we call a function, the address of the next instruction after the function is written to lr. After calling, set pc to the value lr has recorded to get us back. `bx` branch and exchange writes to the lr register. `bl` branch and link reads from the lr register. Use `display/x $lr` to show the content the lr register after every step.
+**A:** When we call a function, the address of the next instruction after the function is written to `lr`. After calling, set pc to the value lr has recorded to get us back. `bx` (branch and exchange) writes to the `lr` register. `bl` (branch and link) reads from the `lr` register. Use `display/x $lr` to show the content the `lr` register after every step.
 
 **Q:** Why is it necessary to plug in both TX and RX for loopback mode to work?
 
@@ -723,7 +724,7 @@ The bootloader will give up transmission when it didn't receive any data in half
 
 `pc` is the fourth register. We can't just restore pc to what it held before, because that won't make us out of the current function. We need to move value of lr to pc.
 
-??? I don't know why we have to store value of pc. Maybe because its value is also the entry point of the current function, so we can use it to do someting?
+??? I don't know why we have to store the value of `pc`. Maybe because `pc - 12` is also the entry point of the current function, so we can use it to do someting?
 
 **Q:** What instruction in the prolog anchors fp to point to the current frame?
 
@@ -867,7 +868,7 @@ Now let's implement this essential feature for ourself!
 
 This task is not hard but time-consuming. We need a lot of patience to debug what things go wrong.
 
-[stack_abs.html](./_site/labs/lab4/images/stack_abs.html) is very helpful.
+[stack_abs.html](./docs/labs/lab4/images/stack_abs.html) is very helpful.
 
 Check the final code [backtrace.c](./week5/assign4/backtrace.c).
 
@@ -1729,7 +1730,7 @@ Based on what we have learned, implementing the interrupt-driven keyboard driver
 
 #### Need for speed?
 
-Previously I implemented the `console` module with double buffering [console_doublebuffer.c](./week8/assign7/console_doublebuffer.c). Whevever the console receives a character, it will update the inner state, and then we draw the whole screen based on the inner state.
+Previously I implemented the `console` module with double buffering [console_doublebuffer.c](./week8/assign7/console_doublebuffer.c). Whenever the console receives a character, it will update the inner state, and then redraw the whole screen based on the inner state.
 
 Although the model is very straight forward and easy understanding, we can see the deficiency: it needs to redraw the whole screen for every character.
 
@@ -1746,7 +1747,7 @@ And we can define as many special characters as we want, as long as we write cod
 
 This refactoring gives a big performance boost, now the console feels very sleek.
 
-There are some other methods we can use to improve performance:
+There are some other methods we used to improve performance:
 
 - Cache `font_get_char` for reuse.
 - Adjust `y_offset` of frame buffer to implement scroll down
@@ -1754,6 +1755,20 @@ There are some other methods we can use to improve performance:
 Check the final code [console.c](./week8/assign7/console.c).
 
 #### Extension: Profiler
+
+> One extension is to add profiling support to your shell. A *profiler* is a developer tool that tracks where in the code a program is spending its execution time.
+
+There is a simple and clever way to do this using a **sampling strategy**.
+
+- Create a big array `arr`, each item corresponds to an instruction inside the text section (we need to mark the end of the text section in our `memmap` file).
+- Enable the ARM timer to interrupt with a small interval, 1ms should suffice.
+- Inside the interrupt handler, the first parameter `pc` is the address of the next instruction of the interrupted one.
+- Increment `arr[(pc - 4 - 0x8000)/4]` (`0x8000` is the start address of text section).
+- Every time we are about to display results, we create a temporary record array. Each record has the address and the value. Sort records with quick sort and then display the top 10.
+
+Now we have a profiler! We can clearly see that most of the time is spent reading the keyboard.
+
+![](./assets/profiler.jpeg)
 
 ## Raspberry Pi Tips
 
@@ -1786,6 +1801,11 @@ Disassembly of section .data:
 00000000 <.data>:
    0:   e3a0d302        mov     sp, #134217728  ; 0x8000000
 ```
+
+## ???
+
+- Why APCS frame stores `pc` register? What is it used for?
+- When interruption happens on `bl` instruction, what value does CPU put to `lr` register?
 
 ## GCC Tips
 

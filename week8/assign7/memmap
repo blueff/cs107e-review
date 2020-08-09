@@ -1,6 +1,8 @@
 SECTIONS
 {
     .text 0x8000 :  { start.o(.text*)  *(.text*) }
+    __text_end__ = .;
+
     .data :         { *(.data*) }
     .rodata :       { *(.rodata*) }
 

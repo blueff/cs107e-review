@@ -124,8 +124,8 @@ draw_char(v2 pos, char c, int with_bg)
 static void
 scroll_down(void)
 {
-  // `content_index` points to the last line of the console
-  // Clear it to zero
+  // Current `content_index` points to the last line of the scrolled-down
+  // console Clear it to zero
   memset((char *)_console.content + _console.content_index * _console.dim.width,
     0,
     _console.dim.width);
@@ -148,11 +148,11 @@ scroll_down(void)
   }
 
   if(_console.y_offset == _console.dim.height) {
-    _console.y_offset = 0;
-    fb_set_y_offset(0);
     unsigned char *buffer = (unsigned char *)fb_get_draw_buffer();
     int length = pitch * fb_get_height();
-    memcpy(buffer, buffer + length, length);
+    memcpy(buffer - length, buffer, length);
+    _console.y_offset = 0;
+    fb_set_y_offset(0);
   }
 }
 

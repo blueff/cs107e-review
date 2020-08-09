@@ -5,6 +5,7 @@
 #include <strings.h>
 #include <uart.h>
 #include <pi.h>
+#include "gprof.h"
 
 int cmd_history(int argc, const char *argv[]);
 
@@ -26,6 +27,10 @@ static command_t commands[] = {
     "<address> <value> stores `value` into the memory at `address`",
     cmd_poke },
   { "history", "show latest 10 commands with its number", cmd_history },
+  { "profile",
+    "[on | off | status | results] start, stop, print status and show results "
+    "of the profiler",
+    cmd_profile },
 };
 
 // size includes null byte
@@ -117,8 +122,9 @@ cmd_history(int argc, const char *argv[])
 int
 cmd_echo(int argc, const char *argv[])
 {
-  for(int i = 1; i < argc; i++)
+  for(int i = 1; i < argc; i++) {
     shell_printf("%s ", argv[i]);
+  }
   shell_printf("\n");
   return 0;
 }
@@ -149,7 +155,7 @@ cmd_help(int argc, const char *argv[])
 int
 cmd_reboot(int argc, const char *argv[])
 {
-  shell_printf("%c", EOT);
+  uart_putchar(EOT);
   pi_reboot();
   return 0;
 }
@@ -209,6 +215,32 @@ cmd_poke(int argc, const char *argv[])
   }
 
   *(unsigned int *)addr = value;
+
+  return 0;
+}
+
+int
+cmd_profile(int argc, const char *argv[])
+{
+  const char *arg = "";
+  if(argc == 2) {
+    arg = argv[1];
+  }
+
+  if(strcmp(arg, "on") == 0) {
+    gprof_on();
+    shell_printf("profiler is on\n");
+  } else if(strcmp(arg, "off") == 0) {
+    gprof_off();
+    shell_printf("profiler is off\n");
+  } else if(strcmp(arg, "status") == 0) {
+    shell_printf("profiler is %s\n", gprof_is_active() ? "on" : "off");
+  } else if(strcmp(arg, "results") == 0) {
+    gprof_dump(shell_printf);
+  } else {
+    shell_printf("unknown command, profile [on | off | status | results]\n");
+    return 1;
+  }
 
   return 0;
 }
