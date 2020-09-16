@@ -4,11 +4,11 @@
   </h1>
 </div>
 
-My study notes of the awesome course [CS107E](http://cs107e.github.io/) (Winter 2019).
+My study notes of the awesome [CS107E](http://cs107e.github.io/) (Winter 2020) course.
 
 Since the course is keeping going and keeping changing, the notes here may not correspond with the latest course material.
 
-To follow along the notes, you can use the bundled course version [winter 2019](http://cs107e.cjting.me) (based on `1fc22e4` of cs107e repo).
+To follow along the notes, you can use the bundled course version [winter 2020](http://cs107e.cjting.me) (based on `1fc22e4` of cs107e repo).
 
 ## Setup
 
@@ -16,7 +16,7 @@ To follow along the notes, you can use the bundled course version [winter 2019](
 $ git clone https://github.com/cj1128/cs107e-review
 $ cd cs107e-review
 $ source ./setup.sh
-$ # `doc` contains all materials of CS107E winter 2019
+$ # `doc` contains all materials of CS107E winter 2020
 $ http-server -p 4000 doc
 # Open browser at localhost:4000 and enjoy!
 ```
@@ -476,7 +476,7 @@ $ arm-none-eabi-gdb simple.elf
 
 **Q:** Explain how the `lr` register is used as part of making a function call. Which instruction writes to the `lr` register? Which instruction reads from it? What commands could you use in gdb to observe the changes to the `lr` register during execution of a function call?
 
-**A:** When we call a function, the address of the next instruction after the function is written to `lr`. After calling, set pc to the value lr has recorded to get us back. `bx` (branch and exchange) writes to the `lr` register. `bl` (branch and link) reads from the `lr` register. Use `display/x $lr` to show the content the `lr` register after every step.
+**A:** When we call a function, the address of the next instruction after the function is written to `lr`. After calling, set `pc` to the value `lr` has recorded to get us back. `bl` (branch and link) writes to the `lr` register. `bx` (branch and exchange) reads from the `lr` register. Use `display/x $lr` to show the content of the `lr` register after every step.
 
 **Q:** Why is it necessary to plug in both TX and RX for loopback mode to work?
 
