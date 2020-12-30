@@ -13,7 +13,7 @@ To follow along the notes, you can use the bundled course version [winter 2020](
 ## Setup
 
 ```bash
-$ git clone https://github.com/cj1128/cs107e-review
+$ git clone https://github.com/blueff/cs107e-review
 $ cd cs107e-review
 $ source ./setup.sh
 $ # `doc` contains all materials of CS107E winter 2020
